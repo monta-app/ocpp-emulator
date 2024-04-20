@@ -37,7 +37,7 @@ import kotlin.system.exitProcess
 class AppUpdateService {
 
     companion object {
-        private const val BASE_URL = "https://api.github.com/repos/monta-app/tool-ocpp-emulator"
+        private const val BASE_URL = "https://api.github.com/repos/monta-app/ocpp-emulator"
     }
 
     private val logger = KotlinLogging.logger {}
