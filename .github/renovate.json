@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>monta-app/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "groupName": "upgrade all non-major dependencies",
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "groupSlug": "gradle",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
+    }
+  ]
+}

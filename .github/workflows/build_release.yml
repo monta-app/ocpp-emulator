@@ -1,0 +1,83 @@
+name: Build release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  version:
+    name: Extract Version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Get Version
+        id: get_version
+        run: echo "version=$(echo ${{ github.ref_name }} | cut -c 2-)" >> $GITHUB_OUTPUT
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+  build:
+    name: Build
+    needs: version
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: mac
+            folder: dmg
+            artifact: OcppEmulator-
+            artifact_ext: .dmg
+          - os: ubuntu-latest
+            target: ubuntu
+            folder: deb
+            artifact: ocppemulator_
+            artifact_ext: -1_amd64.deb
+          - os: windows-latest
+            target: windows
+            folder: exe
+            artifact: OcppEmulator-
+            artifact_ext: .exe
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v2
+      - name: Build
+        env:
+          GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
+          GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}
+        run: ./gradlew --no-daemon v16:packageDistributionForCurrentOS
+      - name: Upload binary file to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: v16/build/compose/binaries/main/${{ matrix.folder }}/${{ matrix.artifact }}${{ needs.version.outputs.version }}${{ matrix.artifact_ext }}
+          asset_name: OcppEmulator-${{ needs.version.outputs.version }}.${{ matrix.folder }}
+          tag: ${{ github.ref }}
+          overwrite: true
+  create-change-log:
+    needs: build
+    name: Create and publish change log
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run changelog cli action
+        uses: monta-app/changelog-cli-action@main
+        with:
+          service-name: "OCPP Emulator"
+          github-release: true
+          github-update: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          jira-app-name: "montaapp"
+          version-mode: "SemVer"
+          output: "slack"
+          slack-token: ${{ secrets.SLACK_APP_TOKEN }}
+          slack-channels: "#releases,#ocpp-emulator"

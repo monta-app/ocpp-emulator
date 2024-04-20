@@ -1,0 +1,8 @@
+# This file is used to index the docs in the ./docs directory
+site_name: 'service documentation'
+
+nav:
+  - Home: index.md
+
+plugins:
+  - techdocs-core

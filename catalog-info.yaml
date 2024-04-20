@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  # Name of the project 
+  name: ocpp-emulator
+  description: OCPP Emulator written in Kotlin Multiplatform
+  # Specifies the directory of the docs
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+
+# The spec defines who becomes the owner of the system in backstage
+spec:
+  type: cli
+  # See lifecycle common values: https://backstage.io/docs/features/software-catalog/descriptor-format/#speclifecycle-required
+  lifecycle: production
+  # Name of the squad responsible for the project, e.g. sre or cpi
+  owner: OCPP
+  # Name of the greater system, e.g. "solar" is a part of the home system
+  system: CPI
