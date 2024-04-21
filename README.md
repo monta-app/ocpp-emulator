@@ -2,6 +2,8 @@
   <img src="./doc/icons/icon.png" alt="Logo" width="256">
 </p>
 
+<img src="https://img.shields.io/github/v/release/monta-app/ocpp-emulator"/>
+
 # OCPP Charge Point Emulator
 
 This project's goal is to allow users to emulate all of the features of OCPP (both 1.6 & 2.0.1) in order to allow
