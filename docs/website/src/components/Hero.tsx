@@ -2,8 +2,9 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import DownloadBar from "../components/DownloadBar.tsx";
-import MontaLogo from "../components/MontaLogo.tsx";
+import Button from "@mui/material/Button";
+import {GitHub} from "@mui/icons-material";
+import DownloadBar from "@/components/DownloadBar.tsx";
 
 export default function Hero() {
     return <Box>
@@ -12,7 +13,7 @@ export default function Hero() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                pt: {xs: 7, sm: 7},
+                pt: {xs: 3, sm: 3},
                 pb: {xs: 8, sm: 12},
             }}>
             <Stack spacing={2} useFlexGap sx={{width: {xs: '100%', sm: '70%'}}}>
@@ -21,7 +22,7 @@ export default function Hero() {
                     flexDirection: {xs: 'column', md: 'row'},
                     alignSelf: 'center'
                 }}>
-                    <MontaLogo/>
+                    <img src='/img/icon.webp' width='200'/>
                 </Box>
                 <Typography
                     variant="h4"
@@ -41,23 +42,25 @@ export default function Hero() {
                     Bootstrap your development workflow or explore our products using our open source OCPP Emulator,
                     it's totally free and easy to use.
                 </Typography>
-                <Stack
-                    direction={{xs: 'column', sm: 'row'}}
-                    alignSelf="center"
-                    spacing={1}
-                    useFlexGap
-                    sx={{pt: 2, width: {xs: '100%', sm: 'auto'}}}>
+                <Stack spacing={2} sx={{mt: 2, alignSelf: 'center'}} textAlign={'center'}>
+                    <Typography variant={"h5"} sx={{fontWeight: 'bold'}}>Download</Typography>
                     <DownloadBar/>
+                    <Typography variant={"h5"} sx={{fontWeight: 'bold'}}>Or</Typography>
+                    <Button href="https://github.com/monta-app/ocpp-emulator"
+                            variant="contained"
+                            startIcon={<GitHub/>}>
+                        View on Github
+                    </Button>
                 </Stack>
             </Stack>
 
             <Box sx={{
-                mt: {xs: 8, sm: 10},
+                mt: {xs: 8, sm: 4},
                 alignSelf: 'center',
                 height: {xs: 200, sm: 700},
                 width: '100%'
             }}>
-                <img src={'/hero.png'}
+                <img src={'/img/hero.webp'}
                      width='100%'/>
             </Box>
         </Container>

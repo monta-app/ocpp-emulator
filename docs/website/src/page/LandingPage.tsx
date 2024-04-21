@@ -1,7 +1,7 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
-import Hero from '../components/Hero';
-import Footer from '../components/Footer';
+import Hero from '@/components/Hero';
+import Footer from '@/components/Footer';
 
 export default function LandingPage() {
     const defaultTheme = createTheme({
@@ -33,19 +33,12 @@ export default function LandingPage() {
             }
         },
         components: {
-            MuiCssBaseline: {
-                styleOverrides: {
-                    body: {
-                        height: '100vh',
-                        margin: 0
-                    }
-                }
-            },
             MuiButton: {
                 styleOverrides: {
                     root: {
                         background: 'linear-gradient(90deg, rgba(255,49,98,1) 0%, rgba(255,82,82,1) 100%)',
                         borderRadius: 'var(--radius-r200, 8px)',
+                        textTransform: 'none',
                     }
                 },
             },
