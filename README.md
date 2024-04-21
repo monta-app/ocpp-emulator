@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./doc/icons/icon.png" alt="Logo" width="256">
+  <img src="./docs/icons/icon.png" alt="Logo" width="256">
 </p>
 
 <img src="https://img.shields.io/github/v/release/monta-app/ocpp-emulator"/>
