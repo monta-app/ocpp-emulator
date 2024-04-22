@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.monta.ocpp.emulator.v16"
-version = "2.3.0"
+version = "2.3.1"
 
 kotlin {
     jvmToolchain(17)
