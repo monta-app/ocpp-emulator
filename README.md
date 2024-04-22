@@ -23,12 +23,6 @@ far
 
 - Currently under development, the OCPP 2.0.1 version is not yet fully implemented, but we're working on it.
 
-### Prerequisites
-
-- This project uses our [OCPP Library](https://github.com/monta-app/library-ocpp), make sure to set that up correctly
-- Java 21 must be installed
-- That's it!
-
 ### How to run
 
 If you're using Intellij IDEA, you can just run one of the two configurations that are saved in the `.run` folder
