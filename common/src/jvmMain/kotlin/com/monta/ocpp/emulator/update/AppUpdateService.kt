@@ -90,7 +90,7 @@ class AppUpdateService {
     }
 
     private suspend fun getUpdateFromGitHub(): GithubRelease? {
-        if (System.getenv("EMULATOR_IGNOREUPDATES").toBoolean()) {
+        if (System.getenv("EMULATOR_IGNORE_UPDATES").toBoolean()) {
             logger.debug("ignoring updates based on env var")
             return null
         }
