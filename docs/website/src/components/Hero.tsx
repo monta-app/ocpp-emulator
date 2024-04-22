@@ -39,8 +39,8 @@ export default function Hero() {
                 <Typography
                     textAlign="center"
                     sx={{alignSelf: 'center', width: {sm: '100%', md: '80%'}}}>
-                    Bootstrap your development workflow or explore our products using our open source OCPP Emulator,
-                    it's totally free and easy to use.
+                    Bootstrap your development workflow or explore our products using our open source OCPP Emulator; its
+                    totally free and easy to use.
                 </Typography>
                 <Stack spacing={2} sx={{mt: 2, alignSelf: 'center'}} textAlign={'center'}>
                     <Typography variant={"h5"} sx={{fontWeight: 'bold'}}>Download</Typography>
