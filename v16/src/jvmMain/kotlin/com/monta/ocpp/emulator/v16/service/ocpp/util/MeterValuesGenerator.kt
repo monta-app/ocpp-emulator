@@ -1,6 +1,5 @@
 package com.monta.ocpp.emulator.v16.service.ocpp.util
 
-import com.monta.library.core.util.DateUtil
 import com.monta.library.ocpp.v16.Location
 import com.monta.library.ocpp.v16.SampledValue
 import com.monta.library.ocpp.v16.ValueFormat
@@ -58,7 +57,7 @@ object MeterValuesGenerator {
         if (meterValuesSampledData.contains("SoC") && (startTime != null)) {
             sampledValues.add(
                 SampledValue(
-                    value = min(20 + (5 * Duration.between(startTime, DateUtil.getInstant()).toMinutes()), 100).toString(),
+                    value = min(20 + (5 * Duration.between(startTime, Instant.now()).toMinutes()), 100).toString(),
                     context = "Sample.Periodic",
                     format = ValueFormat.Raw.name,
                     measurand = "SoC",

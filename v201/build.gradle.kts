@@ -29,8 +29,9 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.material3)
 
-                implementation("com.monta.library:core:4.2.0")
-                implementation("com.monta.library:exposed:4.2.0")
+                // OCPP Libs
+                implementation(files("libs/core-0.8.7.jar"))
+                implementation(files("libs/v201-0.8.7.jar"))
 
                 // Coroutines
                 implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0"))
@@ -56,10 +57,6 @@ kotlin {
                 implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
                 implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-
-                // OCPP Library
-                implementation("com.monta.library.ocpp:core:0.8.7")
-                implementation("com.monta.library.ocpp:v201:0.8.7")
 
                 // Logging
                 implementation("ch.qos.logback:logback-classic:1.5.6")

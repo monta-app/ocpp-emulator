@@ -1,6 +1,6 @@
 package com.monta.ocpp.emulator.eichrecht
 
-import com.monta.library.serialization.MontaSerialization
+import com.monta.ocpp.emulator.common.util.MontaSerialization
 import org.bouncycastle.asn1.ASN1Integer
 import org.bouncycastle.asn1.DERSequenceGenerator
 import org.bouncycastle.crypto.CipherParameters
@@ -100,12 +100,18 @@ class EichrechtSignatureService(
         return "OCMF|$payload|${MontaSerialization.objectMapper.writeValueAsString(ocmfSignature)}"
     }
 
-    private fun sign(privateKeyParameters: CipherParameters, sdData: String): String {
+    private fun sign(
+        privateKeyParameters: CipherParameters,
+        sdData: String
+    ): String {
         val hashSHA256: ByteArray = hashSHA256(sdData.toByteArray(StandardCharsets.UTF_8))
         return HexFormat.of().formatHex(sign(privateKeyParameters, hashSHA256))
     }
 
-    private fun sign(privateKeyParameters: CipherParameters, payloadData: ByteArray): ByteArray {
+    private fun sign(
+        privateKeyParameters: CipherParameters,
+        payloadData: ByteArray
+    ): ByteArray {
         val signer = ECDSASigner()
         signer.init(true, privateKeyParameters)
 
@@ -144,7 +150,10 @@ class EichrechtSignatureService(
         }
     }
 
-    private fun toCanonicalS(s: BigInteger, ecSpec: ECNamedCurveParameterSpec): BigInteger {
+    private fun toCanonicalS(
+        s: BigInteger,
+        ecSpec: ECNamedCurveParameterSpec
+    ): BigInteger {
         return if (s <= ecSpec.n.shiftRight(1)) {
             s
         } else {

@@ -1,6 +1,6 @@
 package com.monta.ocpp.emulator.vehicle
 
-import com.monta.library.serialization.MontaSerialization
+import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.configuration.AppConfigService
 import com.monta.ocpp.emulator.vehicle.model.EnodeVehicle
 import com.monta.ocpp.emulator.vehicle.model.EnodeVehicleUpdate

@@ -1,13 +1,13 @@
 package com.monta.ocpp.emulator.v16.data.entity
 
-import com.monta.library.exposed.json
 import com.monta.library.ocpp.common.session.OcppSession
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.DataTransferRequest
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationStatus
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
-import com.monta.library.serialization.MontaSerialization
+import com.monta.ocpp.emulator.common.util.MontaSerialization
+import com.monta.ocpp.emulator.common.util.json
 import com.monta.ocpp.emulator.common.util.randomString
 import com.monta.ocpp.emulator.logger.Loggable
 import com.monta.ocpp.emulator.v16.data.model.ChargePointConfiguration

@@ -40,8 +40,6 @@ class ChargePointManager {
     ) {
         val confirmation = ocppClientV16.asCoreProfile(chargePoint.sessionInfo).bootNotification(
             request = BootNotificationRequest(
-                chargePointVendor = chargePoint.brand,
-                chargePointModel = chargePoint.model,
                 chargePointSerialNumber = chargePoint.serial,
                 firmwareVersion = chargePoint.firmware
             )

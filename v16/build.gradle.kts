@@ -27,8 +27,10 @@ kotlin {
                 implementation(project(":common"))
 
                 implementation(compose.desktop.currentOs)
-                implementation("com.monta.library:core:4.2.0")
-                implementation("com.monta.library:exposed:4.2.0")
+
+                // OCPP Libs
+                implementation(files("libs/core-0.8.7.jar"))
+                implementation(files("libs/v16-0.8.7.jar"))
 
                 // Coroutines
                 implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0"))
@@ -54,10 +56,6 @@ kotlin {
                 implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
                 implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-
-                // OCPP Library
-                implementation("com.monta.library.ocpp:core:0.8.7")
-                implementation("com.monta.library.ocpp:v16:0.8.7")
 
                 // QR Code Library
                 implementation("io.nayuki:qrcodegen:1.8.0")

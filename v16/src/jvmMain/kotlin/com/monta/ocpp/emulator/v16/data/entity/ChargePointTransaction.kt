@@ -1,9 +1,9 @@
 package com.monta.ocpp.emulator.v16.data.entity
 
-import com.monta.library.exposed.json
 import com.monta.library.ocpp.v16.core.Reason
 import com.monta.library.ocpp.v16.smartcharge.ChargingProfile
-import com.monta.library.serialization.MontaSerialization
+import com.monta.ocpp.emulator.common.util.MontaSerialization
+import com.monta.ocpp.emulator.common.util.json
 import com.monta.ocpp.emulator.logger.Loggable
 import com.monta.ocpp.emulator.v16.data.util.ChargingProfileCalculator
 import org.jetbrains.exposed.dao.LongEntity
@@ -31,7 +31,10 @@ object ChargePointTransaction : LongIdTable("charge_point_transaction") {
     var endTime = timestamp("end_time").nullable()
     var endReasonDescription = varchar("end_reason_description", 512).nullable()
     var endReason = enumerationByName("end_reason", 64, Reason::class).nullable()
-    var chargingProfile = json<ChargingProfile>("charging_profile", objectMapper = MontaSerialization.getDefaultMapper()).nullable()
+    var chargingProfile = json<ChargingProfile>(
+        name = "charging_profile",
+        objectMapper = MontaSerialization.getDefaultMapper()
+    ).nullable()
     var createdAt = timestamp("created_at").default(Instant.now())
 }
 
