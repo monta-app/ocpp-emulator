@@ -1,5 +1,7 @@
 output_path=icon.iconset
 
+mkdir $output_path
+
 # the convert command comes from imagemagick
 for size in 16 32 64 128 256 512; do
   half="$(($size / 2))"
@@ -8,3 +10,5 @@ for size in 16 32 64 128 256 512; do
 done
 
 iconutil -c icns $output_path
+
+rm -rf $output_path
