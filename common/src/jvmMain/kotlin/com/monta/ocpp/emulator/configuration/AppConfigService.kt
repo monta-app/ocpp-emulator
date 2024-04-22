@@ -8,11 +8,20 @@ class AppConfigService(
     private val appConfigRepository: AppConfigRepository
 ) {
 
+    fun getOrCreate(
+        key: String,
+        defaultValue: String
+    ): AppConfigDAO {
+        return transaction {
+            appConfigRepository.get(key) ?: appConfigRepository.create(key, defaultValue)
+        }
+    }
+
     fun getByKey(
         key: String
     ): String? {
         return transaction {
-            appConfigRepository.getByKey(key)
+            appConfigRepository.get(key)
         }?.value
     }
 

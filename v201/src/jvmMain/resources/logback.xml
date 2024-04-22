@@ -25,11 +25,24 @@
         </encoder>
     </appender>
 
+    <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
+        <options>
+            <environment>production</environment>
+            <release>${jpackage.app-version}</release>
+            <dsn>${SENTRY_DSN}</dsn>
+        </options>
+        <!-- Optionally change minimum Event level. Default for Events is ERROR -->
+        <minimumEventLevel>ERROR</minimumEventLevel>
+        <!-- Optionally change minimum Breadcrumbs level. Default for Breadcrumbs is INFO -->
+        <minimumBreadcrumbLevel>TRACE</minimumBreadcrumbLevel>
+    </appender>
+
     <logger name="com.monta" level="TRACE"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="SENTRY"/>
     </root>
 
 </configuration>

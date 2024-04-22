@@ -50,6 +50,11 @@ jobs:
           java-version: '17'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v2
+      - name: Replace and print SENTRY_DSN
+        run: |
+          find . -name logback.xml -exec sed -i 's/\${SENTRY_DSN}/${{ secrets.SENTRY_DSN }}/g' {} \;
+          echo "Modified logback.xml:"
+          find . -name logback.xml -exec cat {} \;
       - name: Build
         env:
           GHL_USERNAME: ${{ secrets.GHL_USERNAME }}

@@ -3,6 +3,7 @@ package com.monta.ocpp.emulator.v16
 import androidx.compose.ui.window.application
 import com.monta.ocpp.emulator.CommonKoinModule
 import com.monta.ocpp.emulator.common.util.injectAnywhere
+import com.monta.ocpp.emulator.user.AnalyticsHelper
 import com.monta.ocpp.emulator.v16.service.ocpp.connection.ConnectionManager
 import com.monta.ocpp.emulator.v16.view.MainWindow
 import com.monta.ocpp.emulator.v16.view.interceptor.EditMessageWindow
@@ -34,6 +35,10 @@ fun main() {
                 }
             }
         })
+
+        val analyticsHelper by injectAnywhere<AnalyticsHelper>()
+
+        analyticsHelper.initSentry()
 
         application {
             SendMessageWindow()

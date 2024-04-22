@@ -29,7 +29,7 @@
         <options>
             <environment>production</environment>
             <release>${jpackage.app-version}</release>
-            <dsn>https://74aa6b85c94f14103d00617c9626a52e@o915528.ingest.us.sentry.io/4504402951864320</dsn>
+            <dsn>${SENTRY_DSN}</dsn>
         </options>
         <!-- Optionally change minimum Event level. Default for Events is ERROR -->
         <minimumEventLevel>ERROR</minimumEventLevel>
@@ -42,6 +42,7 @@
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
+        <appender-ref ref="SENTRY"/>
     </root>
 
 </configuration>

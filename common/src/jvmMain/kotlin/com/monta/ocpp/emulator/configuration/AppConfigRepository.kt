@@ -4,7 +4,8 @@ import org.koin.core.annotation.Singleton
 
 @Singleton
 class AppConfigRepository {
-    fun getByKey(
+
+    fun get(
         key: String
     ): AppConfigDAO? {
         return AppConfigDAO.find {
@@ -12,11 +13,21 @@ class AppConfigRepository {
         }.firstOrNull()
     }
 
+    fun create(
+        key: String,
+        value: String?
+    ): AppConfigDAO {
+        return AppConfigDAO.new {
+            this.key = key
+            this.value = value
+        }
+    }
+
     fun upsert(
         key: String,
         value: String?
     ): AppConfigDAO {
-        val configuration = getByKey(key)
+        val configuration = get(key)
 
         if (configuration != null) {
             configuration.value = value
