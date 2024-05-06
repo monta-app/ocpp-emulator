@@ -7,7 +7,7 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-group = "com.monta.ocpp.emulator.v16"
+group = "com.monta.ocpp.emulator"
 version = "2.3.1"
 
 kotlin {
@@ -108,7 +108,7 @@ compose.desktop {
             configurationFiles.from(project.file("compose-desktop.pro"))
         }
 
-        mainClass = "com.monta.ocpp.emulator.v16.AppKt"
+        mainClass = "com.monta.ocpp.emulator.AppKt"
 
         nativeDistributions {
             modules("java.naming", "java.instrument", "java.management", "java.sql", "jdk.unsupported")
