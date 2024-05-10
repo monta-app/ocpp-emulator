@@ -17,13 +17,15 @@ import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransactionService
 import com.monta.ocpp.emulator.logger.GlobalLogger
+import com.monta.ocpp.emulator.v16.data.service.TxDefaultService
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class SmartChargingClientHandler(
     private val chargePointService: ChargePointService,
-    private val chargePointTransactionService: ChargePointTransactionService
+    private val chargePointTransactionService: ChargePointTransactionService,
+    private val txDefaultService: TxDefaultService
 ) : SmartChargeClientProfile.Listener {
 
     override suspend fun clearChargingProfile(
@@ -43,6 +45,12 @@ class SmartChargingClientHandler(
                 connector.updateKw()
             }
         }
+
+        // handle TxDefault messages
+        val chargePoint = chargePointService.getByIdentity(
+            ocppSessionInfo.identity
+        )
+        txDefaultService.clear(chargePoint, connector, request)
 
         return ClearChargingProfileConfirmation(
             status = ClearChargingProfileStatus.Accepted
@@ -66,6 +74,10 @@ class SmartChargingClientHandler(
             SetChargingProfileConfirmation(
                 status = SetChargingProfileStatus.Accepted
             )
+        } else if (setDefaultChargingProfile(ocppSessionInfo, request)) {
+            SetChargingProfileConfirmation(
+                status = SetChargingProfileStatus.Accepted
+            )
         } else {
             SetChargingProfileConfirmation(
                 status = SetChargingProfileStatus.Rejected
@@ -73,10 +85,63 @@ class SmartChargingClientHandler(
         }
     }
 
+    private suspend fun setDefaultChargingProfile(
+        ocppSessionInfo: OcppSession.Info,
+        request: SetChargingProfileRequest
+    ): Boolean {
+        if (request.csChargingProfiles.chargingProfilePurpose != ChargingProfilePurposeType.TxDefaultProfile) {
+            return false
+        }
+
+        val connector = getConnector(
+            ocppSessionInfo = ocppSessionInfo,
+            connectorId = request.connectorId
+        )
+
+        if (connector == null) {
+            return false
+        }
+
+        if (request.connectorId != 0) {
+            GlobalLogger.warn(connector, "TxDefault must be on connector 0")
+            return false
+        }
+        val chargingProfile = request.csChargingProfiles
+
+        if (chargingProfile.chargingProfilePurpose != ChargingProfilePurposeType.TxDefaultProfile) {
+            GlobalLogger.warn(connector, "rejected charging profile, chargingProfilePurpose is not TxDefaultProfile")
+            return false
+        }
+
+        if (chargingProfile.chargingProfileKind != ChargingProfileKindType.Absolute) {
+            GlobalLogger.warn(connector, "rejected charging profile, chargingProfileKind is not absolute")
+            return false
+        }
+
+        val chargePoint = chargePointService.getByIdentity(
+            ocppSessionInfo.identity
+        )
+
+        GlobalLogger.info(connector, "received TxDefault charging profile :)")
+
+        transaction {
+            txDefaultService.store(chargePoint, connector, request.csChargingProfiles)
+        }
+
+        return true
+    }
+
     private suspend fun setChargingProfileForTransaction(
         ocppSessionInfo: OcppSession.Info,
         request: SetChargingProfileRequest
     ): Boolean {
+        if (request.csChargingProfiles.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile) {
+            return false
+        }
+        if (request.connectorId < 1) {
+            return false
+        }
+
         val connector = getConnector(
             ocppSessionInfo = ocppSessionInfo,
             connectorId = request.connectorId
@@ -132,7 +197,7 @@ class SmartChargingClientHandler(
         ocppSessionInfo: OcppSession.Info,
         connectorId: Int?
     ): ChargePointConnectorDAO? {
-        if (connectorId != null && connectorId > 0) {
+        if (connectorId != null) {
             val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
             return chargePoint.getConnector(connectorId)
         }
