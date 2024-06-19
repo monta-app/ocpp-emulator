@@ -44,6 +44,18 @@ If you're just using the terminal, you can run the following command:
 ./gradlew run v201:run
 ```
 
+## What's up with the 🤓?
+
+Clicking the icon gives access to "message interception". The primary purpose is to have a high degree of control over which messages
+are sent and received by the charge point. That way it is possible to replicate potentially buggy behavior or custom implementations in
+a one-off manner without needing to change the actual programming of the charge point. For "normal operation" of the charge point the
+standard interface should be sufficient.
+
+Also note that the message interception functions are not hooked up to the internal machinery of the charge point. For example, sending
+a `StopTransaction` message will not actually change the state of an ongoing charge to be stopped. That means using these functions
+also makes it very easy to put the charge point into a state that does not match up with what the CSMS is expecting, which can quickly
+lead to unexpected behavior.
+
 ## Executables
 
 If you only care about running the application you can find the latest release on
