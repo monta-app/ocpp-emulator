@@ -4,17 +4,21 @@ import java.time.Instant
 
 data class EnodeVehicle(
     val id: String,
-    val isReachable: Boolean,
+    val userId: String,
+    val vendor: String,
+    val isReachable: Boolean?,
     val lastSeen: Instant?,
     val chargeState: ChargeState?,
     val information: Information?,
     val odometer: Odometer?,
-    val location: Location?
+    val location: Location?,
+    val scopes: List<String>,
+    val locationId: String?
 ) {
     data class Information(
-        val brand: String,
-        val model: String,
-        val year: Int,
+        val brand: String?,
+        val model: String?,
+        val year: Int?,
         val vin: String?
     )
 
@@ -34,7 +38,8 @@ data class EnodeVehicle(
         val chargeTimeRemaining: Int?,
         val isFullyCharged: Boolean?,
         val lastUpdated: Instant?,
-        val powerDeliveryState: String
+        val powerDeliveryState: String,
+        val maxCurrent: Int?
     )
 
     data class Location(
