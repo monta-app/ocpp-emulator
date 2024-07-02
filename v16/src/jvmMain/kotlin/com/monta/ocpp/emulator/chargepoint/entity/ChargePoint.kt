@@ -237,6 +237,7 @@ class ChargePointDAO(
             "SmartChargingEnabled" -> displayLines[0] = if (request.data == "true") "Smart Charging" else "Charging"
             "StartTime" -> displayLines[2] = "Start at: ${request.data}"
             "EndTime" -> displayLines[3] = "Will be finished at: ${request.data}"
+            "SoC" -> displayLines[4] = "Battery at: ${request.data}%"
             "ClearDisplay" -> displayLines = List(5) { "" }.toMutableList()
             else -> return false
         }

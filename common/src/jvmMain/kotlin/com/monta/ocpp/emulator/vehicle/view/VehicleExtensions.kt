@@ -54,6 +54,8 @@ internal fun defaultVehicle(
 
     return EnodeVehicle(
         id = externalVehicleId,
+        userId = "montaTestUser",
+        vendor = "monta",
         isReachable = true,
         lastSeen = now,
         chargeState = EnodeVehicle.ChargeState(
@@ -67,7 +69,8 @@ internal fun defaultVehicle(
             chargeTimeRemaining = 10,
             isFullyCharged = false,
             lastUpdated = now,
-            powerDeliveryState = "PLUGGED_IN:CHARGING"
+            powerDeliveryState = "PLUGGED_IN:CHARGING",
+            maxCurrent = 32
         ),
         information = EnodeVehicle.Information(
             brand = "Monta",
@@ -83,6 +86,8 @@ internal fun defaultVehicle(
             latitude = 34.165152,
             longitude = -118.281788,
             lastUpdated = now
-        )
+        ),
+        locationId = null,
+        scopes = emptyList()
     )
 }
