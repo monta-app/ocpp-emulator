@@ -33,7 +33,7 @@ class TxDefaultRepository {
         }
         val item = findById(chargePointDAO, connectorDAO, chargingProfile.chargingProfileId!!)
         return if (item != null) {
-            item.txDefault = chargingProfile
+            item.txDefaultProfile = chargingProfile
             item
         } else {
             TxDefaultDAO.newInstance(chargePointDAO, connectorDAO, chargingProfile)

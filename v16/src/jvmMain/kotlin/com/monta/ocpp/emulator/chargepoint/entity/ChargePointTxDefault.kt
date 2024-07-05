@@ -18,7 +18,7 @@ object TxDefault : LongIdTable("charge_point_default_profile") {
 
     val chargingProfileId = integer("charging_profile_id").nullable()
     val stackLeveL = integer("stack_level").nullable()
-    val txDefault = json<ChargingProfile>(
+    val txDefaultProfile = json<ChargingProfile>(
         name = "tx_default_profile",
         objectMapper = MontaSerialization.getDefaultMapper()
     )
@@ -39,7 +39,7 @@ class TxDefaultDAO(
                 this.connector = chargePointConnector
                 this.chargingProfileId = chargingProfile.chargingProfileId
                 this.stackLevel = chargingProfile.stackLevel
-                this.txDefault = chargingProfile
+                this.txDefaultProfile = chargingProfile
             }
         }
     }
@@ -48,5 +48,5 @@ class TxDefaultDAO(
     var connector by ChargePointConnectorDAO referencedOn TxDefault.connectorId
     var chargingProfileId by TxDefault.chargingProfileId
     var stackLevel by TxDefault.stackLeveL
-    var txDefault by TxDefault.txDefault
+    var txDefaultProfile by TxDefault.txDefaultProfile
 }
