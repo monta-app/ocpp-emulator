@@ -85,6 +85,28 @@ class SmartChargingClientHandler(
         }
     }
 
+    private suspend fun validateSetDefaultChargingProfile(
+        connector: ChargePointConnectorDAO,
+        request: SetChargingProfileRequest
+    ): Boolean {
+        if (request.connectorId != 0) {
+            GlobalLogger.warn(connector, "TxDefault must be on connector 0")
+            return false
+        }
+        val chargingProfile = request.csChargingProfiles
+        if (chargingProfile.chargingProfilePurpose != ChargingProfilePurposeType.TxDefaultProfile) {
+            GlobalLogger.warn(connector, "rejected charging profile, chargingProfilePurpose is not TxDefaultProfile")
+            return false
+        }
+
+        if (chargingProfile.chargingProfileKind != ChargingProfileKindType.Absolute) {
+            GlobalLogger.warn(connector, "rejected charging profile, chargingProfileKind is not absolute")
+            return false
+        }
+
+        return true
+    }
+
     private suspend fun setDefaultChargingProfile(
         ocppSessionInfo: OcppSession.Info,
         request: SetChargingProfileRequest
@@ -93,28 +115,8 @@ class SmartChargingClientHandler(
             return false
         }
 
-        val connector = getConnector(
-            ocppSessionInfo = ocppSessionInfo,
-            connectorId = request.connectorId
-        )
-
-        if (connector == null) {
-            return false
-        }
-
-        if (request.connectorId != 0) {
-            GlobalLogger.warn(connector, "TxDefault must be on connector 0")
-            return false
-        }
-        val chargingProfile = request.csChargingProfiles
-
-        if (chargingProfile.chargingProfilePurpose != ChargingProfilePurposeType.TxDefaultProfile) {
-            GlobalLogger.warn(connector, "rejected charging profile, chargingProfilePurpose is not TxDefaultProfile")
-            return false
-        }
-
-        if (chargingProfile.chargingProfileKind != ChargingProfileKindType.Absolute) {
-            GlobalLogger.warn(connector, "rejected charging profile, chargingProfileKind is not absolute")
+        val connector = getConnector(ocppSessionInfo = ocppSessionInfo, connectorId = request.connectorId) ?: return false
+        if (!validateSetDefaultChargingProfile(connector, request)) {
             return false
         }
 
