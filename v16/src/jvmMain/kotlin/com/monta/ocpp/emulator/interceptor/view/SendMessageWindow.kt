@@ -314,7 +314,7 @@ fun defaultPayload(messageType: Feature): String {
             transactionId = transaction?.id?.value?.toInt() ?: 0,
             transactionData = listOf(
                 MeterValue(
-                    timestamp = transaction!!.startTime.atZone(ZoneOffset.UTC),
+                    timestamp = transaction?.startTime?.atZone(ZoneOffset.UTC),
                     sampledValue = listOf(
                         SampledValue(
                             value = "OCMF|{\"FV\":\"1.0\",\"GI\":\"7cc7af6f-5c10-4f2f-aa95-b3570606b564\",\"GS\":\"\",\"GV\":\"1.1.2\",\"PG\":\"T74\",\"MV\":\"Gossen Metrawatt\",\"MM\":\"EM2289\",\"MS\":\"FI7309540155\",\"MF\":\"03.03\",\"IS\":true,\"IT\":\"ISO14443\",\"ID\":\"04340fca3c6f80\",\"RD\":[{\"TM\":\"2023-01-20T22:12:40,000+0100 I\",\"TX\":\"B\",\"RV\":166841,\"RI\":\"1-b:1.8.0\",\"RU\":\"Wh\",\"RT\":\"AC\",\"EF\":\"\",\"ST\":\"G\"}]}|{\"SD\":\"304402201B26AB8E9EA9A55CEAADE226713B92AD2DAF6189FC36472DF4E82EB577BC1D09022034521C01EF03E7A1A2F48820357AE7E77BD87975AF393FC4362419B79321D876\"}",
