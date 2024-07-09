@@ -6,6 +6,7 @@ import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorT
 import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransaction
 import com.monta.ocpp.emulator.configuration.AppConfigTable
 import com.monta.ocpp.emulator.database.DatabaseInitiator
+import com.monta.ocpp.emulator.v16.data.entity.TxDefault
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,6 +26,7 @@ class DatabaseService {
                     ChargePointTable,
                     ChargePointConnectorTable,
                     ChargePointTransaction,
+                    TxDefault,
                     PreviousMessagesTable
                 )
             }
