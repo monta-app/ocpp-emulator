@@ -22,8 +22,7 @@ class TxDefaultRepository {
         chargingProfile: ChargingProfile
     ): TxDefaultDAO {
         require(
-            chargingProfile.chargingProfilePurpose != null &&
-                chargingProfile.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile
+            chargingProfile.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile
         ) {
             "chargingProfile must be a TxDefaultProfile"
         }
