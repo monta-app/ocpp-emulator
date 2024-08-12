@@ -33,14 +33,14 @@ object MeterValuesGenerator {
 
         if (meterValuesSampledData.contains("Current.Import")) {
             sampledValues.addAll(
-                listOf(1, 2, 3, null).map { phase ->
+                listOf(1, 2, 3).map { phase ->
                     sampledAmps(ampsPerPhase, phase, numberPhases)
                 }
             )
         }
         if (meterValuesSampledData.contains("Voltage")) {
             sampledValues.addAll(
-                listOf("L1", "L2", "L3").map { phase ->
+                listOf("L1-N", "L2-N", "L3-N").map { phase ->
                     sampledVoltage(230, phase)
                 }
             )
@@ -70,16 +70,16 @@ object MeterValuesGenerator {
         return sampledValues
     }
 
-    private fun sampledAmps(ampsPerPhase: Double, phase: Int? = null, numberPhases: Int) = SampledValue(
-        value = (if (phase == null) (numberPhases * ampsPerPhase) else if (phase <= numberPhases) ampsPerPhase else 0).toString(),
+    private fun sampledAmps(ampsPerPhase: Double, phase: Int, numberPhases: Int) = SampledValue(
+        value = (if (phase <= numberPhases) ampsPerPhase else 0).toString(),
         context = "Sample.Periodic",
         format = ValueFormat.Raw.name,
         measurand = "Current.Import",
-        phase = phase?.let { "L$it" },
+        phase = "L$phase",
         unit = "A"
     )
 
-    private fun sampledVoltage(voltage: Int, phase: String? = null) = SampledValue(
+    private fun sampledVoltage(voltage: Int, phase: String) = SampledValue(
         value = voltage.toString(),
         context = "Sample.Periodic",
         format = ValueFormat.Raw.name,
