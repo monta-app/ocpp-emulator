@@ -14,7 +14,6 @@ inline fun <reified T : Any> Table.json(
     objectMapper: ObjectMapper
 ): Column<T> = this.json(
     name = name,
-    collate = collate,
     eagerLoading = eagerLoading,
     stringify = { value ->
         objectMapper.writeValueAsString(value)
@@ -26,7 +25,6 @@ inline fun <reified T : Any> Table.json(
 
 fun <T : Any> Table.json(
     name: String,
-    collate: String? = null,
     eagerLoading: Boolean = false,
     stringify: (T) -> String,
     parse: (String) -> T
@@ -45,7 +43,7 @@ class JsonColumnType<T : Any>(
     private val eagerLoading: Boolean,
     private val stringify: (value: T) -> String,
     private val parse: (stringValue: String) -> T
-) : ColumnType() {
+) : ColumnType<T>() {
 
     override fun sqlType(): String = "json"
 
@@ -54,23 +52,6 @@ class JsonColumnType<T : Any>(
         return when (value) {
             is ByteArray -> parse(String(value).unescapeSqlJsonString())
             else -> value as T
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun notNullValueToDB(value: Any): String {
-        return stringify(value as T)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun nonNullValueToString(value: Any): String {
-        return "'${stringify(value as T)}'"
-    }
-
-    override fun valueToString(value: Any?): String {
-        return when (value) {
-            is Iterable<*> -> notNullValueToDB(value)
-            else -> super.valueToString(value)
         }
     }
 
