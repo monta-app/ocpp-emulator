@@ -16,6 +16,7 @@ import com.monta.ocpp.emulator.common.BaseMontaWindow
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.view.NavigationViewModel
 import com.monta.ocpp.emulator.theme.AppThemeViewModel
+import com.monta.ocpp.emulator.theme.setupAppThemeMenu
 import com.monta.ocpp.emulator.update.view.UpdateDialog
 import com.monta.ocpp.emulator.vehicle.view.VehicleScreen
 
@@ -42,7 +43,7 @@ fun ApplicationScope.MainWindow() {
             navigationViewModel.windowHasFocus = false
         }
     ) {
-        // setupAppThemeMenu(appThemeViewModel)
+        setupAppThemeMenu(appThemeViewModel)
 
         MaterialTheme(
             colors = appThemeViewModel.getColors()
