@@ -48,3 +48,5 @@ config.properties
 *.db
 
 node_modules
+
+.kotlin
