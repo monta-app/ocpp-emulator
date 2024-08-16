@@ -33,14 +33,14 @@ kotlin {
                 implementation(files("libs/v16-0.8.7.jar"))
 
                 // Coroutines
-                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.0"))
+                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
                 // Websocket Client
-                implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.10"))
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.12"))
                 implementation("io.ktor:ktor-client-core")
                 implementation("io.ktor:ktor-client-cio")
                 implementation("io.ktor:ktor-client-websockets")
@@ -49,7 +49,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-jackson")
 
                 // Jackson
-                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.17.0"))
+                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
                 implementation("com.fasterxml.jackson.core:jackson-core")
                 implementation("com.fasterxml.jackson.core:jackson-annotations")
                 implementation("com.fasterxml.jackson.core:jackson-databind")
@@ -61,11 +61,11 @@ kotlin {
                 implementation("io.nayuki:qrcodegen:1.8.0")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.6")
+                implementation("ch.qos.logback:logback-classic:1.5.7")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.8.0"))
+                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.14.0"))
                 implementation("io.sentry:sentry")
                 implementation("io.sentry:sentry-logback")
 
@@ -80,7 +80,7 @@ kotlin {
                 implementation("io.insert-koin:koin-annotations:1.3.1")
 
                 // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.49.0"))
+                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.53.0"))
                 implementation("org.jetbrains.exposed:exposed-core")
                 implementation("org.jetbrains.exposed:exposed-dao")
                 implementation("org.jetbrains.exposed:exposed-jdbc")
