@@ -50,7 +50,7 @@ class JsonColumnType<T : Any>(
     @Suppress("UNCHECKED_CAST")
     override fun valueFromDB(value: Any): T {
         return when (value) {
-            is ByteArray -> parse(String(value).unescapeSqlJsonString())
+            is ByteArray -> parse(value.decodeToString().unescapeSqlJsonString())
             else -> value as T
         }
     }
@@ -68,6 +68,13 @@ class JsonColumnType<T : Any>(
             // return ByteArray (won't be deserialized)
             value
         }
+    }
+
+    override fun notNullValueToDB(value: T): Any = stringify(value)
+
+    override fun valueToString(value: T?): String = when (value) {
+        is Iterable<*> -> nonNullValueToString(value)
+        else -> super.valueToString(value)
     }
 }
 
