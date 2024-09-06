@@ -12,13 +12,6 @@ allprojects {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/monta-app/library-ocpp")
-            credentials {
-                username = System.getenv("GHL_USERNAME") ?: project.findProperty("gpr.user") as String?
-                password = System.getenv("GHL_PASSWORD") ?: project.findProperty("gpr.key") as String?
-            }
-        }
+        maven("https://jitpack.io")
     }
 }

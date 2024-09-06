@@ -1,7 +1,7 @@
 package com.monta.ocpp.emulator.v16.profile
 
+import com.monta.library.ocpp.common.chargingprofile.ChargingProfileKind
 import com.monta.library.ocpp.common.session.OcppSession
-import com.monta.library.ocpp.v16.smartcharge.ChargingProfileKindType
 import com.monta.library.ocpp.v16.smartcharge.ChargingProfilePurposeType
 import com.monta.library.ocpp.v16.smartcharge.ClearChargingProfileConfirmation
 import com.monta.library.ocpp.v16.smartcharge.ClearChargingProfileRequest
@@ -99,7 +99,7 @@ class SmartChargingClientHandler(
             return false
         }
 
-        if (chargingProfile.chargingProfileKind != ChargingProfileKindType.Absolute) {
+        if (chargingProfile.chargingProfileKind != ChargingProfileKind.Absolute) {
             GlobalLogger.warn(connector, "rejected charging profile, chargingProfileKind is not absolute")
             return false
         }
@@ -115,7 +115,11 @@ class SmartChargingClientHandler(
             return false
         }
 
-        val connector = getConnector(ocppSessionInfo = ocppSessionInfo, connectorId = request.connectorId) ?: return false
+        val connector = getConnector(
+            ocppSessionInfo = ocppSessionInfo,
+            connectorId = request.connectorId
+        ) ?: return false
+
         if (!validateSetDefaultChargingProfile(connector, request)) {
             return false
         }
@@ -167,7 +171,7 @@ class SmartChargingClientHandler(
             return false
         }
 
-        if (chargingProfile.chargingProfileKind != ChargingProfileKindType.Absolute) {
+        if (chargingProfile.chargingProfileKind != ChargingProfileKind.Absolute) {
             GlobalLogger.warn(connector, "rejected charging profile, chargingProfileKind is not absolute")
             return false
         }

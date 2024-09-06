@@ -177,7 +177,7 @@ class ChargePointConnection(
         val backOffTime = getBackoffTime()
 
         val shouldReconnect = try {
-            ocppClientV16.disconnect(chargePoint.identity)
+            ocppClientV16.onDisconnect(chargePoint.identity)
         } catch (exception: Exception) {
             true
         }

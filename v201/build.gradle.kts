@@ -31,8 +31,8 @@ kotlin {
                 implementation(compose.material3)
 
                 // OCPP Libs
-                implementation(files("libs/core-0.8.7.jar"))
-                implementation(files("libs/v201-0.8.7.jar"))
+                implementation("com.github.monta-app.library-ocpp:core:v1.0.3")
+                implementation("com.github.monta-app.library-ocpp:v201:v1.0.3")
 
                 // Coroutines
                 implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1"))

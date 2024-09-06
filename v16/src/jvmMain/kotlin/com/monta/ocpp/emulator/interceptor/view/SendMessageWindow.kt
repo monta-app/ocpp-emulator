@@ -266,7 +266,9 @@ fun defaultPayload(messageType: Feature): String {
         AuthorizeFeature -> AuthorizeRequest("")
         BootNotificationFeature -> BootNotificationRequest(
             chargePointSerialNumber = chargePoint.serial,
-            firmwareVersion = chargePoint.firmware
+            firmwareVersion = chargePoint.firmware,
+            chargePointModel = chargePoint.model,
+            chargePointVendor = chargePoint.brand
         )
 
         DataTransferFeature -> DataTransferRequest(

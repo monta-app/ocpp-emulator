@@ -30,8 +30,8 @@ kotlin {
                 implementation(compose.desktop.currentOs)
 
                 // OCPP Libs
-                implementation(files("libs/core-0.8.7.jar"))
-                implementation(files("libs/v16-0.8.7.jar"))
+                implementation("com.github.monta-app.library-ocpp:core:v1.0.3")
+                implementation("com.github.monta-app.library-ocpp:v16:v1.0.3")
 
                 // Coroutines
                 implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1"))
