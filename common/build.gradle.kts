@@ -53,7 +53,7 @@ kotlin {
                 implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.7")
+                implementation("ch.qos.logback:logback-classic:1.5.8")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
@@ -72,7 +72,7 @@ kotlin {
                 implementation("io.insert-koin:koin-annotations:1.3.1")
 
                 // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.53.0"))
+                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.54.0"))
                 implementation("org.jetbrains.exposed:exposed-core")
                 implementation("org.jetbrains.exposed:exposed-dao")
                 implementation("org.jetbrains.exposed:exposed-jdbc")
