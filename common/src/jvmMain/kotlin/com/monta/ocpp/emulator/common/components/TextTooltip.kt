@@ -14,9 +14,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TextTooltip(
     text: String,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     TooltipArea(
+        modifier = modifier,
         tooltip = {
             Card(
                 modifier = Modifier.padding(8.dp),

@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.common.components.MontaIcon
 import com.monta.ocpp.emulator.common.components.MontaStateIcon
-import com.monta.ocpp.emulator.common.components.TextTooltip
 import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.components.toKilowattString
 import com.monta.ocpp.emulator.common.idValue
@@ -120,41 +119,6 @@ fun TextWithLabel(
             text = value ?: "",
             style = MaterialTheme.typography.body2
         )
-    }
-}
-
-/**
- * Displays the state of a charge point,
- * and allows the user to connect or disconnect the charge point quickly
- */
-@Composable
-private fun ChargePointConnectionButton(
-    chargePoint: ChargePointDAO
-) {
-    val connectionManager: ConnectionManager by injectAnywhere()
-
-    TextTooltip(
-        text = if (chargePoint.connected) {
-            "Disconnect charge point"
-        } else {
-            "Connect charge point"
-        }
-    ) {
-        IconButton(
-            onClick = {
-                if (chargePoint.connected) {
-                    connectionManager.disconnect(chargePoint.idValue)
-                } else {
-                    connectionManager.connect(chargePoint.idValue)
-                }
-            }
-        ) {
-            MontaStateIcon(
-                state = chargePoint.connected,
-                onState = "stop_circle",
-                offState = "play_circle"
-            )
-        }
     }
 }
 

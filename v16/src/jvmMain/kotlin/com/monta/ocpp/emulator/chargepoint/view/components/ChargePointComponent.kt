@@ -52,6 +52,10 @@ fun chargePointComponent(
                     text = "Charge Point",
                     style = MaterialTheme.typography.h5
                 )
+                ChargePointConnectionButton(
+                    chargePoint = chargePoint,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
 
             Text(
