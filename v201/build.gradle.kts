@@ -31,8 +31,8 @@ kotlin {
                 implementation(compose.material3)
 
                 // OCPP Libs
-                implementation("com.github.monta-app.library-ocpp:core:v1.0.3")
-                implementation("com.github.monta-app.library-ocpp:v201:v1.0.3")
+                implementation("com.github.monta-app.library-ocpp:core:1.0.3")
+                implementation("com.github.monta-app.library-ocpp:v201:1.0.3")
 
                 // Coroutines
                 implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1"))
@@ -60,7 +60,7 @@ kotlin {
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.7")
+                implementation("ch.qos.logback:logback-classic:1.5.8")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
@@ -79,7 +79,7 @@ kotlin {
                 implementation("io.insert-koin:koin-annotations:1.3.1")
 
                 // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.53.0"))
+                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.54.0"))
                 implementation("org.jetbrains.exposed:exposed-core")
                 implementation("org.jetbrains.exposed:exposed-dao")
                 implementation("org.jetbrains.exposed:exposed-jdbc")
