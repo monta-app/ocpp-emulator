@@ -29,7 +29,7 @@
         <options>
             <environment>production</environment>
             <release>${jpackage.app-version}</release>
-            <dsn>${SENTRY_DSN}</dsn>
+            <dsn>${sentry.dsn}</dsn>
         </options>
         <!-- Optionally change minimum Event level. Default for Events is ERROR -->
         <minimumEventLevel>ERROR</minimumEventLevel>

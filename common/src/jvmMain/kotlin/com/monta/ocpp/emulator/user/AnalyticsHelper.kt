@@ -16,7 +16,15 @@ class AnalyticsHelper(
     }
 
     fun initSentry() {
+        val sentryDsn: String? = System.getProperty("sentry.dsn")
+        if (sentryDsn.isNullOrEmpty()) {
+            logger.warn("sentry.dsn is not set")
+            return
+        }
         try {
+            Sentry.init { options ->
+                options.dsn = sentryDsn
+            }
             Sentry.setUser(
                 User().apply {
                     id = appUserService.getUserId()

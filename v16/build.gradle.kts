@@ -118,6 +118,11 @@ compose.desktop {
             packageName = "OcppEmulator"
             packageVersion = "$version"
 
+            // JVM arguments, pass build-time properties here
+            jvmArgs += listOf(
+                "-Dsentry.dsn=${System.getenv("SENTRY_DSN") ?: null}"
+            )
+
             macOS {
                 iconFile.set(project.file("src/jvmMain/resources/icon.icns"))
                 bundleID = "com.monta.ocpp.emulator.v16"

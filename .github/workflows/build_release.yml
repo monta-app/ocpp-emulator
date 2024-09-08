@@ -50,16 +50,11 @@ jobs:
           java-version: '17'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v3
-      - name: Setup Sentry
-        shell: bash
-        run: |
-          find . -name logback.xml -exec sed -i 's/\${SENTRY_DSN}/${{ secrets.SENTRY_DSN }}/g' {} \;
-          echo "Modified logback.xml:"
-          find . -name logback.xml -exec cat {} \;
       - name: Build
         env:
           GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
           GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: ./gradlew --no-daemon v16:packageDistributionForCurrentOS
       - name: Upload binary file to release
         uses: svenstaro/upload-release-action@v2
