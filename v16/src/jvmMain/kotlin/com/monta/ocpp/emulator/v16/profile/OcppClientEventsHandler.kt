@@ -22,9 +22,10 @@ class OcppClientEventsHandler {
 
         GlobalLogger.info(chargePoint, "Connected")
 
-        if (isReconnecting) {
+        if (chargePoint.bootedAt !== null) {
             return
         }
+
         launchThread {
             chargePointManager.startBootSequence(chargePoint)
         }

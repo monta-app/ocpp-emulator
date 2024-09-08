@@ -37,6 +37,9 @@ object ChargePointTable : LongIdTable("charge_point") {
     val operationMode = enumerationByName("operation_mode", 128, ChargePointMode::class)
     val ocppVersion = enumerationByName("ocpp_version", 128, OcppVersion::class)
     val connected = bool("connected")
+    val bootedAt = timestamp("booted_at")
+        .nullable()
+        .default(null)
 
     // Info
     val brand = varchar("brand", 256)
@@ -100,6 +103,7 @@ class ChargePointDAO(
                 //
                 this.operationMode = ChargePointMode.Manual
                 this.ocppVersion = OcppVersion.V16
+                this.bootedAt = null
                 // Info
                 this.brand = "Monta"
                 this.model = "E-Emulator"
@@ -136,6 +140,7 @@ class ChargePointDAO(
     var operationMode by ChargePointTable.operationMode
     var ocppVersion by ChargePointTable.ocppVersion
     var connected by ChargePointTable.connected
+    var bootedAt by ChargePointTable.bootedAt
 
     var brand by ChargePointTable.brand
     var model by ChargePointTable.model

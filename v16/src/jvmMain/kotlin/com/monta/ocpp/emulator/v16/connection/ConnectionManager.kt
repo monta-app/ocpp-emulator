@@ -1,15 +1,18 @@
 package com.monta.ocpp.emulator.v16.connection
 
+import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.v16.SchedulerService
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import mu.KotlinLogging
 import org.koin.core.annotation.Singleton
 
 @Singleton
 class ConnectionManager(
-    val messageInterceptor: MessageInterceptor
+    val messageInterceptor: MessageInterceptor,
+    val chargePointRepository: ChargePointRepository
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -28,6 +31,8 @@ class ConnectionManager(
 
         launchThread {
             logger.info("Connecting chargePointId=$chargePointId")
+            //
+            chargePointRepository.clearChargePointBootStatus(chargePointId)
             // Create a new connection and add it to the map
             chargePointConnections[chargePointId]?.disconnect()
             chargePointConnections[chargePointId] = null
@@ -36,27 +41,25 @@ class ConnectionManager(
         }
 
         getSchedulingService(chargePointId, true)?.start()
+
         if (messageInterceptor.messageTypeConfig[chargePointId] == null) {
             messageInterceptor.addDefaults(chargePointId)
         }
     }
 
     suspend fun disconnectAll() {
-        chargePointConnections.map { (chargePointId, chargePointConnection) ->
-            launchThread {
-                logger.info("Disconnecting chargePointId=$chargePointId")
-                getSchedulingService(chargePointId)?.stop()
-                chargePointConnection?.disconnect()
-            }
+        chargePointConnections.mapNotNull { (chargePointId, _) ->
+            disconnect(chargePointId)
         }.joinAll()
     }
 
     fun disconnect(
         chargePointId: Long
-    ) {
-        chargePointConnections[chargePointId]?.let { chargePointConnection ->
+    ): Job? {
+        return chargePointConnections[chargePointId]?.let { chargePointConnection ->
             logger.info("Disconnecting chargePointId=$chargePointId")
             launchThread {
+                chargePointRepository.clearChargePointBootStatus(chargePointId)
                 getSchedulingService(chargePointId)?.stop()
                 chargePointConnection.disconnect()
                 chargePointConnections.remove(chargePointId)

@@ -5,7 +5,9 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointTable
 import com.monta.ocpp.emulator.common.createDatabaseListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.koin.core.annotation.Singleton
 
 @Singleton
@@ -100,6 +102,16 @@ class ChargePointRepository {
             ChargePointDAO.find {
                 ChargePointTable.connected eq true
             }.toList()
+        }
+    }
+
+    fun clearChargePointBootStatus(
+        chargePointId: Long
+    ) {
+        transaction {
+            ChargePointTable.update({ ChargePointTable.id eq chargePointId }) {
+                it[bootedAt] = null
+            }
         }
     }
 }

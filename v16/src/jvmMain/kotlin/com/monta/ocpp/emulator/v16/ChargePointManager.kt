@@ -23,6 +23,7 @@ import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -46,6 +47,10 @@ class ChargePointManager {
                 chargePointVendor = chargePoint.brand
             )
         )
+
+        transaction {
+            chargePoint.bootedAt = Instant.now()
+        }
 
         when (confirmation.status) {
             RegistrationStatus.Accepted -> {
