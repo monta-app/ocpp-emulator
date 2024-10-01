@@ -35,7 +35,7 @@ kotlin {
                 implementation("com.github.monta-app.library-ocpp:v201:1.0.3")
 
                 // Coroutines
-                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.8.1"))
+                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
@@ -51,7 +51,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-jackson")
 
                 // Jackson
-                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
+                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.18.0"))
                 implementation("com.fasterxml.jackson.core:jackson-core")
                 implementation("com.fasterxml.jackson.core:jackson-annotations")
                 implementation("com.fasterxml.jackson.core:jackson-databind")
@@ -79,7 +79,7 @@ kotlin {
                 implementation("io.insert-koin:koin-annotations:1.3.1")
 
                 // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.54.0"))
+                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.55.0"))
                 implementation("org.jetbrains.exposed:exposed-core")
                 implementation("org.jetbrains.exposed:exposed-dao")
                 implementation("org.jetbrains.exposed:exposed-jdbc")
