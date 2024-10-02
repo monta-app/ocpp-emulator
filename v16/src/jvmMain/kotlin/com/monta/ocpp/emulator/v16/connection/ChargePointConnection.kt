@@ -6,6 +6,7 @@ import com.monta.library.ocpp.v16.core.StatusNotificationRequest
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.idValue
+import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.logger.GlobalLogger
@@ -13,10 +14,13 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
+import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
@@ -40,6 +44,10 @@ class ChargePointConnection(
         }
     }
     private var connectionAttempts = 1
+
+    private val requestIdMap = ConcurrentMap<String, Long>()
+    private val totalLatencyMillis = AtomicLong(0L)
+    private val messageCount = AtomicInteger(0)
 
     val chargePoint: ChargePointDAO
         get() = chargePointService.getById(chargePointId)
@@ -91,6 +99,7 @@ class ChargePointConnection(
                 sendFrame = { message ->
                     GlobalLogger.logSend(chargePoint, message)
                     this.send(message)
+                    logLatency(message)
                 },
                 closeConnection = { reason ->
                     this.close(CloseReason(CloseReason.Codes.NORMAL, reason))
@@ -113,7 +122,10 @@ class ChargePointConnection(
                             val message = frame.readText()
                             val newMessage = interceptor.intercept(chargePoint.identity, message)
                             GlobalLogger.logReceive(chargePoint, message)
-                            if (newMessage != null) ocppClientV16.receiveMessage(chargePoint.identity, newMessage)
+                            if (newMessage != null) {
+                                ocppClientV16.receiveMessage(chargePoint.identity, newMessage)
+                            }
+                            logLatency(message)
                         }
 
                         else -> {
@@ -132,6 +144,28 @@ class ChargePointConnection(
                 forceConnect = false,
                 additionalInfo = null
             )
+        }
+    }
+
+    private suspend fun logLatency(
+        websocketMessage: String
+    ) {
+        val jsonNode = MontaSerialization.objectMapper.readTree(websocketMessage)
+        val requestId = jsonNode.get(1).asText()
+        if (requestIdMap.contains(requestId)) {
+            val timestamp = requestIdMap.remove(requestId)
+            if (timestamp == null) {
+                return
+            }
+            val latency = System.currentTimeMillis() - timestamp
+            totalLatencyMillis.addAndGet(latency)
+            messageCount.incrementAndGet()
+            val averageLatencyMillis = totalLatencyMillis.get().toDouble() / messageCount.get()
+            chargePointService.update(chargePoint) {
+                this.averageLatencyMillis = averageLatencyMillis.roundToInt()
+            }
+        } else {
+            requestIdMap[requestId] = System.currentTimeMillis()
         }
     }
 

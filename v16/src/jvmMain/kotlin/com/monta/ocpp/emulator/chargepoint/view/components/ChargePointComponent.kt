@@ -57,13 +57,13 @@ fun chargePointComponent(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
-
             Text(
                 "Identity: ${chargePoint.identity}",
                 modifier = Modifier.clickable {
                     clipboardManager.setText(AnnotatedString(chargePoint.identity))
                 }
             )
+            Text("Latency: ${chargePoint.averageLatencyMillis}ms")
             Text("Status: ${chargePoint.status}")
             Text("Status At: ${chargePoint.statusAt.toReadable()}")
             Text("Firmware: ${chargePoint.firmware}")
