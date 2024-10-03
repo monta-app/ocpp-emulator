@@ -65,7 +65,7 @@ kotlin {
                 implementation("net.swiftzer.semver:semver:2.0.0")
 
                 // Dependency Injection
-                implementation(project.dependencies.platform("io.insert-koin:koin-bom:3.5.6"))
+                implementation(project.dependencies.platform("io.insert-koin:koin-bom:4.0.0"))
                 implementation("io.insert-koin:koin-core")
                 implementation("io.insert-koin:koin-ktor")
                 implementation("io.insert-koin:koin-logger-slf4j")
