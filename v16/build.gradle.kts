@@ -119,8 +119,8 @@ compose.desktop {
             packageVersion = "$version"
 
             // JVM arguments, pass build-time properties here
-            jvmArgs += listOf(
-                "-Dsentry.dsn=${System.getenv("SENTRY_DSN") ?: null}"
+            jvmArgs += listOfNotNull(
+                System.getenv("SENTRY_DSN")?.let { "-Dsentry.dsn=$it" }
             )
 
             macOS {
