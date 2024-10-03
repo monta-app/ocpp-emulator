@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
@@ -61,6 +62,7 @@ fun ColumnScope.ConnectorStateView(
 
     if (expanded) {
         AlertDialog(
+            modifier = Modifier.width(400.dp),
             title = {
                 Text("Connector Status")
             },
@@ -100,6 +102,7 @@ fun ColumnScope.ConnectorStateView(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Spinner(
+                        modifier = Modifier.fillMaxWidth(),
                         label = "Connector Status",
                         value = connectorStatus,
                         values = ChargePointStatus.entries,
@@ -111,6 +114,7 @@ fun ColumnScope.ConnectorStateView(
                         }
                     )
                     Spinner(
+                        modifier = Modifier.fillMaxWidth(),
                         label = "Error Code",
                         value = errorCode,
                         values = ChargePointErrorCode.entries,
@@ -122,6 +126,7 @@ fun ColumnScope.ConnectorStateView(
                         }
                     )
                     OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = statusInfo ?: "",
                         label = {
                             Text("Info")
@@ -131,6 +136,7 @@ fun ColumnScope.ConnectorStateView(
                         }
                     )
                     OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = vendorId ?: "",
                         label = {
                             Text("Vendor ID")
@@ -140,6 +146,7 @@ fun ColumnScope.ConnectorStateView(
                         }
                     )
                     OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = vendorErrorCode ?: "",
                         label = {
                             Text("Vendor Error Code")
