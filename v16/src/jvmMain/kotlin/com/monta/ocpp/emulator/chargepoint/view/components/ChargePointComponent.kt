@@ -63,7 +63,7 @@ fun chargePointComponent(
                     clipboardManager.setText(AnnotatedString(chargePoint.identity))
                 }
             )
-            Text("Latency: ${chargePoint.averageLatencyMillis}ms")
+            Text("Latency: ${chargePoint.averageLatencyMillis} ms (${chargePoint.messageCount})")
             Text("Status: ${chargePoint.status}")
             Text("Status At: ${chargePoint.statusAt.toReadable()}")
             Text("Firmware: ${chargePoint.firmware}")

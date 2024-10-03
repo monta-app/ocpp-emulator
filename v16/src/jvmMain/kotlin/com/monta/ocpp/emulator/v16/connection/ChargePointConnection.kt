@@ -18,6 +18,7 @@ import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
+import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -46,7 +47,7 @@ class ChargePointConnection(
     private var connectionAttempts = 1
 
     private val requestIdMap = ConcurrentMap<String, Long>()
-    private val totalLatencyMillis = AtomicLong(0L)
+    private val totalLatencyNanos = AtomicLong(0L)
     private val messageCount = AtomicInteger(0)
 
     val chargePoint: ChargePointDAO
@@ -157,15 +158,16 @@ class ChargePointConnection(
             if (timestamp == null) {
                 return
             }
-            val latency = System.currentTimeMillis() - timestamp
-            totalLatencyMillis.addAndGet(latency)
-            messageCount.incrementAndGet()
-            val averageLatencyMillis = totalLatencyMillis.get().toDouble() / messageCount.get()
+            val latency = System.nanoTime() - timestamp
+            val total = totalLatencyNanos.addAndGet(latency)
+            val messages = messageCount.incrementAndGet()
+            val averageLatencyMillis = Duration.ofNanos(total / messages).toMillis()
             chargePointService.update(chargePoint) {
-                this.averageLatencyMillis = averageLatencyMillis.roundToInt()
+                this.messageCount = messages
+                this.averageLatencyMillis = averageLatencyMillis
             }
         } else {
-            requestIdMap[requestId] = System.currentTimeMillis()
+            requestIdMap[requestId] = System.nanoTime()
         }
     }
 

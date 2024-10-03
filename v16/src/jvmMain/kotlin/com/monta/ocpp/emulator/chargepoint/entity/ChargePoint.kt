@@ -53,7 +53,9 @@ object ChargePointTable : LongIdTable("charge_point") {
     val apiUrl = varchar("api_url", 1024)
     val maxKw = double("max_kw")
 
-    val averageLatencyMillis = integer("average_latency_millis")
+    val messageCount = integer("message_count")
+        .default(0)
+    val averageLatencyMillis = long("average_latency_millis")
         .default(0)
 
     // Heartbeat
@@ -156,6 +158,7 @@ class ChargePointDAO(
     var maxKw by ChargePointTable.maxKw
 
     var averageLatencyMillis by ChargePointTable.averageLatencyMillis
+    var messageCount by ChargePointTable.messageCount
 
     var heartbeatAt by ChargePointTable.heartbeatAt
 
