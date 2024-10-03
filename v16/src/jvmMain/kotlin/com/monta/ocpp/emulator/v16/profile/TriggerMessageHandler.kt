@@ -102,6 +102,9 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
             connector.setStatus(
                 status = connector.status,
                 errorCode = connector.errorCode,
+                vendorId = if (connector.vendorId.isNullOrBlank()) null else connector.vendorId,
+                vendorErrorCode = if (connector.vendorErrorCode.isNullOrBlank()) null else connector.vendorErrorCode,
+                info = if (connector.statusInfo.isNullOrBlank()) null else connector.statusInfo,
                 forceUpdate = true
             )
         }

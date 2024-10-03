@@ -31,6 +31,9 @@ suspend fun ChargePointConnectorDAO.setStatuses(
 suspend fun ChargePointConnectorDAO.setStatus(
     status: ChargePointStatus,
     errorCode: ChargePointErrorCode = ChargePointErrorCode.NoError,
+    vendorId: String? = null,
+    vendorErrorCode: String? = null,
+    info: String? = null,
     forceUpdate: Boolean = false
 ) {
     if (!forceUpdate && this.status == status) {
@@ -42,13 +45,19 @@ suspend fun ChargePointConnectorDAO.setStatus(
         this@setStatus.status = status
         this@setStatus.statusAt = Instant.now()
         this@setStatus.errorCode = errorCode
+        this@setStatus.vendorId = vendorId
+        this@setStatus.vendorErrorCode = vendorErrorCode
+        this@setStatus.statusInfo = statusInfo
     }
 
     statusNotification(
         sessionInfo = this.sessionInfo,
         connectorId = this.position,
         status = status,
-        errorCode = errorCode
+        errorCode = errorCode,
+        vendorId = vendorId,
+        vendorErrorCode = vendorErrorCode,
+        info = info
     )
 
     GlobalLogger.info(this, "Status set to $status")

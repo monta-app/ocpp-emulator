@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +38,18 @@ fun ColumnScope.ConnectorStateView(
         mutableStateOf(connector.errorCode)
     }
 
+    var vendorId by remember {
+        mutableStateOf(connector.vendorId)
+    }
+
+    var vendorErrorCode by remember {
+        mutableStateOf(connector.vendorErrorCode)
+    }
+
+    var statusInfo by remember {
+        mutableStateOf(connector.statusInfo)
+    }
+
     Button(
         onClick = {
             expanded = true
@@ -60,7 +73,11 @@ fun ColumnScope.ConnectorStateView(
                         launchThread {
                             connector.setStatus(
                                 status = connectorStatus,
-                                errorCode = errorCode
+                                errorCode = errorCode,
+                                vendorId = if (vendorId.isNullOrBlank()) null else vendorId,
+                                vendorErrorCode = if (vendorErrorCode.isNullOrBlank()) null else vendorErrorCode,
+                                info = if (statusInfo.isNullOrBlank()) null else statusInfo,
+                                forceUpdate = true
                             )
                         }
                         expanded = false
@@ -102,6 +119,33 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onSelectionChanged = { newChargePointErrorCode ->
                             errorCode = newChargePointErrorCode
+                        }
+                    )
+                    OutlinedTextField(
+                        value = statusInfo ?: "",
+                        label = {
+                            Text("Info")
+                        },
+                        onValueChange = { newStatusInfo ->
+                            statusInfo = newStatusInfo
+                        }
+                    )
+                    OutlinedTextField(
+                        value = vendorId ?: "",
+                        label = {
+                            Text("Vendor ID")
+                        },
+                        onValueChange = { newVendorId ->
+                            vendorId = newVendorId
+                        }
+                    )
+                    OutlinedTextField(
+                        value = vendorErrorCode ?: "",
+                        label = {
+                            Text("Vendor Error Code")
+                        },
+                        onValueChange = { newVendorErrorCode ->
+                            vendorErrorCode = newVendorErrorCode
                         }
                     )
                 }
