@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +39,18 @@ fun ColumnScope.ConnectorStateView(
         mutableStateOf(connector.errorCode)
     }
 
+    var vendorId by remember {
+        mutableStateOf(connector.vendorId)
+    }
+
+    var vendorErrorCode by remember {
+        mutableStateOf(connector.vendorErrorCode)
+    }
+
+    var statusInfo by remember {
+        mutableStateOf(connector.statusInfo)
+    }
+
     Button(
         onClick = {
             expanded = true
@@ -48,6 +62,7 @@ fun ColumnScope.ConnectorStateView(
 
     if (expanded) {
         AlertDialog(
+            modifier = Modifier.width(400.dp),
             title = {
                 Text("Connector Status")
             },
@@ -60,7 +75,11 @@ fun ColumnScope.ConnectorStateView(
                         launchThread {
                             connector.setStatus(
                                 status = connectorStatus,
-                                errorCode = errorCode
+                                errorCode = errorCode,
+                                vendorId = if (vendorId.isNullOrBlank()) null else vendorId,
+                                vendorErrorCode = if (vendorErrorCode.isNullOrBlank()) null else vendorErrorCode,
+                                info = if (statusInfo.isNullOrBlank()) null else statusInfo,
+                                forceUpdate = true
                             )
                         }
                         expanded = false
@@ -83,6 +102,7 @@ fun ColumnScope.ConnectorStateView(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Spinner(
+                        modifier = Modifier.fillMaxWidth(),
                         label = "Connector Status",
                         value = connectorStatus,
                         values = ChargePointStatus.entries,
@@ -94,6 +114,7 @@ fun ColumnScope.ConnectorStateView(
                         }
                     )
                     Spinner(
+                        modifier = Modifier.fillMaxWidth(),
                         label = "Error Code",
                         value = errorCode,
                         values = ChargePointErrorCode.entries,
@@ -102,6 +123,36 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onSelectionChanged = { newChargePointErrorCode ->
                             errorCode = newChargePointErrorCode
+                        }
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = statusInfo ?: "",
+                        label = {
+                            Text("Info")
+                        },
+                        onValueChange = { newStatusInfo ->
+                            statusInfo = newStatusInfo
+                        }
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = vendorId ?: "",
+                        label = {
+                            Text("Vendor ID")
+                        },
+                        onValueChange = { newVendorId ->
+                            vendorId = newVendorId
+                        }
+                    )
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = vendorErrorCode ?: "",
+                        label = {
+                            Text("Vendor Error Code")
+                        },
+                        onValueChange = { newVendorErrorCode ->
+                            vendorErrorCode = newVendorErrorCode
                         }
                     )
                 }

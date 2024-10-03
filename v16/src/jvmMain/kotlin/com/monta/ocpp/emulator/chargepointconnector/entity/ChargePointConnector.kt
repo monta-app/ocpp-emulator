@@ -31,6 +31,9 @@ object ChargePointConnectorTable : LongIdTable("charge_point_connector") {
     val meterAt = timestamp("meter_at").nullable().default(null)
     val carState = enumerationByName("car_state", 128, CarState::class)
     val errorCode = enumerationByName("error_code", 256, ChargePointErrorCode::class)
+    val vendorId = varchar("vendor_id", 255).nullable().default(null)
+    val vendorErrorCode = varchar("vendor_error_code", 50).nullable().default(null)
+    val statusInfo = varchar("status_info", 50).nullable().default(null)
     val maxKw = double("max_kw")
     val kw = double("kw")
     val vehicleMaxAmpsPerPhase = double("vehicle_max_amps_per_phase").default(1.0)
@@ -80,6 +83,9 @@ class ChargePointConnectorDAO(
     var meterAt by ChargePointConnectorTable.meterAt
     var carState by ChargePointConnectorTable.carState
     var errorCode by ChargePointConnectorTable.errorCode
+    var vendorId by ChargePointConnectorTable.vendorId
+    var vendorErrorCode by ChargePointConnectorTable.vendorErrorCode
+    var statusInfo by ChargePointConnectorTable.statusInfo
     var maxKw by ChargePointConnectorTable.maxKw
     var kw by ChargePointConnectorTable.kw
     var vehicleMaxAmpsPerPhase by ChargePointConnectorTable.vehicleMaxAmpsPerPhase
