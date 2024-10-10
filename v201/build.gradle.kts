@@ -60,11 +60,11 @@ kotlin {
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.8")
+                implementation("ch.qos.logback:logback-classic:1.5.9")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.14.0"))
+                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.15.0"))
                 implementation("io.sentry:sentry")
                 implementation("io.sentry:sentry-logback")
 
