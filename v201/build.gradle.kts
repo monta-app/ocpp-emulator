@@ -60,11 +60,11 @@ kotlin {
                 implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.8")
+                implementation("ch.qos.logback:logback-classic:1.5.11")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.14.0"))
+                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.15.0"))
                 implementation("io.sentry:sentry")
                 implementation("io.sentry:sentry-logback")
 
@@ -76,7 +76,7 @@ kotlin {
                 implementation("io.insert-koin:koin-core")
                 implementation("io.insert-koin:koin-ktor")
                 implementation("io.insert-koin:koin-logger-slf4j")
-                implementation("io.insert-koin:koin-annotations:1.3.1")
+                implementation("io.insert-koin:koin-annotations:1.4.0")
 
                 // SQL Database
                 implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.55.0"))
@@ -90,7 +90,7 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.3.1")
+    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.4.0")
 }
 
 ktlint {
