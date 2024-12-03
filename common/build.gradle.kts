@@ -29,7 +29,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
                 // Websocket Client
-                implementation(project.dependencies.platform("io.ktor:ktor-bom:2.3.12"))
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:3.0.2"))
                 implementation("io.ktor:ktor-client-core")
                 implementation("io.ktor:ktor-client-cio")
                 implementation("io.ktor:ktor-client-websockets")
