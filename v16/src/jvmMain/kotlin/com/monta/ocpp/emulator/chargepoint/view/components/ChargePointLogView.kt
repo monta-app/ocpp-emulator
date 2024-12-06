@@ -24,6 +24,7 @@ import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.IndexOutOfBoundsException
 
 @Composable
 fun chargePointLogComponent(
@@ -61,7 +62,9 @@ fun chargePointLogComponent(
                             logItems.size != 0 &&
                             navigationViewModel.windowHasFocus
                         ) {
-                            lazyListState.scrollToItem(logItems.size - 1)
+                            try {
+                                lazyListState.scrollToItem(logItems.size - 1)
+                            } catch (ignore: IndexOutOfBoundsException) { /* ignore - this happens sometimes */ }
                         }
                     }
                 }
