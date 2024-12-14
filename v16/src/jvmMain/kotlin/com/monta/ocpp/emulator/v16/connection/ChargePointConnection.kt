@@ -26,6 +26,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.seconds
 
 class ChargePointConnection(
     var chargePointId: Long
@@ -41,7 +42,7 @@ class ChargePointConnection(
     private var websocketSession: WebSocketSession? = null
     private val client = HttpClient(CIO) {
         install(WebSockets) {
-            pingInterval = 20_000
+            pingInterval = 20.seconds
         }
     }
     private var connectionAttempts = 1

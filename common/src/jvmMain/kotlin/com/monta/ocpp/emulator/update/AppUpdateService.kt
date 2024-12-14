@@ -185,7 +185,9 @@ class AppUpdateService {
     ) {
         val response: HttpResponse = downloadClient.get("$BASE_URL/releases/assets/${asset.id}") {
             onDownload { bytesSentTotal, contentLength ->
-                val progress = bytesSentTotal.toFloat() / contentLength.toFloat()
+                val progress = contentLength?.let { contentLength ->
+                    bytesSentTotal.toFloat() / contentLength.toFloat()
+                } ?: 0F
                 logger.trace("Downloading ($bytesSentTotal / $contentLength) $progress")
                 downloadProgress.value = progress
             }
