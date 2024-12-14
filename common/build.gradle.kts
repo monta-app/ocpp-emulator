@@ -79,7 +79,7 @@ kotlin {
                 implementation("org.jetbrains.exposed:exposed-java-time")
 
                 // Data Source Connection Pool
-                implementation("com.zaxxer:HikariCP:5.1.0")
+                implementation("com.zaxxer:HikariCP:6.2.1")
 
                 // SQLite JDBC Driver
                 implementation(files("libs/sqlite-jdbc-3.42.0.0.jar"))
