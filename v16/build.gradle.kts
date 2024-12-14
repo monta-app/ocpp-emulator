@@ -50,7 +50,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-jackson")
 
                 // Jackson
-                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.18.0"))
+                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.18.2"))
                 implementation("com.fasterxml.jackson.core:jackson-core")
                 implementation("com.fasterxml.jackson.core:jackson-annotations")
                 implementation("com.fasterxml.jackson.core:jackson-databind")
@@ -62,11 +62,11 @@ kotlin {
                 implementation("io.nayuki:qrcodegen:1.8.0")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.8")
+                implementation("ch.qos.logback:logback-classic:1.5.12")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.14.0"))
+                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.19.0"))
                 implementation("io.sentry:sentry")
                 implementation("io.sentry:sentry-logback")
 
@@ -78,10 +78,10 @@ kotlin {
                 implementation("io.insert-koin:koin-core")
                 implementation("io.insert-koin:koin-ktor")
                 implementation("io.insert-koin:koin-logger-slf4j")
-                implementation("io.insert-koin:koin-annotations:1.3.1")
+                implementation("io.insert-koin:koin-annotations:1.4.0")
 
                 // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.55.0"))
+                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.57.0"))
                 implementation("org.jetbrains.exposed:exposed-core")
                 implementation("org.jetbrains.exposed:exposed-dao")
                 implementation("org.jetbrains.exposed:exposed-jdbc")
@@ -92,7 +92,7 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.3.1")
+    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.4.0")
 }
 
 ktlint {
