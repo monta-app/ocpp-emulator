@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -62,7 +61,11 @@ fun ChargePointsScreen() {
             SearchTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(
+                        start = 8.dp,
+                        top = 8.dp,
+                        end = 8.dp
+                    ),
                 searchQuery = searchQuery,
                 onSearchQueryChange = { newQuery ->
                     searchQuery = newQuery
@@ -79,7 +82,6 @@ private fun SearchTextField(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit
 ) {
-    // Search Bar
     TextField(
         value = searchQuery,
         onValueChange = {
@@ -108,7 +110,6 @@ private fun SearchTextField(
             }
         },
         singleLine = true,
-        shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = MaterialTheme.colors.surface,
             focusedIndicatorColor = Color.Transparent,
