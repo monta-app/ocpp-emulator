@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ChargePointsScreen() {
-
     var searchQuery by remember {
         mutableStateOf("")
     }
@@ -173,7 +172,6 @@ private fun ChargePointDAO.matchesSearchQuery(query: String): Boolean {
     return name.contains(query, ignoreCase = true) || identity.contains(query, ignoreCase = true)
 }
 
-
 @Composable
 private fun RowScope.AddChargePointButton() {
     val screenViewModel: NavigationViewModel by injectAnywhere()
@@ -184,7 +182,7 @@ private fun RowScope.AddChargePointButton() {
                 .height(56.dp)
                 .align(Alignment.CenterVertically)
                 .padding(
-                    end = 8.dp,
+                    end = 8.dp
                 ),
             onClick = {
                 screenViewModel.navigateTo(
