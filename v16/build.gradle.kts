@@ -34,14 +34,14 @@ kotlin {
                 implementation("com.github.monta-app.library-ocpp:v16:1.0.3")
 
                 // Coroutines
-                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0"))
+                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.10.0"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
 
                 // Websocket Client
-                implementation(project.dependencies.platform("io.ktor:ktor-bom:3.0.2"))
+                implementation(project.dependencies.platform("io.ktor:ktor-bom:3.0.3"))
                 implementation("io.ktor:ktor-client-core")
                 implementation("io.ktor:ktor-client-cio")
                 implementation("io.ktor:ktor-client-websockets")
@@ -62,7 +62,7 @@ kotlin {
                 implementation("io.nayuki:qrcodegen:1.8.0")
 
                 // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.12")
+                implementation("ch.qos.logback:logback-classic:1.5.14")
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
