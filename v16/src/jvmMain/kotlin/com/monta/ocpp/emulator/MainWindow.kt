@@ -46,7 +46,7 @@ fun ApplicationScope.MainWindow() {
         setupAppThemeMenu(appThemeViewModel)
 
         MaterialTheme(
-            colors = appThemeViewModel.getColors(),
+            colors = appThemeViewModel.getColors()
         ) {
             when (navigationViewModel.currentScreen) {
                 is NavigationViewModel.Screen.ChargePoints -> {
