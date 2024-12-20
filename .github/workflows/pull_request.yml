@@ -9,7 +9,6 @@ jobs:
     secrets:
       GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
       GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}
-      SLACK_APP_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
   static-code-analysis:
     name: Static Code Analysis
     runs-on: ubuntu-latest
