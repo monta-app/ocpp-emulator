@@ -17,7 +17,6 @@ import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransact
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.json
-import com.monta.ocpp.emulator.common.util.randomString
 import com.monta.ocpp.emulator.logger.Loggable
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
@@ -112,7 +111,7 @@ class ChargePointDAO(
                 // Info
                 this.brand = "Monta"
                 this.model = "E-Emulator"
-                this.serial = randomString(16)
+                this.serial = "MontaEmulator"
                 this.firmware = firmware
                 // Settings
                 this.connected = false
