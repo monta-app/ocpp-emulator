@@ -92,7 +92,7 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.4.0")
+    add("kspJvm", "io.insert-koin:koin-ksp-compiler:2.0.0")
 }
 
 ktlint {
