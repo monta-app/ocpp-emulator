@@ -57,7 +57,7 @@ kotlin {
                 implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.22.4"))
+                implementation(project.dependencies.platform("io.sentry:sentry-bom:8.5.0"))
                 implementation("io.sentry:sentry")
                 implementation("io.sentry:sentry-logback")
 
