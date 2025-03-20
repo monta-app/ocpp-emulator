@@ -78,7 +78,7 @@ kotlin {
                 implementation("io.insert-koin:koin-core")
                 implementation("io.insert-koin:koin-ktor")
                 implementation("io.insert-koin:koin-logger-slf4j")
-                implementation("io.insert-koin:koin-annotations:1.4.0")
+                implementation("io.insert-koin:koin-annotations:2.0.0")
 
                 // SQL Database
                 implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.60.0"))
