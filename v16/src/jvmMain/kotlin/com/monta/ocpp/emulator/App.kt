@@ -6,15 +6,17 @@ import com.monta.ocpp.emulator.interceptor.view.EditMessageWindow
 import com.monta.ocpp.emulator.interceptor.view.SendMessageWindow
 import com.monta.ocpp.emulator.user.AnalyticsHelper
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import org.koin.core.logger.Level
 import org.koin.ksp.generated.module
 import org.koin.mp.KoinPlatform
+import java.util.TimeZone
 
 private val logger = KotlinLogging.logger {}
 
 fun main() {
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     try {
         KoinPlatform.startKoin(
             listOf(

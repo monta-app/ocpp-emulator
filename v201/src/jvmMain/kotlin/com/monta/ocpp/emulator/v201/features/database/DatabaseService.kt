@@ -2,7 +2,7 @@ package com.monta.ocpp.emulator.v201.features.database
 
 import com.monta.ocpp.emulator.configuration.AppConfigTable
 import com.monta.ocpp.emulator.database.DatabaseInitiator
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Singleton

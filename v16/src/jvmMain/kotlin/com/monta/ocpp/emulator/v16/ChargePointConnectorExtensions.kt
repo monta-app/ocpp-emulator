@@ -10,8 +10,8 @@ import com.monta.ocpp.emulator.chargepointconnector.model.CarState
 import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransactionService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.logger.GlobalLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
-import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 

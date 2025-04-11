@@ -1,9 +1,9 @@
 package com.monta.ocpp.emulator.logger
 
 import com.monta.ocpp.emulator.common.util.PrettyJsonFormatter
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.concurrent.ConcurrentHashMap
 

@@ -17,7 +17,7 @@ import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransact
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.eichrecht.EichrechtSignatureService
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.ZonedDateTime

@@ -4,9 +4,9 @@ import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.v16.SchedulerService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
-import mu.KotlinLogging
 import org.koin.core.annotation.Singleton
 
 @Singleton
