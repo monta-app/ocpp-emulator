@@ -95,7 +95,7 @@ class ChargePointDAO(
         fun newInstance(
             name: String,
             identity: String,
-            password: String,
+            password: String?,
             ocppUrl: String,
             apiUrl: String,
             firmware: String,

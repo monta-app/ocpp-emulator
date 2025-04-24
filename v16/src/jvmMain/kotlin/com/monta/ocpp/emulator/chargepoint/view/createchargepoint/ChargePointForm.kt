@@ -286,7 +286,7 @@ private fun connect(
     chargePointService.upsert(
         name = viewModel.form.chargePointName,
         identity = viewModel.form.chargePointIdentity,
-        password = viewModel.form.password,
+        password = viewModel.form.password.takeIf { it.isNotBlank() },
         ocppUrl = viewModel.form.ocppUrl,
         apiUrl = viewModel.form.apiUrl,
         firmware = viewModel.form.firmware,
