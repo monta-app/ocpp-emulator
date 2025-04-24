@@ -10,6 +10,7 @@ import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.logger.GlobalLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
@@ -17,7 +18,6 @@ import io.ktor.client.request.*
 import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
-import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger

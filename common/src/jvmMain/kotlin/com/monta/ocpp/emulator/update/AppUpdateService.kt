@@ -10,6 +10,7 @@ import com.monta.ocpp.emulator.update.model.GithubAsset
 import com.monta.ocpp.emulator.update.model.GithubRelease
 import com.monta.ocpp.emulator.update.model.OS
 import com.monta.ocpp.emulator.update.model.UpdateState
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -24,7 +25,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import net.swiftzer.semver.SemVer
 import org.koin.core.annotation.Singleton
 import java.awt.Desktop

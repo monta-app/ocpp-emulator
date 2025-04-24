@@ -1,11 +1,11 @@
 package com.monta.ocpp.emulator.common
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import org.jetbrains.exposed.dao.EntityChange
 import org.jetbrains.exposed.dao.EntityHook
 import org.jetbrains.exposed.dao.LongEntity

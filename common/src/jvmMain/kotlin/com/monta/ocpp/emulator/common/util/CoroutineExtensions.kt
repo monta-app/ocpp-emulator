@@ -1,11 +1,11 @@
 package com.monta.ocpp.emulator.common.util
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 

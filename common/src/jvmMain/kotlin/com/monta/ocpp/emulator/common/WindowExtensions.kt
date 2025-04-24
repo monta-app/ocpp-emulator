@@ -11,8 +11,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.WindowExceptionHandlerFactory
 import androidx.compose.ui.window.WindowState
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.sentry.Sentry
-import mu.KotlinLogging
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 

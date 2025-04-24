@@ -11,10 +11,10 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.annotation.Factory
 import java.time.Duration

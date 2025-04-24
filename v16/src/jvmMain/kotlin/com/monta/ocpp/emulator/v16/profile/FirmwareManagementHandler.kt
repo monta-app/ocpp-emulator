@@ -11,8 +11,8 @@ import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.v16.ChargePointManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
-import mu.KotlinLogging
 import org.koin.core.annotation.Singleton
 
 @Singleton
