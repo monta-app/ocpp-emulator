@@ -7,6 +7,7 @@ import com.monta.library.ocpp.v16.core.BootNotificationRequest
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.DataTransferRequest
+import com.monta.library.ocpp.v16.core.MeterValue
 import com.monta.library.ocpp.v16.core.RegistrationStatus
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationRequest
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationStatus
