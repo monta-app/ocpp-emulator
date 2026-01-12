@@ -62,7 +62,7 @@ If you only care about running the application you can find the latest release o
 the [releases page](https://github.com/monta-app/ocpp-emulator/releases) we are currently building executables for
 Windows, Linux and MacOS.
 
-# MacOS
+## MacOS
 
 If you're installing the `.dmg` please make sure you run `xattr -d com.apple.quarantine /Applications/OcppEmulator.
 app` before trying to run the application :) otherwise you'll see `Apple could not verify “OcppEmulator” is free of malware that may harm your Mac or compromise your privacy.`
