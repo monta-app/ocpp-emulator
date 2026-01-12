@@ -10,7 +10,7 @@ import com.monta.ocpp.emulator.v16.data.entity.TxDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton(createdAtStart = true)
 class DatabaseService {

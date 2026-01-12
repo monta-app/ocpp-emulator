@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class NavigationViewModel {

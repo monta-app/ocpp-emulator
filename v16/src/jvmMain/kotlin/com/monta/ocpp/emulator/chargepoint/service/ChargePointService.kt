@@ -4,7 +4,7 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.exception.ChargePointNotFoundException
 import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointService(

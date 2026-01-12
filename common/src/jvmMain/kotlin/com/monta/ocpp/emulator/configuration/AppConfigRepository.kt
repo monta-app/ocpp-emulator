@@ -1,6 +1,6 @@
 package com.monta.ocpp.emulator.configuration
 
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class AppConfigRepository {

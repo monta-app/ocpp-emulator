@@ -3,7 +3,7 @@ package com.monta.ocpp.emulator.chargepointconnector.repository
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorTable
 import org.jetbrains.exposed.sql.and
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointConnectorRepository {

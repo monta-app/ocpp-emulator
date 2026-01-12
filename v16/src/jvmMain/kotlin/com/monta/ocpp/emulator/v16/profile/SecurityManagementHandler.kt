@@ -25,7 +25,7 @@ import com.monta.library.ocpp.v16.security.TriggerMessageStatusEnumType
 import com.monta.library.ocpp.v16.security.UpdateFirmwareStatusEnumType
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class SecurityManagementHandler(

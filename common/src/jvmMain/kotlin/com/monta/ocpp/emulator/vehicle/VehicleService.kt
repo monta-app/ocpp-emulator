@@ -10,7 +10,7 @@ import io.ktor.client.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.Formatter

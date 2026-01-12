@@ -1,7 +1,7 @@
 package com.monta.ocpp.emulator.configuration
 
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class AppConfigService(

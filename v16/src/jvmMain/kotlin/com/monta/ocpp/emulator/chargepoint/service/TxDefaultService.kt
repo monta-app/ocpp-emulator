@@ -8,7 +8,7 @@ import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorD
 import com.monta.ocpp.emulator.v16.data.entity.TxDefaultDAO
 import com.monta.ocpp.emulator.v16.data.repository.TxDefaultRepository
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class TxDefaultService(

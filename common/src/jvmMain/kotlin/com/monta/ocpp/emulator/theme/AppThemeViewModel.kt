@@ -13,7 +13,7 @@ import com.monta.ocpp.emulator.common.components.toColor
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.configuration.AppConfigService
 import com.monta.ocpp.emulator.logger.ChargePointLogger
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class AppThemeViewModel(

@@ -1,7 +1,7 @@
 package com.monta.ocpp.emulator.user
 
 import com.monta.ocpp.emulator.configuration.AppConfigService
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import java.util.UUID
 
 @Singleton

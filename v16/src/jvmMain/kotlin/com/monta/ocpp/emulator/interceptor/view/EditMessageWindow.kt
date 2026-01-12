@@ -34,7 +34,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class EditMessageWindowViewModel {

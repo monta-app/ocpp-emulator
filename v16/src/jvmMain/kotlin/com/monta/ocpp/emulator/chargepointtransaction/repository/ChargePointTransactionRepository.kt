@@ -2,7 +2,7 @@ package com.monta.ocpp.emulator.chargepointtransaction.repository
 
 import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransaction
 import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransactionDAO
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointTransactionRepository {

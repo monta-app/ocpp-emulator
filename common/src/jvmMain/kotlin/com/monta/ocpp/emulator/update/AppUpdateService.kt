@@ -26,7 +26,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.swiftzer.semver.SemVer
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import java.awt.Desktop
 import java.io.File
 import java.io.IOException

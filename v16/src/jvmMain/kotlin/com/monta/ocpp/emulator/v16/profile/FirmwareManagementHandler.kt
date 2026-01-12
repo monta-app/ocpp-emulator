@@ -13,7 +13,7 @@ import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.v16.ChargePointManager
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class FirmwareManagementHandler : FirmwareManagementClientProfile.Listener {

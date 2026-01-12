@@ -4,7 +4,7 @@ import com.monta.ocpp.emulator.common.util.PrettyJsonFormatter
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import java.time.OffsetDateTime
 
 @Singleton

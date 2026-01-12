@@ -19,7 +19,7 @@ import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransac
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.data.service.TxDefaultService
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class SmartChargingClientHandler(

@@ -7,7 +7,7 @@ import com.monta.ocpp.emulator.v16.SchedulerService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ConnectionManager(

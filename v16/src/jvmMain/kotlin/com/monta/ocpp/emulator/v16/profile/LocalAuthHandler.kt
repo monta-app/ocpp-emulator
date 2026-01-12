@@ -9,7 +9,7 @@ import com.monta.library.ocpp.v16.localauth.SendLocalListRequest
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class LocalAuthHandler : LocalListClientProfile.Listener {

@@ -11,7 +11,7 @@ import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.startFreeCharging
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChangeConfigurationService {

@@ -2,7 +2,7 @@ package com.monta.ocpp.emulator.user
 
 import io.sentry.Sentry
 import io.sentry.protocol.User
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import org.slf4j.LoggerFactory
 
 @Singleton

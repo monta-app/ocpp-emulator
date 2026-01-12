@@ -45,7 +45,7 @@ import com.monta.ocpp.emulator.v16.setStatus
 import com.monta.ocpp.emulator.v16.stop
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
 import kotlinx.coroutines.delay
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class CoreClientHandler : CoreClientProfile.Listener {

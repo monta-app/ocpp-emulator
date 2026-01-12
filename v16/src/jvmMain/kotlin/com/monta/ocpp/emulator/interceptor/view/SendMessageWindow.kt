@@ -90,7 +90,7 @@ import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID

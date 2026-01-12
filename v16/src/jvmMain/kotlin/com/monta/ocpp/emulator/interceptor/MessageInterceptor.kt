@@ -35,7 +35,7 @@ import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.logger.Loggable
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class MessageInterceptor(

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class TxDefaultRepository {

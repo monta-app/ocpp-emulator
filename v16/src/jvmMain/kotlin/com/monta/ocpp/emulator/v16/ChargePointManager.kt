@@ -24,7 +24,7 @@ import com.monta.ocpp.emulator.v16.connection.ConnectionManager
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 import java.time.Instant
 import java.time.ZonedDateTime
 
