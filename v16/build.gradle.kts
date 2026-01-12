@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.monta.ocpp.emulator"
-version = "2.4.0"
+version = "2.5.0"
 
 kotlin {
     jvm()
