@@ -15,7 +15,9 @@ class NavigationViewModel {
 
     var lastActiveChargePointId: Long? by mutableStateOf(null)
 
-    fun navigateTo(screen: Screen) {
+    fun navigateTo(
+        screen: Screen,
+    ) {
         currentScreen = screen
         if (screen is Screen.ChargePoint) {
             lastActiveChargePointId = screen.chargePointId
@@ -37,11 +39,11 @@ class NavigationViewModel {
     sealed class Screen {
         data object ChargePoints : Screen()
         data class CreateChargePoint(
-            val chargePoint: ChargePointDAO? = null
+            val chargePoint: ChargePointDAO? = null,
         ) : Screen()
 
         data class ChargePoint(
-            val chargePointId: Long
+            val chargePointId: Long,
         ) : Screen()
 
         data object Vehicles : Screen()

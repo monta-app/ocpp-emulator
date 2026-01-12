@@ -2,12 +2,12 @@ package com.monta.ocpp.emulator.user
 
 import io.sentry.Sentry
 import io.sentry.protocol.User
-import javax.inject.Singleton
 import org.slf4j.LoggerFactory
+import javax.inject.Singleton
 
 @Singleton
 class AnalyticsHelper(
-    private val appUserService: AppUserService
+    private val appUserService: AppUserService,
 ) {
 
     companion object {
@@ -28,7 +28,7 @@ class AnalyticsHelper(
             Sentry.setUser(
                 User().apply {
                     id = appUserService.getUserId()
-                }
+                },
             )
         } catch (e: Exception) {
             logger.warn("[sentry] failed to set user", e)

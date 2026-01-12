@@ -9,7 +9,7 @@ import java.io.File
 import javax.sql.DataSource
 
 class DatabaseInitiator(
-    private val databaseName: String
+    private val databaseName: String,
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -32,7 +32,7 @@ class DatabaseInitiator(
                     password = ""
                     poolName = "SQLiteConnectionPool"
                     maximumPoolSize = 1
-                }
+                },
             )
             database = Database.connect(dataSource)
         } catch (exception: Exception) {

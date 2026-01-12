@@ -78,17 +78,17 @@ object ChargePointTable : LongIdTable("charge_point") {
     // Config
     val configuration = json<ChargePointConfiguration>(
         name = "configuration",
-        objectMapper = MontaSerialization.getDefaultMapper()
+        objectMapper = MontaSerialization.getDefaultMapper(),
     )
     val localAuthList = json<LocalAuthList>(
         name = "local_auth_list",
-        objectMapper = MontaSerialization.getDefaultMapper()
+        objectMapper = MontaSerialization.getDefaultMapper(),
     )
 }
 
 // DAO
 class ChargePointDAO(
-    id: EntityID<Long>
+    id: EntityID<Long>,
 ) : LongEntity(id), Loggable {
 
     companion object : LongEntityClass<ChargePointDAO>(ChargePointTable) {
@@ -99,7 +99,7 @@ class ChargePointDAO(
             ocppUrl: String,
             apiUrl: String,
             firmware: String,
-            maxKw: Double
+            maxKw: Double,
         ): ChargePointDAO {
             return ChargePointDAO.new {
                 this.name = name
@@ -207,7 +207,7 @@ class ChargePointDAO(
     }
 
     fun getConnector(
-        connectorId: Int
+        connectorId: Int,
     ): ChargePointConnectorDAO {
         return transaction {
             val connector = connectors.firstOrNull { it.position == connectorId }
@@ -218,7 +218,7 @@ class ChargePointDAO(
                 position = connectorId,
                 status = ChargePointStatus.Available,
                 errorCode = ChargePointErrorCode.NoError,
-                maxKw = maxKw
+                maxKw = maxKw,
             )
         }
     }
@@ -228,7 +228,7 @@ class ChargePointDAO(
     }
 
     fun updateConfiguration(
-        update: ChargePointConfiguration.() -> Unit
+        update: ChargePointConfiguration.() -> Unit,
     ) {
         val configuration = ChargePointConfiguration()
         configuration.putAll(this.configuration)
@@ -236,14 +236,18 @@ class ChargePointDAO(
         this.configuration = configuration
     }
 
-    fun handleDataTransferRequest(request: DataTransferRequest): Boolean {
+    fun handleDataTransferRequest(
+        request: DataTransferRequest,
+    ): Boolean {
         return when (request.vendorId) {
             "com.monta" -> handleMontaLCDMessage(request)
             else -> false
         }
     }
 
-    private fun handleMontaLCDMessage(request: DataTransferRequest): Boolean {
+    private fun handleMontaLCDMessage(
+        request: DataTransferRequest,
+    ): Boolean {
         var displayLines = displayText.split("\n").toMutableList()
         when (request.messageId) {
             "SmartChargingEnabled" -> displayLines[0] = if (request.data == "true") "Smart Charging" else "Charging"

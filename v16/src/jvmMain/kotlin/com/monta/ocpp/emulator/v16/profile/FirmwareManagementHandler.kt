@@ -25,14 +25,14 @@ class FirmwareManagementHandler : FirmwareManagementClientProfile.Listener {
 
     override suspend fun getDiagnostics(
         ocppSessionInfo: OcppSession.Info,
-        request: GetDiagnosticsRequest
+        request: GetDiagnosticsRequest,
     ): GetDiagnosticsConfirmation {
         return GetDiagnosticsConfirmation()
     }
 
     override suspend fun updateFirmware(
         ocppSessionInfo: OcppSession.Info,
-        request: UpdateFirmwareRequest
+        request: UpdateFirmwareRequest,
     ): UpdateFirmwareConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -49,25 +49,25 @@ class FirmwareManagementHandler : FirmwareManagementClientProfile.Listener {
 
     fun startFirmwareUpdate(
         chargePoint: ChargePointDAO,
-        location: String
+        location: String,
     ) {
         launchThread {
             val parts = location.split("?")
             if (parts.size != 2) {
-                logger.error("no parameters in url in from upgrade trigger")
+                logger.error { "no parameters in url in from upgrade trigger" }
                 return@launchThread
             }
             val (_, parameters) = parts
             val firmwareVersion = parameters.parseUrlEncodedParameters()["version"]
 
             if (firmwareVersion == null) {
-                logger.error("missing version from upgrade trigger")
+                logger.error { "missing version from upgrade trigger" }
                 return@launchThread
             }
 
             chargePointManager.startFirmwareUpdate(
                 chargePoint = chargePoint,
-                firmwareVersion = firmwareVersion
+                firmwareVersion = firmwareVersion,
             )
         }
     }

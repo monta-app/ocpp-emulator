@@ -49,8 +49,8 @@ fun ApplicationScope.EditMessageWindow() {
     val windowState = rememberWindowState(
         size = DpSize(800.dp, 750.dp),
         position = WindowPosition.Aligned(
-            Alignment.CenterEnd
-        )
+            Alignment.CenterEnd,
+        ),
     )
 
     if (editMessageWindowViewModel.channel == null) {
@@ -69,32 +69,32 @@ fun ApplicationScope.EditMessageWindow() {
                 editMessageWindowViewModel.message = ""
                 editMessageWindowViewModel.channel = null
             }
-        }
+        },
     ) {
         MaterialTheme(
-            colors = appThemeViewModel.getColors()
+            colors = appThemeViewModel.getColors(),
         ) {
             Scaffold(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
                 ) {
                     Card(
-                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight()
+                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight(),
                     ) {
                         Column(
                             modifier = Modifier.padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = editMessageWindowViewModel.message,
                                 onValueChange = { newValue -> editMessageWindowViewModel.message = newValue },
                                 textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                                label = { Text("message payload") }
+                                label = { Text("message payload") },
                             )
                             Button(
                                 onClick = {
@@ -103,7 +103,7 @@ fun ApplicationScope.EditMessageWindow() {
                                         editMessageWindowViewModel.message = ""
                                         editMessageWindowViewModel.channel = null
                                     }
-                                }
+                                },
                             ) {
                                 Text("Confirm")
                             }

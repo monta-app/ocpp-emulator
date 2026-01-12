@@ -19,7 +19,7 @@ class ChargePointRepository {
         ocppUrl: String,
         apiUrl: String,
         firmware: String,
-        maxKw: Double
+        maxKw: Double,
     ): ChargePointDAO {
         val chargePoint = ChargePointDAO.find {
             ChargePointTable.identity eq identity
@@ -42,16 +42,16 @@ class ChargePointRepository {
             ocppUrl = ocppUrl,
             apiUrl = apiUrl,
             firmware = firmware,
-            maxKw = maxKw
+            maxKw = maxKw,
         )
     }
 
     fun getAllFlow(
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
     ): Flow<List<ChargePointDAO>> {
         return createDatabaseListener(
             coroutineScope = coroutineScope,
-            entityClass = ChargePointDAO
+            entityClass = ChargePointDAO,
         ) {
             transaction {
                 getAll()
@@ -65,7 +65,7 @@ class ChargePointRepository {
     }
 
     fun getById(
-        id: Long
+        id: Long,
     ): ChargePointDAO? {
         return ChargePointDAO.find {
             ChargePointTable.id eq id
@@ -74,12 +74,12 @@ class ChargePointRepository {
 
     fun getByIdFlow(
         coroutineScope: CoroutineScope,
-        id: Long
+        id: Long,
     ): Flow<ChargePointDAO> {
         return createDatabaseListener(
             coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
-            id = id
+            id = id,
         ) {
             transaction {
                 getById(id)
@@ -88,7 +88,7 @@ class ChargePointRepository {
     }
 
     fun getByIdentity(
-        identity: String
+        identity: String,
     ): ChargePointDAO? {
         return ChargePointDAO.find {
             ChargePointTable.identity eq identity
@@ -105,7 +105,7 @@ class ChargePointRepository {
     }
 
     fun clearChargePointBootStatus(
-        chargePointId: Long
+        chargePointId: Long,
     ) {
         transaction {
             ChargePointTable.update({ ChargePointTable.id eq chargePointId }) {

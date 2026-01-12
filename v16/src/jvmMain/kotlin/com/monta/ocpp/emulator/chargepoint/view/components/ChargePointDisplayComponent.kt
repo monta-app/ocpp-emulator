@@ -17,25 +17,25 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 
 @Composable
 fun chargePointDisplayComponent(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     Text(
         text = "Display",
         modifier = Modifier.padding(top = 8.dp),
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
     )
     Card(
         modifier = Modifier.shadow(0.dp)
-            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp))
+            .border(1.dp, Color.LightGray, RoundedCornerShape(5.dp)),
     ) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
         ) {
             Text(
                 text = chargePoint.displayText,
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 5,
-                maxLines = 5
+                maxLines = 5,
             )
         }
     }

@@ -55,20 +55,20 @@ fun ChargePointsScreen() {
             TopAppBar(
                 title = {
                     Text(text = "Charge Points")
-                }
+                },
             )
-        }
+        },
     ) {
         Column {
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(8.dp),
             )
             Row {
                 SearchTextField(
                     searchQuery = searchQuery,
                     onSearchQueryChange = { newQuery ->
                         searchQuery = newQuery
-                    }
+                    },
                 )
                 AddChargePointButton()
             }
@@ -80,7 +80,7 @@ fun ChargePointsScreen() {
 @Composable
 private fun RowScope.SearchTextField(
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
 ) {
     TextField(
         value = searchQuery,
@@ -91,12 +91,12 @@ private fun RowScope.SearchTextField(
             .weight(1F)
             .padding(
                 start = 8.dp,
-                end = 8.dp
+                end = 8.dp,
             ),
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon"
+                contentDescription = "Search Icon",
             )
         },
         trailingIcon = {
@@ -104,11 +104,11 @@ private fun RowScope.SearchTextField(
                 IconButton(
                     onClick = {
                         onSearchQueryChange("")
-                    }
+                    },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
-                        contentDescription = "Clear Search"
+                        contentDescription = "Clear Search",
                     )
                 }
             }
@@ -116,17 +116,18 @@ private fun RowScope.SearchTextField(
         singleLine = true,
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = LocalElevationOverlay.current?.apply(
-                MaterialTheme.colors.surface, LocalAbsoluteElevation.current + 1.dp
+                MaterialTheme.colors.surface,
+                LocalAbsoluteElevation.current + 1.dp,
             ) ?: MaterialTheme.colors.surface,
             focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent
-        )
+            unfocusedIndicatorColor = Color.Transparent,
+        ),
     )
 }
 
 @Composable
 private fun ChargePointsListView(
-    searchQuery: String
+    searchQuery: String,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -146,16 +147,16 @@ private fun ChargePointsListView(
     }
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 384.dp)
+        columns = GridCells.Adaptive(minSize = 384.dp),
     ) {
         items(filteredChargePoints) { chargePoint ->
             ChargePointCard(
-                chargePoint = chargePoint
+                chargePoint = chargePoint,
             ) {
                 screenViewModel.navigateTo(
                     NavigationViewModel.Screen.ChargePoint(
-                        chargePointId = chargePoint.idValue
-                    )
+                        chargePointId = chargePoint.idValue,
+                    ),
                 )
             }
         }
@@ -163,7 +164,9 @@ private fun ChargePointsListView(
 }
 
 // Helper extension function to filter charge points based on the search query
-private fun ChargePointDAO.matchesSearchQuery(query: String): Boolean {
+private fun ChargePointDAO.matchesSearchQuery(
+    query: String,
+): Boolean {
     // Adjust the logic here based on your ChargePointDAO structure
     if (query.isEmpty()) {
         return true
@@ -182,17 +185,17 @@ private fun RowScope.AddChargePointButton() {
                 .height(56.dp)
                 .align(Alignment.CenterVertically)
                 .padding(
-                    end = 8.dp
+                    end = 8.dp,
                 ),
             onClick = {
                 screenViewModel.navigateTo(
-                    NavigationViewModel.Screen.CreateChargePoint()
+                    NavigationViewModel.Screen.CreateChargePoint(),
                 )
-            }
+            },
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add charge point"
+                contentDescription = "Add charge point",
             )
         }
     }

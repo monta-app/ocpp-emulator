@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PbmDialog(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -58,7 +58,7 @@ fun PbmDialog(
                     "URL QR"
                 } else {
                     "Serial QR"
-                }
+                },
             )
         },
         onDismissRequest = {},
@@ -68,7 +68,7 @@ fun PbmDialog(
                 onClick = {
                     PbmService.showUrlQR.value = false
                     PbmService.showSerialQR.value = false
-                }
+                },
             ) {
                 Text("Close")
             }
@@ -79,32 +79,32 @@ fun PbmDialog(
                     Text(
                         modifier = Modifier.padding(bottom = 8.dp),
                         text = "The following QR code should be use for starting the PBM flow via the phone's camera app",
-                        style = MaterialTheme.typography.subtitle1
+                        style = MaterialTheme.typography.subtitle1,
                     )
                 } else {
                     Text(
                         modifier = Modifier.padding(bottom = 8.dp),
                         text = "The following QR code should be use in the PBM flow for registering the emulator's serial number",
-                        style = MaterialTheme.typography.subtitle1
+                        style = MaterialTheme.typography.subtitle1,
                     )
                 }
                 Box(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Image(
                         modifier = Modifier.align(Alignment.Center)
                             .size(
                                 width = 250.dp,
-                                height = 250.dp
+                                height = 250.dp,
                             ),
                         bitmap = PbmService.createQrCode(
                             chargePoint = chargePoint,
-                            showUrlQR = showUrlQR
+                            showUrlQR = showUrlQR,
                         ),
-                        contentDescription = "Hello"
+                        contentDescription = "Hello",
                     )
                 }
             }
-        }
+        },
     )
 }

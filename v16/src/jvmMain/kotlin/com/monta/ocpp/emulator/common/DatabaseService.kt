@@ -27,7 +27,7 @@ class DatabaseService {
                     ChargePointConnectorTable,
                     ChargePointTransaction,
                     TxDefault,
-                    PreviousMessagesTable
+                    PreviousMessagesTable,
                 )
             }
         } catch (exception: Exception) {

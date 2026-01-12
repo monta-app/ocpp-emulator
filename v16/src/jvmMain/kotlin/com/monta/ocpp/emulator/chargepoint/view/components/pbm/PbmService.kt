@@ -13,25 +13,27 @@ object PbmService {
 
     fun createQrCode(
         chargePoint: ChargePointDAO,
-        showUrlQR: Boolean
+        showUrlQR: Boolean,
     ): ImageBitmap {
         return generateQrCode(
             url = if (showUrlQR) {
                 getPbmUrl(chargePoint)
             } else {
                 "serial=${chargePoint.identity}"
-            }
+            },
         )
     }
 
-    private fun generateQrCode(url: String): ImageBitmap {
+    private fun generateQrCode(
+        url: String,
+    ): ImageBitmap {
         return QrCode.encodeText(url, QrCode.Ecc.MEDIUM)
             .toImage()
             .toComposeImageBitmap()
     }
 
     private fun getPbmUrl(
-        chargePoint: ChargePointDAO
+        chargePoint: ChargePointDAO,
     ): String {
         var apiUrl = chargePoint.apiUrl
 
@@ -46,12 +48,12 @@ object PbmService {
         scale: Int = 10,
         border: Int = 3,
         lightColor: Int = 0xFFFFFF,
-        darkColor: Int = 0x000000
+        darkColor: Int = 0x000000,
     ): BufferedImage {
         val bufferedImage = BufferedImage(
             (size + border * 2) * scale,
             (size + border * 2) * scale,
-            BufferedImage.TYPE_INT_RGB
+            BufferedImage.TYPE_INT_RGB,
         )
 
         for (y in 0 until bufferedImage.height) {

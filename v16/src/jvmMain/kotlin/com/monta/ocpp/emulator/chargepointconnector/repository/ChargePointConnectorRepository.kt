@@ -8,7 +8,7 @@ import javax.inject.Singleton
 @Singleton
 class ChargePointConnectorRepository {
     fun getById(
-        id: Long
+        id: Long,
     ): ChargePointConnectorDAO? {
         return ChargePointConnectorDAO.find {
             (ChargePointConnectorTable.id eq id)
@@ -17,7 +17,7 @@ class ChargePointConnectorRepository {
 
     fun getByPosition(
         chargePointId: Long,
-        connectorId: Int
+        connectorId: Int,
     ): ChargePointConnectorDAO? {
         return ChargePointConnectorDAO.find {
             (ChargePointConnectorTable.chargePointId eq chargePointId) and

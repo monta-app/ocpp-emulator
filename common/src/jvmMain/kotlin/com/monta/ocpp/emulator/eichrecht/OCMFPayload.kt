@@ -128,5 +128,5 @@ data class OCMFPayload(
      * The list of readings
      */
     @JsonProperty("RD")
-    val readings: List<OCMFReading>
+    val readings: List<OCMFReading>,
 )

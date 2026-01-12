@@ -92,12 +92,15 @@ data class OCMFReading(
      * Status: State of the meter at the time of reading. Noted as abbreviation according to table 10.
      */
     @JsonProperty("ST")
-    val status: Char
+    val status: Char,
 ) {
     companion object {
         private val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss,SSSZ")
 
-        fun formatReadingTime(time: Instant, synchronizationState: Char): String {
+        fun formatReadingTime(
+            time: Instant,
+            synchronizationState: Char,
+        ): String {
             return "${DATE_FORMAT.format(ZonedDateTime.ofInstant(time.truncatedTo(ChronoUnit.MILLIS), ZoneId.systemDefault()))} $synchronizationState"
         }
     }

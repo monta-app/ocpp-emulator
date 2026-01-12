@@ -12,7 +12,7 @@ import javax.inject.Singleton
 @Singleton
 class ConnectionManager(
     val messageInterceptor: MessageInterceptor,
-    val chargePointRepository: ChargePointRepository
+    val chargePointRepository: ChargePointRepository,
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -21,7 +21,7 @@ class ConnectionManager(
     private val chargePointConnections: MutableMap<Long, ChargePointConnection?> = mutableMapOf()
 
     fun connect(
-        chargePointId: Long
+        chargePointId: Long,
     ) {
         val isConnected = chargePointConnections[chargePointId]?.chargePoint?.connected
 
@@ -30,7 +30,7 @@ class ConnectionManager(
         }
 
         launchThread {
-            logger.info("Connecting chargePointId=$chargePointId")
+            logger.info { "Connecting chargePointId=$chargePointId" }
             //
             chargePointRepository.clearChargePointBootStatus(chargePointId)
             // Create a new connection and add it to the map
@@ -54,10 +54,10 @@ class ConnectionManager(
     }
 
     fun disconnect(
-        chargePointId: Long
+        chargePointId: Long,
     ): Job? {
         return chargePointConnections[chargePointId]?.let { chargePointConnection ->
-            logger.info("Disconnecting chargePointId=$chargePointId")
+            logger.info { "Disconnecting chargePointId=$chargePointId" }
             launchThread {
                 chargePointRepository.clearChargePointBootStatus(chargePointId)
                 getSchedulingService(chargePointId)?.stop()
@@ -69,11 +69,11 @@ class ConnectionManager(
 
     fun reconnect(
         chargePointId: Long,
-        delayInSeconds: Int
+        delayInSeconds: Int,
     ) {
         chargePointConnections[chargePointId]?.let { chargePointConnection ->
             launchThread {
-                logger.info("Reconnecting chargePointId=$chargePointId")
+                logger.info { "Reconnecting chargePointId=$chargePointId" }
                 chargePointConnection.reconnect(delayInSeconds)
             }
         }
@@ -81,7 +81,7 @@ class ConnectionManager(
 
     private fun getSchedulingService(
         chargePointId: Long,
-        create: Boolean = false
+        create: Boolean = false,
     ): SchedulerService? {
         return if (create) {
             chargePointSchedulers.getOrPut(chargePointId) {

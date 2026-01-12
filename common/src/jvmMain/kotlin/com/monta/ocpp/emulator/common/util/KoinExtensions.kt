@@ -9,7 +9,7 @@ import org.koin.mp.KoinPlatform.getKoin
  */
 inline fun <reified T : Any> injectAnywhere(
     qualifier: Qualifier? = null,
-    noinline parameters: ParametersDefinition? = null
+    noinline parameters: ParametersDefinition? = null,
 ): Lazy<T> {
     return lazy {
         getKoin().get(qualifier, parameters)

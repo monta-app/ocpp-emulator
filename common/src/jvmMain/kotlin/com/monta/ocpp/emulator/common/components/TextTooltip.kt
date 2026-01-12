@@ -15,22 +15,22 @@ import androidx.compose.ui.unit.dp
 fun TextTooltip(
     text: String,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     TooltipArea(
         modifier = modifier,
         tooltip = {
             Card(
                 modifier = Modifier.padding(8.dp),
-                backgroundColor = Color.Black
+                backgroundColor = Color.Black,
             ) {
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = text,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         },
-        content = content
+        content = content,
     )
 }

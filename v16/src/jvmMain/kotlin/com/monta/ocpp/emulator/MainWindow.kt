@@ -29,8 +29,8 @@ fun ApplicationScope.MainWindow() {
     val windowState = rememberWindowState(
         size = DpSize(1200.dp, 1400.dp),
         position = WindowPosition.Aligned(
-            Alignment.Center
-        )
+            Alignment.Center,
+        ),
     )
 
     BaseMontaWindow(
@@ -41,12 +41,12 @@ fun ApplicationScope.MainWindow() {
         },
         windowLostFocus = {
             navigationViewModel.windowHasFocus = false
-        }
+        },
     ) {
         setupAppThemeMenu(appThemeViewModel)
 
         MaterialTheme(
-            colors = appThemeViewModel.getColors()
+            colors = appThemeViewModel.getColors(),
         ) {
             when (navigationViewModel.currentScreen) {
                 is NavigationViewModel.Screen.ChargePoints -> {

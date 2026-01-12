@@ -6,5 +6,5 @@ data class EnodeVehicleUpdate(
     val event: String,
     val createdAt: Instant,
     val user: MontaApiUser,
-    val vehicle: EnodeVehicle
+    val vehicle: EnodeVehicle,
 )

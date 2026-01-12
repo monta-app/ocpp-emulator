@@ -1,12 +1,12 @@
 package com.monta.ocpp.emulator.user
 
 import com.monta.ocpp.emulator.configuration.AppConfigService
-import javax.inject.Singleton
 import java.util.UUID
+import javax.inject.Singleton
 
 @Singleton
 class AppUserService(
-    private val appConfigService: AppConfigService
+    private val appConfigService: AppConfigService,
 ) {
 
     companion object {
@@ -16,7 +16,7 @@ class AppUserService(
     fun getUserId(): String {
         val userIdConfig = appConfigService.getOrCreate(
             key = USER_ID_KEY,
-            defaultValue = UUID.randomUUID().toString()
+            defaultValue = UUID.randomUUID().toString(),
         )
         return userIdConfig.value ?: UUID.randomUUID().toString()
     }

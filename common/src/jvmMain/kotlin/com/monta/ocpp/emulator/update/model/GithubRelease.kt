@@ -37,5 +37,5 @@ data class GithubRelease(
     @JsonProperty("zipball_url")
     val zipballUrl: String,
     @JsonProperty("body")
-    val body: String
+    val body: String,
 )

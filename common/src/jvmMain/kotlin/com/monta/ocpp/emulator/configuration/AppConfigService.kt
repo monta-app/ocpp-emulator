@@ -5,12 +5,12 @@ import javax.inject.Singleton
 
 @Singleton
 class AppConfigService(
-    private val appConfigRepository: AppConfigRepository
+    private val appConfigRepository: AppConfigRepository,
 ) {
 
     fun getOrCreate(
         key: String,
-        defaultValue: String
+        defaultValue: String,
     ): AppConfigDAO {
         return transaction {
             appConfigRepository.get(key) ?: appConfigRepository.create(key, defaultValue)
@@ -18,7 +18,7 @@ class AppConfigService(
     }
 
     fun getByKey(
-        key: String
+        key: String,
     ): String? {
         return transaction {
             appConfigRepository.get(key)
@@ -27,7 +27,7 @@ class AppConfigService(
 
     fun upsert(
         key: String,
-        value: String?
+        value: String?,
     ): AppConfigDAO {
         return transaction {
             appConfigRepository.upsert(key, value)
@@ -35,7 +35,7 @@ class AppConfigService(
     }
 
     fun upsert(
-        vararg values: Pair<String, String?>
+        vararg values: Pair<String, String?>,
     ): List<AppConfigDAO> {
         return transaction {
             values.map { (key, value) ->

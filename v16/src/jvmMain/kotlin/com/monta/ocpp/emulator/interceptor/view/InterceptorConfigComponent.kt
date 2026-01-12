@@ -32,7 +32,7 @@ import com.monta.ocpp.emulator.interceptor.MessageInterceptor.Companion.chargePo
 @Preview
 @Composable
 fun InterceptorConfigComponent(
-    chargePointId: Long
+    chargePointId: Long,
 ) {
     val messageInterceptor: MessageInterceptor by injectAnywhere()
     Column(
@@ -40,8 +40,8 @@ fun InterceptorConfigComponent(
             .width(320.dp)
             .padding(8.dp)
             .verticalScroll(
-                state = rememberScrollState()
-            )
+                state = rememberScrollState(),
+            ),
     ) {
         Row {
             Text("Charge Point Initiated", fontWeight = W700)
@@ -52,7 +52,7 @@ fun InterceptorConfigComponent(
                     chargePointId = chargePointId,
                     messageType = it.value,
                     config = messageInterceptor.messageTypeConfig[chargePointId]?.get(it.key)!!,
-                    sendIt = true
+                    sendIt = true,
                 )
             }
         Row {
@@ -64,7 +64,7 @@ fun InterceptorConfigComponent(
                     chargePointId = chargePointId,
                     messageType = it.value,
                     config = messageInterceptor.messageTypeConfig[chargePointId]?.get(it.key)!!,
-                    sendIt = false
+                    sendIt = false,
                 )
             }
     }
@@ -75,21 +75,21 @@ private fun InterceptionConfigRow(
     chargePointId: Long,
     messageType: Feature,
     config: InterceptionConfig,
-    sendIt: Boolean
+    sendIt: Boolean,
 ) {
     Column {
         Text(
-            messageType.name
+            messageType.name,
         )
         Column(
-            horizontalAlignment = Alignment.End
+            horizontalAlignment = Alignment.End,
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     MessageTypeInterceptionConfig(
                         chargePointId = chargePointId,
@@ -97,7 +97,7 @@ private fun InterceptionConfigRow(
                         state = config.onRequest.value,
                         onInterceptionChange = {
                             config.onRequest.value = it
-                        }
+                        },
                     )
                     MessageTypeInterceptionConfig(
                         chargePointId = chargePointId,
@@ -105,7 +105,7 @@ private fun InterceptionConfigRow(
                         state = config.onResponse.value,
                         onInterceptionChange = {
                             config.onResponse.value = it
-                        }
+                        },
                     )
                 }
             }
@@ -115,7 +115,7 @@ private fun InterceptionConfigRow(
                         val sendMessageWindowViewModel: SendMessageWindowViewModel by injectAnywhere()
                         sendMessageWindowViewModel.messageType = messageType
                         sendMessageWindowViewModel.messageYaml = defaultPayload(messageType)
-                    }
+                    },
                 ) {
                     Text("Send it")
                 }
@@ -129,23 +129,23 @@ fun MessageTypeInterceptionConfig(
     chargePointId: Long,
     title: String,
     state: Interception,
-    onInterceptionChange: (Interception) -> Unit
+    onInterceptionChange: (Interception) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
     ) {
         Text(title, fontSize = 0.7.em)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             OutlinedButton(
                 colors = buttonColors(state is Interception.NoOp),
                 onClick = {
                     onInterceptionChange(Interception.NoOp)
-                }
+                },
             ) {
                 Text("NoOp")
             }
@@ -154,7 +154,7 @@ fun MessageTypeInterceptionConfig(
                 colors = buttonColors(state is Interception.Block),
                 onClick = {
                     onInterceptionChange(Interception.Block(chargePointId))
-                }
+                },
             ) {
                 Text("Block")
             }
@@ -163,7 +163,7 @@ fun MessageTypeInterceptionConfig(
                 colors = buttonColors(state is Interception.Delay),
                 onClick = {
                     onInterceptionChange(Interception.Delay(chargePointId, 20))
-                }
+                },
             ) {
                 Text("Delay")
             }
@@ -172,7 +172,7 @@ fun MessageTypeInterceptionConfig(
                 colors = buttonColors(state is Interception.Edit),
                 onClick = {
                     onInterceptionChange(Interception.Edit(25))
-                }
+                },
             ) {
                 Text("Edit")
             }
@@ -181,10 +181,12 @@ fun MessageTypeInterceptionConfig(
 }
 
 @Composable
-private fun buttonColors(selected: Boolean) = ButtonDefaults.outlinedButtonColors(
+private fun buttonColors(
+    selected: Boolean,
+) = ButtonDefaults.outlinedButtonColors(
     backgroundColor = if (selected) {
         MaterialTheme.colors.primary.copy(
-            alpha = .8f
+            alpha = .8f,
         )
     } else {
         MaterialTheme.colors.onPrimary
@@ -193,5 +195,5 @@ private fun buttonColors(selected: Boolean) = ButtonDefaults.outlinedButtonColor
         MaterialTheme.colors.onPrimary
     } else {
         MaterialTheme.colors.primary
-    }
+    },
 )

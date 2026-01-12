@@ -34,5 +34,5 @@ data class OCMFSignature(
      * Signature Data: The actual signature data according to the format specification above.
      */
     @JsonProperty("SD")
-    val signatureData: String
+    val signatureData: String,
 )

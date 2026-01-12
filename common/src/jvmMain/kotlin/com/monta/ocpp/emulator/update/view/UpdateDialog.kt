@@ -46,7 +46,7 @@ fun UpdateDialog() {
         UpdateState.Available -> {
             appUpdateService.latestRelease?.let { latestRelease ->
                 UpdateAvailableDialog(
-                    latestRelease = latestRelease
+                    latestRelease = latestRelease,
                 )
             }
         }
@@ -55,7 +55,7 @@ fun UpdateDialog() {
             appUpdateService.latestRelease?.let { latestRelease ->
                 UpdateProgressDialog(
                     latestRelease = latestRelease,
-                    downloadProgress = downloadProgress
+                    downloadProgress = downloadProgress,
                 )
             }
         }

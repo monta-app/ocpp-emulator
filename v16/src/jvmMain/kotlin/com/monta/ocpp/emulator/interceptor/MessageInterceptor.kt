@@ -39,7 +39,7 @@ import javax.inject.Singleton
 
 @Singleton
 class MessageInterceptor(
-    val chargePointService: ChargePointService
+    val chargePointService: ChargePointService,
 ) {
     companion object {
         val serializer = MessageSerializer(SerializationMode.OCPP_1_6, OcppErrorResponderV16)
@@ -63,7 +63,7 @@ class MessageInterceptor(
             SetChargingProfileFeature,
             TriggerMessageFeature,
             UnlockConnectorFeature,
-            UpdateFirmwareFeature
+            UpdateFirmwareFeature,
         ).associateBy { it.name }
 
         val chargePointFeatures = setOf(
@@ -76,7 +76,7 @@ class MessageInterceptor(
             MeterValuesFeature,
             StartTransactionFeature,
             StatusNotificationFeature,
-            StopTransactionFeature
+            StopTransactionFeature,
         ).associateBy { it.name }
     }
 
@@ -114,22 +114,24 @@ class MessageInterceptor(
         StopTransactionFeature.name,
         TriggerMessageFeature.name,
         UnlockConnectorFeature.name,
-        UpdateFirmwareFeature.name
+        UpdateFirmwareFeature.name,
     ).associateWith {
         InterceptionConfig(
             mutableStateOf(Interception.NoOp),
-            mutableStateOf(Interception.NoOp)
+            mutableStateOf(Interception.NoOp),
         )
     }.toMap()
 
-    fun addDefaults(id: Long) {
+    fun addDefaults(
+        id: Long,
+    ) {
         messageTypeConfig[id] = defaults()
     }
 
     // intercept send
     suspend fun intercept(
         chargePointIdentity: String,
-        messageJson: String
+        messageJson: String,
     ): String? {
         val chargePointId = chargePointService.getByIdentity(chargePointIdentity).idValue
         return when (val result = serializer.parse(messageJson)) {
@@ -144,7 +146,7 @@ class MessageInterceptor(
                             return 0
                         }
                     },
-                    "Unable to parse message: $messageJson"
+                    "Unable to parse message: $messageJson",
                 )
                 messageJson
             }

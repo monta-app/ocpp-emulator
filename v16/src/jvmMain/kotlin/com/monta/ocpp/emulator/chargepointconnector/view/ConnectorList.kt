@@ -8,16 +8,16 @@ import com.monta.ocpp.emulator.common.components.getCardStyle
 
 @Composable
 fun ConnectorList(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     chargePoint.getConnectors()
         .sortedBy { it.position }
         .forEach { connector ->
             Card(
-                modifier = getCardStyle().fillMaxWidth()
+                modifier = getCardStyle().fillMaxWidth(),
             ) {
                 ConnectorCard(
-                    initConnector = connector
+                    initConnector = connector,
                 )
             }
         }

@@ -23,9 +23,9 @@ fun main() {
             listOf(
                 CommonKoinModule().module,
                 MontaKoinModule().module,
-                MainModule.module
+                MainModule.module,
             ),
-            Level.INFO
+            Level.INFO,
         )
 
         Runtime.getRuntime().addShutdownHook(object : Thread() {

@@ -30,11 +30,11 @@ object MontaSerialization {
      *
      */
     fun getDefaultMapper(
-        serializeNulls: Boolean = false
+        serializeNulls: Boolean = false,
     ): ObjectMapper {
         return withDefaults(
             objectMapper = ObjectMapper(),
-            serializeNulls = serializeNulls
+            serializeNulls = serializeNulls,
         )
     }
 
@@ -55,7 +55,7 @@ object MontaSerialization {
      */
     fun withDefaults(
         objectMapper: ObjectMapper,
-        serializeNulls: Boolean = false
+        serializeNulls: Boolean = false,
     ): ObjectMapper {
         objectMapper.registerKotlinModule()
         objectMapper.registerModule(JavaTimeModule())
@@ -65,7 +65,7 @@ object MontaSerialization {
                 JsonInclude.Include.ALWAYS
             } else {
                 JsonInclude.Include.NON_NULL
-            }
+            },
         )
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         objectMapper.findAndRegisterModules()

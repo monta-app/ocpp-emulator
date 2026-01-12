@@ -11,7 +11,7 @@ import com.monta.ocpp.emulator.interceptor.view.BasePage
 
 @Composable
 fun CreateChargePointPage(
-    chargePoint: ChargePointDAO?
+    chargePoint: ChargePointDAO?,
 ) {
     val navigationViewModel: NavigationViewModel by injectAnywhere()
 
@@ -24,16 +24,16 @@ fun CreateChargePointPage(
                             "Create Charge Point"
                         } else {
                             "Edit Charge Point"
-                        }
+                        },
                     )
                 },
                 navigationIcon = {
                     BackButton {
                         navigationViewModel.chargePointsScreen()
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         val viewModel: ChargePointFormViewModel by injectAnywhere()
         ChargePointForm(viewModel, chargePoint)

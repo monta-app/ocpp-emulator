@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppThemeViewModel(
-    private val appConfigService: AppConfigService
+    private val appConfigService: AppConfigService,
 ) {
 
     companion object {
@@ -25,10 +25,12 @@ class AppThemeViewModel(
     }
 
     var appTheme by mutableStateOf(
-        AppTheme.parse(appConfigService.getByKey(APP_THEME_KEY))
+        AppTheme.parse(appConfigService.getByKey(APP_THEME_KEY)),
     )
 
-    fun store(appTheme: AppTheme) {
+    fun store(
+        appTheme: AppTheme,
+    ) {
         launchThread {
             appConfigService.upsert(APP_THEME_KEY, appTheme.name)
         }
@@ -56,7 +58,7 @@ class AppThemeViewModel(
                 onSecondary = Color.White,
                 onBackground = Color.White,
                 onSurface = Color.White,
-                onError = Color.White
+                onError = Color.White,
             )
         } else {
             lightColors(
@@ -67,14 +69,14 @@ class AppThemeViewModel(
                 onSecondary = Color.White,
                 onBackground = Color.Black,
                 onSurface = Color.Black,
-                onError = Color.White
+                onError = Color.White,
             )
         }
     }
 
     @Composable
     fun getLogColors(
-        logItem: ChargePointLogger.LogEntry
+        logItem: ChargePointLogger.LogEntry,
     ): Color {
         return if (isDarkMode()) {
             when (logItem.level) {

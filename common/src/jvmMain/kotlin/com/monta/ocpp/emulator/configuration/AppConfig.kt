@@ -16,7 +16,7 @@ class AppConfigDAO(id: EntityID<Long>) : LongEntity(id) {
     companion object : LongEntityClass<AppConfigDAO>(AppConfigTable) {
         fun newInstance(
             key: String,
-            value: String?
+            value: String?,
         ): AppConfigDAO {
             return AppConfigDAO.new {
                 this.key = key

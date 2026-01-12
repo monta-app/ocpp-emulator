@@ -13,13 +13,13 @@ object PreviousMessagesTable : LongIdTable("previous_messages") {
 
 // DAO
 class PreviousMessagesDAO(
-    id: EntityID<Long>
+    id: EntityID<Long>,
 ) : LongEntity(id) {
 
     companion object : LongEntityClass<PreviousMessagesDAO>(PreviousMessagesTable) {
         fun newInstance(
             messageType: String,
-            message: String
+            message: String,
         ): PreviousMessagesDAO {
             return PreviousMessagesDAO.new {
                 this.messageType = messageType

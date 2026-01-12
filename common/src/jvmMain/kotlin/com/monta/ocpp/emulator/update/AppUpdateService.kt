@@ -26,11 +26,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.swiftzer.semver.SemVer
-import javax.inject.Singleton
 import java.awt.Desktop
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import javax.inject.Singleton
 import kotlin.system.exitProcess
 
 @Singleton
@@ -131,7 +131,7 @@ class AppUpdateService {
     }
 
     suspend fun update(
-        githubRelease: GithubRelease
+        githubRelease: GithubRelease,
     ) {
         val asset = githubRelease.assets.getByFileEnding()
 
@@ -146,7 +146,7 @@ class AppUpdateService {
                 append("monta")
                 append(File.separator)
                 append(asset.name)
-            }
+            },
         )
 
         if (shouldDownloadFile(asset, file)) {
@@ -170,7 +170,7 @@ class AppUpdateService {
 
     private fun shouldDownloadFile(
         asset: GithubAsset,
-        file: File
+        file: File,
     ): Boolean {
         return if (file.exists()) {
             Files.size(file.toPath()) != asset.size.toLong()
@@ -181,7 +181,7 @@ class AppUpdateService {
 
     private suspend fun downloadFile(
         asset: GithubAsset,
-        file: File
+        file: File,
     ) {
         val response: HttpResponse = downloadClient.get("$BASE_URL/releases/assets/${asset.id}") {
             onDownload { bytesSentTotal, contentLength ->
@@ -198,7 +198,9 @@ class AppUpdateService {
         file.writeBytes(body)
     }
 
-    private fun openInstaller(file: File) {
+    private fun openInstaller(
+        file: File,
+    ) {
         if (Desktop.isDesktopSupported()) {
             try {
                 Desktop.getDesktop().open(file)

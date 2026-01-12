@@ -23,7 +23,7 @@ fun FormInput(
     onValueChange: (String) -> Unit,
     enabled: Boolean = true,
     isError: Boolean = false,
-    helperText: String? = null
+    helperText: String? = null,
 ) {
     Column {
         OutlinedTextField(
@@ -43,16 +43,16 @@ fun FormInput(
                     Icon(
                         imageVector = Icons.Filled.Warning,
                         contentDescription = "error",
-                        tint = MaterialTheme.colors.error
+                        tint = MaterialTheme.colors.error,
                     )
                 } else if (helperText != null) {
                     MontaIcon(
                         iconName = "help",
                         contentDescription = "help",
-                        tooltipText = helperText
+                        tooltipText = helperText,
                     )
                 }
-            }
+            },
         )
         if (helperText != null && isError) {
             Text(
@@ -61,8 +61,8 @@ fun FormInput(
                 style = MaterialTheme.typography.caption,
                 modifier = Modifier.padding(
                     top = 4.dp,
-                    start = 8.dp
-                )
+                    start = 8.dp,
+                ),
             )
         }
     }
@@ -72,7 +72,7 @@ fun FormInput(
 @Preview
 private fun FormInput_Preview() {
     Box(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(16.dp),
     ) {
         FormInput(
             modifier = Modifier.fillMaxWidth(),
@@ -80,7 +80,7 @@ private fun FormInput_Preview() {
             value = "",
             onValueChange = { },
             isError = true,
-            helperText = "Charge point identifier already used"
+            helperText = "Charge point identifier already used",
         )
     }
 }

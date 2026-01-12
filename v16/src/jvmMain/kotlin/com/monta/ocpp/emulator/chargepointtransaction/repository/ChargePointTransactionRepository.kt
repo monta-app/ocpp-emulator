@@ -7,7 +7,7 @@ import javax.inject.Singleton
 @Singleton
 class ChargePointTransactionRepository {
     fun getByExternalId(
-        externalId: Int
+        externalId: Int,
     ): ChargePointTransactionDAO? {
         return ChargePointTransactionDAO.find {
             ChargePointTransaction.externalId eq externalId

@@ -14,17 +14,17 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DualColumView(
     firstColumn: @Composable () -> Unit,
-    secondColumn: @Composable () -> Unit
+    secondColumn: @Composable () -> Unit,
 ) {
     Row {
         Column(
             modifier = Modifier.weight(1F)
                 .fillMaxWidth()
                 .verticalScroll(
-                    state = rememberScrollState()
+                    state = rememberScrollState(),
                 )
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             firstColumn()
         }
@@ -32,7 +32,7 @@ fun DualColumView(
             modifier = Modifier.weight(1F)
                 .fillMaxWidth()
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             secondColumn()
         }

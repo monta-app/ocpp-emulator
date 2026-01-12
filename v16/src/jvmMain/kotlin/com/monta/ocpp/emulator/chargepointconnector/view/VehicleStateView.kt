@@ -18,15 +18,15 @@ import com.monta.ocpp.emulator.v16.setConnectorCarState
 
 @Composable
 fun VehicleStateView(
-    connector: ChargePointConnectorDAO
+    connector: ChargePointConnectorDAO,
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         CarState.entries.forEach { carState ->
             VehicleStateButton(
                 connector = connector,
-                carState = carState
+                carState = carState,
             )
         }
     }
@@ -35,24 +35,24 @@ fun VehicleStateView(
 @Composable
 fun RowScope.VehicleStateButton(
     connector: ChargePointConnectorDAO,
-    carState: CarState
+    carState: CarState,
 ) {
     Button(
         modifier = Modifier.weight(1F)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = getButtonStateColor(carState == connector.carState)
+            backgroundColor = getButtonStateColor(carState == connector.carState),
         ),
         onClick = {
             launchThread {
                 connector.setConnectorCarState(
-                    carState = carState
+                    carState = carState,
                 )
             }
-        }
+        },
     ) {
         Text(
-            text = carState.label
+            text = carState.label,
         )
     }
 }

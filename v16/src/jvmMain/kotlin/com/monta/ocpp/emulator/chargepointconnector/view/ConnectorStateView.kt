@@ -25,7 +25,7 @@ import com.monta.ocpp.emulator.v16.setStatus
 
 @Composable
 fun ColumnScope.ConnectorStateView(
-    connector: ChargePointConnectorDAO
+    connector: ChargePointConnectorDAO,
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -55,7 +55,7 @@ fun ColumnScope.ConnectorStateView(
         onClick = {
             expanded = true
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text("Connector Status")
     }
@@ -79,11 +79,11 @@ fun ColumnScope.ConnectorStateView(
                                 vendorId = if (vendorId.isNullOrBlank()) null else vendorId,
                                 vendorErrorCode = if (vendorErrorCode.isNullOrBlank()) null else vendorErrorCode,
                                 info = if (statusInfo.isNullOrBlank()) null else statusInfo,
-                                forceUpdate = true
+                                forceUpdate = true,
                             )
                         }
                         expanded = false
-                    }
+                    },
                 ) {
                     Text("Send")
                 }
@@ -92,14 +92,14 @@ fun ColumnScope.ConnectorStateView(
                 Button(
                     onClick = {
                         expanded = false
-                    }
+                    },
                 ) {
                     Text("Close")
                 }
             },
             text = {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Spinner(
                         modifier = Modifier.fillMaxWidth(),
@@ -111,7 +111,7 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onSelectionChanged = { newChargePointStatus ->
                             connectorStatus = newChargePointStatus
-                        }
+                        },
                     )
                     Spinner(
                         modifier = Modifier.fillMaxWidth(),
@@ -123,7 +123,7 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onSelectionChanged = { newChargePointErrorCode ->
                             errorCode = newChargePointErrorCode
-                        }
+                        },
                     )
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -133,7 +133,7 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onValueChange = { newStatusInfo ->
                             statusInfo = newStatusInfo
-                        }
+                        },
                     )
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -143,7 +143,7 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onValueChange = { newVendorId ->
                             vendorId = newVendorId
-                        }
+                        },
                     )
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -153,10 +153,10 @@ fun ColumnScope.ConnectorStateView(
                         },
                         onValueChange = { newVendorErrorCode ->
                             vendorErrorCode = newVendorErrorCode
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

@@ -20,7 +20,7 @@ fun <T> createDatabaseListener(
     coroutineScope: CoroutineScope,
     entityClass: LongEntityClass<*>,
     id: Long? = null,
-    triggerUpdate: () -> T?
+    triggerUpdate: () -> T?,
 ): Flow<T> = channelFlow {
     triggerUpdate()?.let { value ->
         send(value)

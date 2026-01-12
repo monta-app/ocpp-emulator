@@ -20,14 +20,14 @@ import androidx.compose.ui.unit.em
 
 @Composable
 fun BackButton(
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     IconButton(
-        onClick = onClick
+        onClick = onClick,
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "Back"
+            contentDescription = "Back",
         )
     }
 }
@@ -35,12 +35,12 @@ fun BackButton(
 @Composable
 fun RowScope.InterceptionToggle(
     checked: Boolean = false,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
 ) {
     Spacer(modifier = Modifier.weight(1f))
     IconToggleButton(
         checked = checked,
-        onCheckedChange = onCheckedChange
+        onCheckedChange = onCheckedChange,
     ) {
         Text("\uD83E\uDD13", fontSize = 2.em)
     }
@@ -49,19 +49,19 @@ fun RowScope.InterceptionToggle(
 @Composable
 fun RfidButton(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
-        contentPadding = PaddingValues(0.dp)
+        contentPadding = PaddingValues(0.dp),
     ) {
         Icon(
             painter = painterResource("icons/rfid.svg"),
             contentDescription = "Authorize",
             modifier = Modifier
                 .padding(0.dp)
-                .size(16.dp)
+                .size(16.dp),
         )
     }
 }

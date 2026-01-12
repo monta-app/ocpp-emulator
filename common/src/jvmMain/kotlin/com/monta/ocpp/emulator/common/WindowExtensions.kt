@@ -25,7 +25,7 @@ fun ApplicationScope.BaseMontaWindow(
     state: WindowState,
     windowGainedFocus: () -> Unit = {},
     windowLostFocus: () -> Unit = {},
-    block: @Composable FrameWindowScope.() -> Unit
+    block: @Composable FrameWindowScope.() -> Unit,
 ) {
     CompositionLocalProvider(
         LocalWindowExceptionHandlerFactory.provides(
@@ -36,8 +36,8 @@ fun ApplicationScope.BaseMontaWindow(
                     window.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))
                     throw throwable
                 }
-            }
-        )
+            },
+        ),
     ) {
         Window(
             title = title,
@@ -45,18 +45,18 @@ fun ApplicationScope.BaseMontaWindow(
             focusable = true,
             onCloseRequest = {
                 this.exitApplication()
-            }
+            },
         ) {
             DisposableEffect(Unit) {
                 window.addWindowFocusListener(object : WindowFocusListener {
                     override fun windowGainedFocus(
-                        e: WindowEvent
+                        e: WindowEvent,
                     ) {
                         windowGainedFocus()
                     }
 
                     override fun windowLostFocus(
-                        e: WindowEvent
+                        e: WindowEvent,
                     ) {
                         windowLostFocus()
                     }

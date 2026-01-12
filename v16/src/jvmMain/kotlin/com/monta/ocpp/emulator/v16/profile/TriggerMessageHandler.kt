@@ -25,17 +25,17 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
 
     override suspend fun triggerMessage(
         ocppSessionInfo: OcppSession.Info,
-        request: TriggerMessageRequest
+        request: TriggerMessageRequest,
     ): TriggerMessageConfirmation {
         try {
             return TriggerMessageConfirmation(
-                status = TriggerMessageStatus.Accepted
+                status = TriggerMessageStatus.Accepted,
             )
         } finally {
             launchThread {
                 handleTriggerMessage(
                     ocppSessionInfo = ocppSessionInfo,
-                    request = request
+                    request = request,
                 )
             }
         }
@@ -43,7 +43,7 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
 
     private suspend fun handleTriggerMessage(
         ocppSessionInfo: OcppSession.Info,
-        request: TriggerMessageRequest
+        request: TriggerMessageRequest,
     ) {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -55,14 +55,14 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
             TriggerMessageRequestType.DiagnosticsStatusNotification -> {
                 chargePointManager.diagnosticsStatusNotification(
                     chargePoint = chargePoint,
-                    status = chargePoint.diagnosticsStatus
+                    status = chargePoint.diagnosticsStatus,
                 )
             }
 
             TriggerMessageRequestType.FirmwareStatusNotification -> {
                 chargePointManager.firmwareStatusNotification(
                     chargePoint = chargePoint,
-                    status = chargePoint.firmwareStatus
+                    status = chargePoint.firmwareStatus,
                 )
             }
 
@@ -82,19 +82,19 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
 
     private suspend fun triggerStatusNotification(
         request: TriggerMessageRequest,
-        chargePoint: ChargePointDAO
+        chargePoint: ChargePointDAO,
     ) {
         val connectorId = request.connectorId ?: 0
 
         if (connectorId == 0) {
             chargePoint.setStatus(
                 status = chargePoint.status,
-                errorCode = chargePoint.errorCode
+                errorCode = chargePoint.errorCode,
             )
         } else {
             val connector = chargePointConnectorService.get(
                 chargePointId = chargePoint.idValue,
-                connectorId = connectorId
+                connectorId = connectorId,
             )
             if (connector == null) {
                 return
@@ -105,7 +105,7 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
                 vendorId = if (connector.vendorId.isNullOrBlank()) null else connector.vendorId,
                 vendorErrorCode = if (connector.vendorErrorCode.isNullOrBlank()) null else connector.vendorErrorCode,
                 info = if (connector.statusInfo.isNullOrBlank()) null else connector.statusInfo,
-                forceUpdate = true
+                forceUpdate = true,
             )
         }
     }

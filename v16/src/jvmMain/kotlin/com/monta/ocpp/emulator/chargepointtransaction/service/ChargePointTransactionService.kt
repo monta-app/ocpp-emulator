@@ -9,27 +9,27 @@ import javax.inject.Singleton
 
 @Singleton
 class ChargePointTransactionService(
-    private val chargePointTransactionRepository: ChargePointTransactionRepository
+    private val chargePointTransactionRepository: ChargePointTransactionRepository,
 ) {
 
     fun create(
         chargePoint: ChargePointDAO,
         chargePointConnector: ChargePointConnectorDAO,
         externalId: Int,
-        idTag: String
+        idTag: String,
     ): ChargePointTransactionDAO {
         return transaction {
             ChargePointTransactionDAO.newInstance(
                 chargePoint = chargePoint,
                 chargePointConnector = chargePointConnector,
                 externalId = externalId,
-                idTag = idTag
+                idTag = idTag,
             )
         }
     }
 
     fun getByExternalId(
-        externalId: Int
+        externalId: Int,
     ): ChargePointTransactionDAO? {
         return transaction {
             chargePointTransactionRepository.getByExternalId(externalId)
@@ -38,7 +38,7 @@ class ChargePointTransactionService(
 
     fun update(
         externalId: Int,
-        block: ChargePointTransactionDAO.() -> Unit
+        block: ChargePointTransactionDAO.() -> Unit,
     ): ChargePointTransactionDAO? {
         return transaction {
             val chargePointTransaction = getByExternalId(externalId)

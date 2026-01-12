@@ -43,7 +43,7 @@ object ChargePointConnectorTable : LongIdTable("charge_point_connector") {
 
 // DAO
 class ChargePointConnectorDAO(
-    id: EntityID<Long>
+    id: EntityID<Long>,
 ) : LongEntity(id), Loggable {
 
     companion object : LongEntityClass<ChargePointConnectorDAO>(ChargePointConnectorTable) {
@@ -53,7 +53,7 @@ class ChargePointConnectorDAO(
             position: Int,
             status: ChargePointStatus,
             errorCode: ChargePointErrorCode,
-            maxKw: Double
+            maxKw: Double,
         ): ChargePointConnectorDAO {
             return ChargePointConnectorDAO.new {
                 this.chargePointId = EntityID(chargePointId, ChargePointTable)
@@ -130,7 +130,9 @@ class ChargePointConnectorDAO(
         return position
     }
 
-    fun calculateState(justStopped: Boolean = false): ChargePointStatus {
+    fun calculateState(
+        justStopped: Boolean = false,
+    ): ChargePointStatus {
         return when (carState) {
             CarState.A -> ChargePointStatus.Available
 
@@ -163,7 +165,9 @@ class ChargePointConnectorDAO(
         }
     }
 
-    fun updateKw(chargingProfileWatts: Double? = null) {
+    fun updateKw(
+        chargingProfileWatts: Double? = null,
+    ) {
         val maxWatts = min(chargingProfileWatts ?: (maxKw * 1000), maxKw * 1000)
         val wattsPerPhase = maxWatts / 3
         val vehicleMaxWattsPerPhase = vehicleMaxAmpsPerPhase * 230

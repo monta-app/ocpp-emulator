@@ -22,7 +22,7 @@ class EichrechtSignatureService(
     private val brand: String,
     private val model: String,
     private val serial: String,
-    private val firmware: String
+    private val firmware: String,
 ) {
 
     companion object {
@@ -50,7 +50,7 @@ class EichrechtSignatureService(
         startMeter: Double,
         endMeter: Double,
         startTime: Instant,
-        endTime: Instant
+        endTime: Instant,
     ): String {
         val startReading = OCMFReading(
             time = OCMFReading.formatReadingTime(startTime, TIME_STATUS_SYNCHRONIZED),
@@ -58,7 +58,7 @@ class EichrechtSignatureService(
             value = startMeter,
             identification = METER_OBIS_CODE,
             unit = "Wh",
-            status = STATE_OF_METER_OK
+            status = STATE_OF_METER_OK,
         )
         val endReading = OCMFReading(
             time = OCMFReading.formatReadingTime(endTime, TIME_STATUS_SYNCHRONIZED),
@@ -66,7 +66,7 @@ class EichrechtSignatureService(
             value = endMeter,
             identification = METER_OBIS_CODE,
             unit = "Wh",
-            status = STATE_OF_METER_OK
+            status = STATE_OF_METER_OK,
         )
 
         val ocmfPayload = OCMFPayload(
@@ -85,7 +85,7 @@ class EichrechtSignatureService(
             identificationData = idTag,
             chargePointIdentificationType = "EVSEID",
             chargePointIdentification = chargePointIdentity,
-            readings = listOf(startReading, endReading)
+            readings = listOf(startReading, endReading),
         )
         val payload = MontaSerialization.objectMapper.writeValueAsString(ocmfPayload)
 
@@ -94,7 +94,7 @@ class EichrechtSignatureService(
 
         val ocmfSignature = OCMFSignature(
             signatureAlgorithm = EichrechtKey.signatureAlgorithm,
-            signatureData = signature
+            signatureData = signature,
         )
 
         return "OCMF|$payload|${MontaSerialization.objectMapper.writeValueAsString(ocmfSignature)}"
@@ -102,7 +102,7 @@ class EichrechtSignatureService(
 
     private fun sign(
         privateKeyParameters: CipherParameters,
-        sdData: String
+        sdData: String,
     ): String {
         val hashSHA256: ByteArray = hashSHA256(sdData.toByteArray(StandardCharsets.UTF_8))
         return HexFormat.of().formatHex(sign(privateKeyParameters, hashSHA256))
@@ -110,7 +110,7 @@ class EichrechtSignatureService(
 
     private fun sign(
         privateKeyParameters: CipherParameters,
-        payloadData: ByteArray
+        payloadData: ByteArray,
     ): ByteArray {
         val signer = ECDSASigner()
         signer.init(true, privateKeyParameters)
@@ -124,9 +124,9 @@ class EichrechtSignatureService(
                 ASN1Integer(
                     toCanonicalS(
                         signature[1],
-                        EichrechtKey.ecSpec
-                    )
-                )
+                        EichrechtKey.ecSpec,
+                    ),
+                ),
             )
             seq.close()
             return baos.toByteArray()
@@ -141,7 +141,9 @@ class EichrechtSignatureService(
      * @param data to hash
      * @return data as byte array hashed with SHA256
      */
-    private fun hashSHA256(data: ByteArray): ByteArray {
+    private fun hashSHA256(
+        data: ByteArray,
+    ): ByteArray {
         try {
             val md = MessageDigest.getInstance("SHA-256")
             return md.digest(data)
@@ -152,7 +154,7 @@ class EichrechtSignatureService(
 
     private fun toCanonicalS(
         s: BigInteger,
-        ecSpec: ECNamedCurveParameterSpec
+        ecSpec: ECNamedCurveParameterSpec,
     ): BigInteger {
         return if (s <= ecSpec.n.shiftRight(1)) {
             s

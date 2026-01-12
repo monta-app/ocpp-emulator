@@ -24,7 +24,7 @@ fun LabelledCheckBox(
     modifier: Modifier = Modifier,
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit),
-    label: String
+    label: String,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -33,20 +33,20 @@ fun LabelledCheckBox(
             .clickable(
                 indication = ripple(color = MaterialTheme.colors.primary),
                 interactionSource = remember { MutableInteractionSource() },
-                onClick = { onCheckedChange(!checked) }
+                onClick = { onCheckedChange(!checked) },
             )
             .requiredHeight(ButtonDefaults.MinHeight)
-            .padding(4.dp)
+            .padding(4.dp),
     ) {
         Checkbox(
             checked = checked,
-            onCheckedChange = null
+            onCheckedChange = null,
         )
 
         Spacer(Modifier.size(6.dp))
 
         Text(
-            text = label
+            text = label,
         )
     }
 }

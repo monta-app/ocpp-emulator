@@ -33,7 +33,7 @@ fun VehicleLogView() {
     val logLevels = listOf(
         VehicleLogger.Level.Info,
         VehicleLogger.Level.Warn,
-        VehicleLogger.Level.Error
+        VehicleLogger.Level.Error,
     )
 
     coroutineScope.launch {
@@ -56,7 +56,7 @@ fun VehicleLogView() {
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         reverseLayout = true,
-        state = lazyListState
+        state = lazyListState,
 
     ) {
         items(
@@ -70,10 +70,10 @@ fun VehicleLogView() {
                         VehicleLogger.Level.Info -> Color.LightGray
                         VehicleLogger.Level.Debug -> Color(78, 154, 6)
                         VehicleLogger.Level.Trace -> Color(114, 159, 207)
-                    }
+                    },
                 ) {
                     Column(
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
                     ) {
                         logItem.message.split("\r?\n|\r".toRegex())
                             .filter { it.isNotBlank() }
@@ -81,12 +81,12 @@ fun VehicleLogView() {
                                 Text(
                                     text = it,
                                     softWrap = false,
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 )
                             }
                     }
                 }
-            }
+            },
         )
     }
 }

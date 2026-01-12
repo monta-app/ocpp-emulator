@@ -16,7 +16,7 @@ class OcppClientEventsHandler {
 
     suspend fun onConnect(
         ocppSessionInfo: OcppSession.Info,
-        isReconnecting: Boolean
+        isReconnecting: Boolean,
     ) {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -32,7 +32,7 @@ class OcppClientEventsHandler {
     }
 
     suspend fun onDisconnect(
-        ocppSessionInfo: OcppSession.Info
+        ocppSessionInfo: OcppSession.Info,
     ): Boolean {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
         GlobalLogger.info(chargePoint, "Disconnected")

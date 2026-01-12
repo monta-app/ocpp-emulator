@@ -5,5 +5,5 @@ enum class ChargePointMode {
     Auto,
 
     // User interaction will be required to use the charge point
-    Manual
+    Manual,
 }

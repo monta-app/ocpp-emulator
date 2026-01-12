@@ -20,7 +20,7 @@ fun ColumnScope.PasswordField(
     password: String,
     passwordVisibility: Boolean,
     passwordListener: (String) -> Unit,
-    passwordVisibilityListener: (Boolean) -> Unit
+    passwordVisibilityListener: (Boolean) -> Unit,
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -40,7 +40,7 @@ fun ColumnScope.PasswordField(
             IconButton(
                 onClick = {
                     passwordVisibilityListener(!passwordVisibility)
-                }
+                },
             ) {
                 Icon(
                     painter = if (passwordVisibility) {
@@ -49,9 +49,9 @@ fun ColumnScope.PasswordField(
                         painterResource("icons/visibility.svg")
                     },
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
                 )
             }
-        }
+        },
     )
 }

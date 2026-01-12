@@ -24,7 +24,7 @@ import kotlin.math.roundToInt
 
 @Factory
 class SchedulerService(
-    private val chargePointId: Long
+    private val chargePointId: Long,
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -46,7 +46,7 @@ class SchedulerService(
     private var job: Job? = null
 
     fun start() {
-        logger.info("starting scheduler")
+        logger.info { "starting scheduler" }
         job?.cancel()
         job = launchThread(restart = true) {
             while (true) {
@@ -62,19 +62,19 @@ class SchedulerService(
     }
 
     fun stop() {
-        logger.info("stopping scheduler")
+        logger.info { "stopping scheduler" }
         job?.cancel()
     }
 
     private suspend fun heartbeat() {
         if (heartbeatInterval == 0L) {
-            logger.trace("heartbeat disabled")
+            logger.trace { "heartbeat disabled" }
             return
         }
 
         val elapsedTime = Duration.between(
             chargePoint.heartbeatAt,
-            Instant.now()
+            Instant.now(),
         )
 
         if (elapsedTime.seconds < heartbeatInterval) {
@@ -85,7 +85,7 @@ class SchedulerService(
             val ocppSession = ocppClientV16.getSessionByIdentity(chargePoint.identity)
             ocppClientV16.asCoreProfile(ocppSession.info).heartbeat()
         } catch (exception: Exception) {
-            logger.warn("failed to send heartbeat", exception)
+            logger.warn(exception) { "failed to send heartbeat" }
             GlobalLogger.warn(chargePoint, "Failed to send heartbeat")
         }
 
@@ -100,13 +100,13 @@ class SchedulerService(
             try {
                 handleTransaction(transaction)
             } catch (exception: Exception) {
-                logger.error("failed to update transaction id=${transaction.id}", exception)
+                logger.error(exception) { "failed to update transaction id=${transaction.id}" }
             }
         }
     }
 
     private suspend fun handleTransaction(
-        transaction: ChargePointTransactionDAO
+        transaction: ChargePointTransactionDAO,
     ) {
         val connector = transaction {
             transaction.chargePointConnector
@@ -121,7 +121,7 @@ class SchedulerService(
         if (connector.status == ChargePointStatus.Charging) {
             val secondsSinceEndMeter = Duration.between(
                 transaction.endMeterAt,
-                Instant.now()
+                Instant.now(),
             ).toSeconds()
 
             val newMeterValue = connector.wattHoursPerSecond * secondsSinceEndMeter.toDouble()
@@ -142,16 +142,16 @@ class SchedulerService(
     private suspend fun sendMeterValues(
         transaction: ChargePointTransactionDAO,
         watts: Double,
-        vehicleNumberPhases: Int
+        vehicleNumberPhases: Int,
     ) {
         if (meterValueSampleInterval == 0L) {
-            logger.trace("meterValues disabled")
+            logger.trace { "meterValues disabled" }
             return
         }
 
         val secondsSinceMeterValues = Duration.between(
             transaction.meterValuesAt,
-            Instant.now()
+            Instant.now(),
         ).toSeconds()
 
         if (secondsSinceMeterValues < meterValueSampleInterval) {
@@ -172,11 +172,11 @@ class SchedulerService(
                             startTime = transaction.startTime,
                             endMeter = transaction.endMeter,
                             watts = watts,
-                            numberPhases = vehicleNumberPhases
-                        )
-                    )
-                )
-            )
+                            numberPhases = vehicleNumberPhases,
+                        ),
+                    ),
+                ),
+            ),
         )
 
         transaction {

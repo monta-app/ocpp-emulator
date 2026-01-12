@@ -16,7 +16,7 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.HexFormat
 
 class EichrechtKey(
-    private val keyPair: KeyPair
+    private val keyPair: KeyPair,
 ) {
 
     companion object {
@@ -39,7 +39,7 @@ class EichrechtKey(
             keyPairGenerator.initialize(ecSpec, SecureRandom())
 
             return EichrechtKey(
-                keyPair = keyPairGenerator.generateKeyPair()
+                keyPair = keyPairGenerator.generateKeyPair(),
             )
         }
 
@@ -48,20 +48,24 @@ class EichrechtKey(
          */
         fun parseFromHexParts(
             publicKey: String,
-            privateKey: String
+            privateKey: String,
         ): EichrechtKey {
             val keyFactory = KeyFactory.getInstance(ALGORITHM, PROVIDER)
             val publicPart = keyFactory.generatePublic(X509EncodedKeySpec(fromHex(publicKey)))
             val privatePart = keyFactory.generatePrivate(PKCS8EncodedKeySpec(fromHex(privateKey)))
 
             return EichrechtKey(
-                keyPair = KeyPair(publicPart, privatePart)
+                keyPair = KeyPair(publicPart, privatePart),
             )
         }
 
-        private fun toHex(bytes: ByteArray) = HexFormat.of().formatHex(bytes)
+        private fun toHex(
+            bytes: ByteArray,
+        ) = HexFormat.of().formatHex(bytes)
 
-        private fun fromHex(hex: String) = HexFormat.of().parseHex(hex)
+        private fun fromHex(
+            hex: String,
+        ) = HexFormat.of().parseHex(hex)
     }
 
     internal fun privateKeyParameters() = ECPrivateKeyParameters((keyPair.private as BCECPrivateKey).d, domain)

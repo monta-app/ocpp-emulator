@@ -9,7 +9,7 @@ import java.time.Instant
 object ChargingProfileCalculator {
 
     fun getWatts(
-        transaction: ChargePointTransactionDAO
+        transaction: ChargePointTransactionDAO,
     ): Double? {
         val (ampsPerPhase, phases) = getAmps(transaction) ?: return null
         return (ampsPerPhase * 230.0) * phases.toDouble()
@@ -17,7 +17,7 @@ object ChargingProfileCalculator {
 
     private fun getAmps(
         transaction: ChargePointTransactionDAO,
-        chargingProfile: ChargingProfile? = transaction.chargingProfile
+        chargingProfile: ChargingProfile? = transaction.chargingProfile,
     ): Pair<Double, Int>? {
         if (chargingProfile == null) {
             return null
@@ -49,7 +49,7 @@ object ChargingProfileCalculator {
             val chargingLimit = chargingSchedulePeriod.checkAndGetLimit(
                 scheduleStart = scheduleStart,
                 minChargingRate = chargingSchedule.minChargingRate,
-                checkDate = now
+                checkDate = now,
             )
             if (chargingLimit != null) {
                 return chargingLimit
@@ -61,14 +61,14 @@ object ChargingProfileCalculator {
         return sortedPeriods.lastOrNull()?.checkAndGetLimit(
             scheduleStart = scheduleStart,
             minChargingRate = chargingSchedule.minChargingRate,
-            checkDate = scheduleEnd
+            checkDate = scheduleEnd,
         )
     }
 
     private fun ChargingSchedulePeriod.checkAndGetLimit(
         scheduleStart: Instant,
         minChargingRate: Double?,
-        checkDate: Instant?
+        checkDate: Instant?,
     ): Pair<Double, Int>? {
         // How many seconds from the schedule start does this period start at?
         val startPeriod = startPeriod?.toLong()

@@ -26,7 +26,7 @@ import com.monta.ocpp.emulator.v16.ChargePointManager
 
 @Composable
 fun BoxScope.authorizeComponent(
-    connector: ChargePointConnectorDAO
+    connector: ChargePointConnectorDAO,
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -38,7 +38,7 @@ fun BoxScope.authorizeComponent(
 
     RfidButton(
         modifier = Modifier.align(Alignment.CenterEnd)
-            .size(32.dp)
+            .size(32.dp),
     ) {
         expanded = true
     }
@@ -58,12 +58,12 @@ fun BoxScope.authorizeComponent(
                             val chargePointManager: ChargePointManager by injectAnywhere()
                             chargePointManager.authorize(
                                 connector = connector,
-                                idTag = idTag
+                                idTag = idTag,
                             )
                             idTag = ""
                             expanded = false
                         }
-                    }
+                    },
                 ) {
                     Text("Authorize")
                 }
@@ -73,7 +73,7 @@ fun BoxScope.authorizeComponent(
                     onClick = {
                         idTag = ""
                         expanded = false
-                    }
+                    },
                 ) {
                     Text("Close")
                 }
@@ -81,7 +81,7 @@ fun BoxScope.authorizeComponent(
             text = {
                 Column {
                     Spacer(
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
                     )
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -91,10 +91,10 @@ fun BoxScope.authorizeComponent(
                         },
                         onValueChange = { newIdTag ->
                             idTag = newIdTag
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

@@ -12,13 +12,13 @@ import javax.inject.Singleton
 
 @Singleton
 class TxDefaultService(
-    private val txDefaultRepository: TxDefaultRepository
+    private val txDefaultRepository: TxDefaultRepository,
 ) {
 
     fun store(
         chargePoint: ChargePointDAO,
         chargePointConnector: ChargePointConnectorDAO,
-        txProfile: ChargingProfile
+        txProfile: ChargingProfile,
     ): TxDefaultDAO {
         return transaction {
             txDefaultRepository.store(chargePoint, chargePointConnector, txProfile)
@@ -28,7 +28,7 @@ class TxDefaultService(
     fun clear(
         chargePoint: ChargePointDAO,
         connectorDAO: ChargePointConnectorDAO?,
-        request: ClearChargingProfileRequest
+        request: ClearChargingProfileRequest,
     ) {
         if (request.chargingProfilePurpose == null ||
             request.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile

@@ -20,7 +20,7 @@ import com.monta.ocpp.emulator.update.model.GithubRelease
 
 @Composable
 internal fun UpdateAvailableDialog(
-    latestRelease: GithubRelease
+    latestRelease: GithubRelease,
 ) {
     val appUpdateService: AppUpdateService by injectAnywhere()
 
@@ -29,7 +29,7 @@ internal fun UpdateAvailableDialog(
         title = {
             Text(
                 text = "New Release - ${latestRelease.tagName}",
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.h6,
             )
         },
         onDismissRequest = {},
@@ -41,7 +41,7 @@ internal fun UpdateAvailableDialog(
                             appUpdateService.update(latestRelease)
                         }
                     }
-                }
+                },
             ) {
                 Text("Download")
             }
@@ -50,31 +50,31 @@ internal fun UpdateAvailableDialog(
             Button(
                 onClick = {
                     appUpdateService.clearUpdate()
-                }
+                },
             ) {
                 Text("Close")
             }
         },
         text = {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier.verticalScroll(rememberScrollState()),
             ) {
                 latestRelease.body.split("\n").forEach { block ->
                     if (block.startsWith("###")) {
                         Spacer(
                             modifier = Modifier.padding(
-                                top = 8.dp
-                            )
+                                top = 8.dp,
+                            ),
                         )
                         Text(
                             text = block.replace("### ", ""),
-                            style = MaterialTheme.typography.subtitle2
+                            style = MaterialTheme.typography.subtitle2,
                         )
                     } else {
                         Text(block)
                     }
                 }
             }
-        }
+        },
     )
 }

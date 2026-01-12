@@ -28,7 +28,7 @@ import java.lang.IndexOutOfBoundsException
 
 @Composable
 fun chargePointLogComponent(
-    chargePointId: Long
+    chargePointId: Long,
 ) {
     val appThemeViewModel: AppThemeViewModel by injectAnywhere()
 
@@ -45,7 +45,7 @@ fun chargePointLogComponent(
     val logLevels = listOf(
         ChargePointLogger.Level.Info,
         ChargePointLogger.Level.Warn,
-        ChargePointLogger.Level.Error
+        ChargePointLogger.Level.Error,
     )
 
     coroutineScope.launch {
@@ -75,16 +75,16 @@ fun chargePointLogComponent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         reverseLayout = true,
-        state = lazyListState
+        state = lazyListState,
     ) {
         items(
             items = logItems,
             itemContent = { logItem ->
                 Card(
-                    modifier = getCardStyle()
+                    modifier = getCardStyle(),
                 ) {
                     Column(
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
                     ) {
                         logItem.message.split("\r?\n|\r".toRegex())
                             .filter { it.isNotBlank() }
@@ -93,12 +93,12 @@ fun chargePointLogComponent(
                                     text = it,
                                     softWrap = false,
                                     modifier = Modifier.fillMaxWidth(),
-                                    color = appThemeViewModel.getLogColors(logItem)
+                                    color = appThemeViewModel.getLogColors(logItem),
                                 )
                             }
                     }
                 }
-            }
+            },
         )
     }
 }

@@ -8,7 +8,7 @@ import java.time.Instant
 
 suspend fun ChargePointTransactionDAO.stop(
     reason: Reason?,
-    endReasonDescription: String? = null
+    endReasonDescription: String? = null,
 ) {
     val connector = transaction { chargePointConnector }
 
@@ -17,7 +17,7 @@ suspend fun ChargePointTransactionDAO.stop(
     stopTransaction(
         sessionInfo = connector.sessionInfo,
         transaction = this,
-        reason = reason
+        reason = reason,
     )
 
     transaction {
@@ -32,6 +32,6 @@ suspend fun ChargePointTransactionDAO.stop(
     GlobalLogger.info(connector, "Charge was stopped")
 
     connector.setStatuses(
-        connector.calculateState(true)
+        connector.calculateState(true),
     )
 }
