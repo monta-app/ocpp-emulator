@@ -12,13 +12,13 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.inject.Singleton
 
-@Singleton(createdAtStart = true)
+@Singleton
 class DatabaseService {
 
     private val logger = KotlinLogging.logger {}
     private val database = DatabaseInitiator("app.db").database
 
-    init {
+    fun connect() {
         try {
             transaction {
                 SchemaUtils.createMissingTablesAndColumns(
@@ -31,7 +31,7 @@ class DatabaseService {
                 )
             }
         } catch (exception: Exception) {
-            logger.error("database error", exception)
+            logger.error(exception) { "database error" }
             throw exception
         }
     }

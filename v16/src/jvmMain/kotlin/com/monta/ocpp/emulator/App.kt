@@ -1,6 +1,7 @@
 package com.monta.ocpp.emulator
 
 import androidx.compose.ui.window.application
+import com.monta.ocpp.emulator.common.DatabaseService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.interceptor.view.EditMessageWindow
 import com.monta.ocpp.emulator.interceptor.view.SendMessageWindow
@@ -36,9 +37,13 @@ fun main() {
             }
         })
 
+        // Start collecting error reports
         val analyticsHelper by injectAnywhere<AnalyticsHelper>()
-
         analyticsHelper.initSentry()
+
+        // Connect to our database
+        val databaseService by injectAnywhere<DatabaseService>()
+        databaseService.connect()
 
         application {
             SendMessageWindow()
@@ -46,7 +51,7 @@ fun main() {
             MainWindow()
         }
     } catch (exception: Throwable) {
-        logger.error("app exception", exception)
+        logger.error(exception) { "app exception" }
         throw exception
     }
 }
