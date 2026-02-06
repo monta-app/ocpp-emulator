@@ -6,11 +6,13 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class PreviousMessagesService {
-    fun getAllOfMessageType(messageType: String): List<PreviousMessagesDAO> {
+    fun getAllOfMessageType(
+        messageType: String,
+    ): List<PreviousMessagesDAO> {
         return transaction {
             PreviousMessagesDAO
                 .find { PreviousMessagesTable.messageType eq messageType }
@@ -21,7 +23,7 @@ class PreviousMessagesService {
 
     fun insertNewMessage(
         messageType: String,
-        message: String
+        message: String,
     ) {
         // Delete previous identical messages - this makes sure the last used message is on top:
         transaction {
@@ -33,12 +35,14 @@ class PreviousMessagesService {
         transaction {
             PreviousMessagesDAO.newInstance(
                 messageType = messageType,
-                message = message.trim()
+                message = message.trim(),
             )
         }
     }
 
-    fun deleteMessage(id: Long) {
+    fun deleteMessage(
+        id: Long,
+    ) {
         transaction { PreviousMessagesTable.deleteWhere { PreviousMessagesTable.id eq id } }
     }
 }

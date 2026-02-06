@@ -17,7 +17,7 @@ import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransact
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.eichrecht.EichrechtSignatureService
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -33,7 +33,7 @@ suspend fun statusNotification(
     info: String? = null,
     timestamp: ZonedDateTime = ZonedDateTime.now(),
     vendorId: String? = null,
-    vendorErrorCode: String? = null
+    vendorErrorCode: String? = null,
 ) {
     val ocppClientV16: OcppClientV16 by injectAnywhere()
 
@@ -46,18 +46,18 @@ suspend fun statusNotification(
                 status = status,
                 timestamp = timestamp,
                 vendorId = vendorId,
-                vendorErrorCode = vendorErrorCode
-            )
+                vendorErrorCode = vendorErrorCode,
+            ),
         )
     } catch (exception: Exception) {
-        logger.warn("Failed to send status notification", exception)
+        logger.warn(exception) { "Failed to send status notification" }
     }
 }
 
 suspend fun startTransaction(
     sessionInfo: OcppSession.Info,
     connector: ChargePointConnectorDAO,
-    idTag: String
+    idTag: String,
 ): StartTransactionConfirmation {
     val ocppClientV16: OcppClientV16 by injectAnywhere()
 
@@ -67,11 +67,11 @@ suspend fun startTransaction(
                 connectorId = connector.position,
                 idTag = idTag,
                 meterStart = 0,
-                timestamp = ZonedDateTime.now()
-            )
+                timestamp = ZonedDateTime.now(),
+            ),
         )
     } catch (exception: Exception) {
-        logger.warn("Failed to stop charge", exception)
+        logger.warn(exception) { "Failed to stop charge" }
         throw exception
     }
 }
@@ -79,7 +79,7 @@ suspend fun startTransaction(
 suspend fun stopTransaction(
     sessionInfo: OcppSession.Info,
     transaction: ChargePointTransactionDAO,
-    reason: Reason?
+    reason: Reason?,
 ) {
     val ocppClientV16: OcppClientV16 by injectAnywhere()
 
@@ -90,7 +90,7 @@ suspend fun stopTransaction(
             brand = chargePoint.brand,
             model = chargePoint.model,
             serial = chargePoint.serial,
-            firmware = chargePoint.firmware
+            firmware = chargePoint.firmware,
         )
         signaturService.ocmf(
             key = chargePoint.configuration.eichrechtKey,
@@ -99,7 +99,7 @@ suspend fun stopTransaction(
             startMeter = transaction.startMeter,
             endMeter = transaction.endMeter,
             startTime = transaction.startTime,
-            endTime = transaction.endTime ?: Instant.now()
+            endTime = transaction.endTime ?: Instant.now(),
         )
     }
 
@@ -120,14 +120,14 @@ suspend fun stopTransaction(
                                 context = "Transaction.End",
                                 format = ValueFormat.SignedData.name,
                                 measurand = "Energy.Active.Import.Register",
-                                unit = "Wh"
-                            )
-                        )
-                    )
-                )
-            )
+                                unit = "Wh",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
         )
     } catch (exception: Exception) {
-        logger.warn("Failed to stop charge", exception)
+        logger.warn(exception) { "Failed to stop charge" }
     }
 }

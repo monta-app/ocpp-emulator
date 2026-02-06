@@ -9,7 +9,7 @@ import com.monta.library.ocpp.v16.localauth.SendLocalListRequest
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class LocalAuthHandler : LocalListClientProfile.Listener {
@@ -18,17 +18,17 @@ class LocalAuthHandler : LocalListClientProfile.Listener {
 
     override suspend fun getLocalListVersion(
         ocppSessionInfo: OcppSession.Info,
-        request: GetLocalListVersionRequest
+        request: GetLocalListVersionRequest,
     ): GetLocalListVersionConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
         return GetLocalListVersionConfirmation(
-            listVersion = chargePoint.localAuthList.version
+            listVersion = chargePoint.localAuthList.version,
         )
     }
 
     override suspend fun sendLocalList(
         ocppSessionInfo: OcppSession.Info,
-        request: SendLocalListRequest
+        request: SendLocalListRequest,
     ): SendLocalListConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -56,7 +56,7 @@ class LocalAuthHandler : LocalListClientProfile.Listener {
         }
 
         return SendLocalListConfirmation(
-            status = SendLocalListConfirmation.Status.Accepted
+            status = SendLocalListConfirmation.Status.Accepted,
         )
     }
 }

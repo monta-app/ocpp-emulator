@@ -37,14 +37,14 @@ object ChargePointTransaction : LongIdTable("charge_point_transaction") {
     var endReason = enumerationByName("end_reason", 64, Reason::class).nullable()
     var chargingProfile = json<ChargingProfile>(
         name = "charging_profile",
-        objectMapper = MontaSerialization.getDefaultMapper()
+        objectMapper = MontaSerialization.getDefaultMapper(),
     ).nullable()
     var createdAt = timestamp("created_at").default(Instant.now())
 }
 
 // DAO
 class ChargePointTransactionDAO(
-    id: EntityID<Long>
+    id: EntityID<Long>,
 ) : LongEntity(id), Loggable {
     companion object : LongEntityClass<ChargePointTransactionDAO>(ChargePointTransaction) {
         fun newInstance(
@@ -60,7 +60,7 @@ class ChargePointTransactionDAO(
             endMeterAt: Instant = Instant.now(),
             endTime: Instant? = null,
             endReason: Reason? = null,
-            endReasonDescription: String? = null
+            endReasonDescription: String? = null,
         ): ChargePointTransactionDAO {
             return ChargePointTransactionDAO.new {
                 this.chargePoint = chargePoint
@@ -101,11 +101,15 @@ class ChargePointTransactionDAO(
     var chargingProfile by ChargePointTransaction.chargingProfile
     var createdAt by ChargePointTransaction.createdAt
 
-    fun isOwner(connector: ChargePointConnectorDAO): Boolean {
+    fun isOwner(
+        connector: ChargePointConnectorDAO,
+    ): Boolean {
         return this.chargePointId == connector.chargePointId
     }
 
-    fun isOwner(chargePoint: ChargePointDAO): Boolean {
+    fun isOwner(
+        chargePoint: ChargePointDAO,
+    ): Boolean {
         return this.chargePointId == chargePoint.id
     }
 

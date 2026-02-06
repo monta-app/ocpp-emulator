@@ -11,7 +11,7 @@ import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.startFreeCharging
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChangeConfigurationService {
@@ -21,7 +21,7 @@ class ChangeConfigurationService {
     suspend fun changeConfiguration(
         chargePointIdentity: String,
         key: String,
-        value: String?
+        value: String?,
     ): ChangeConfigurationConfirmation {
         val chargePoint = chargePointService.getByIdentity(chargePointIdentity)
 
@@ -34,11 +34,11 @@ class ChangeConfigurationService {
                         this.updateConfiguration { this[key] = value }
                     }
                     ChangeConfigurationConfirmation(
-                        status = ConfigurationStatus.Accepted
+                        status = ConfigurationStatus.Accepted,
                     )
                 } else {
                     ChangeConfigurationConfirmation(
-                        status = ConfigurationStatus.Rejected
+                        status = ConfigurationStatus.Rejected,
                     )
                 }
             }
@@ -47,7 +47,7 @@ class ChangeConfigurationService {
 
     private suspend fun handleAuthorizationKey(
         chargePoint: ChargePointDAO,
-        value: String?
+        value: String?,
     ): ChangeConfigurationConfirmation {
         GlobalLogger.info(chargePoint, "Security authorization updated")
 
@@ -56,13 +56,13 @@ class ChangeConfigurationService {
         }
 
         return ChangeConfigurationConfirmation(
-            status = ConfigurationStatus.Accepted
+            status = ConfigurationStatus.Accepted,
         )
     }
 
     private suspend fun handleFreeCharging(
         chargePoint: ChargePointDAO,
-        value: String?
+        value: String?,
     ): ChangeConfigurationConfirmation {
         val freeChargingEnabled = value.equals("true", ignoreCase = true)
 
@@ -84,13 +84,13 @@ class ChangeConfigurationService {
             chargePointConnectors.forEach { connector ->
                 connector.stopActiveTransactions(
                     reason = Reason.DeAuthorized,
-                    endReasonDescription = "free charging disabled"
+                    endReasonDescription = "free charging disabled",
                 )
             }
         }
 
         return ChangeConfigurationConfirmation(
-            status = ConfigurationStatus.Accepted
+            status = ConfigurationStatus.Accepted,
         )
     }
 }

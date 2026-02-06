@@ -6,33 +6,33 @@ import com.monta.ocpp.emulator.common.createDatabaseListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointConnectorService(
-    private val chargePointConnectorRepository: ChargePointConnectorRepository
+    private val chargePointConnectorRepository: ChargePointConnectorRepository,
 ) {
 
     fun get(
         chargePointId: Long,
-        connectorId: Int
+        connectorId: Int,
     ): ChargePointConnectorDAO? {
         return transaction {
             chargePointConnectorRepository.getByPosition(
                 chargePointId = chargePointId,
-                connectorId = connectorId
+                connectorId = connectorId,
             )
         }
     }
 
     fun getByIdFlow(
         coroutineScope: CoroutineScope,
-        id: Long
+        id: Long,
     ): Flow<ChargePointConnectorDAO> {
         return createDatabaseListener(
             coroutineScope = coroutineScope,
             entityClass = ChargePointConnectorDAO,
-            id = id
+            id = id,
         ) {
             transaction {
                 chargePointConnectorRepository.getById(id)
@@ -42,7 +42,7 @@ class ChargePointConnectorService(
 
     fun update(
         connector: ChargePointConnectorDAO,
-        block: ChargePointConnectorDAO.() -> Unit
+        block: ChargePointConnectorDAO.() -> Unit,
     ): ChargePointConnectorDAO {
         return transaction {
             transaction {

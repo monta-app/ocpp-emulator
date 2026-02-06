@@ -9,6 +9,6 @@ val appRoot by lazy {
             append(File.separator)
             append("monta")
             append(File.separator)
-        }
+        },
     )
 }

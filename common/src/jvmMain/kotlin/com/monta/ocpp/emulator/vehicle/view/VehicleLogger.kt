@@ -1,11 +1,11 @@
 package com.monta.ocpp.emulator.vehicle.view
 
 import com.monta.ocpp.emulator.common.util.PrettyJsonFormatter
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import mu.KotlinLogging
-import org.koin.core.annotation.Singleton
 import java.time.OffsetDateTime
+import javax.inject.Singleton
 
 @Singleton
 class VehicleLogger {
@@ -15,7 +15,7 @@ class VehicleLogger {
     val logFlow = MutableSharedFlow<LogEntry>(
         replay = 20,
         extraBufferCapacity = 20,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
     enum class Level {
@@ -23,19 +23,19 @@ class VehicleLogger {
         Warn,
         Info,
         Debug,
-        Trace
+        Trace,
     }
 
     data class LogEntry(
         val level: Level,
         val message: String,
         val context: Map<String, Any?>? = null,
-        val timestamp: OffsetDateTime = OffsetDateTime.now()
+        val timestamp: OffsetDateTime = OffsetDateTime.now(),
     )
 
     suspend fun error(
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.error(message)
         log(Level.Error, message, context)
@@ -43,7 +43,7 @@ class VehicleLogger {
 
     suspend fun warn(
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.warn(message)
         log(Level.Warn, message, context)
@@ -51,7 +51,7 @@ class VehicleLogger {
 
     suspend fun info(
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.info(message)
         log(Level.Info, message, context)
@@ -59,7 +59,7 @@ class VehicleLogger {
 
     suspend fun debug(
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.debug(message)
         log(Level.Debug, message, context)
@@ -67,53 +67,53 @@ class VehicleLogger {
 
     suspend fun trace(
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.trace(message)
         log(Level.Trace, message, context)
     }
 
     suspend fun logSend(
-        message: String
+        message: String,
     ) {
         trace(
             message = buildString {
                 appendLine(
-                    PrettyJsonFormatter.formatJson(message)
+                    PrettyJsonFormatter.formatJson(message),
                 )
             },
             context = mapOf(
-                "json" to message
-            )
+                "json" to message,
+            ),
         )
     }
 
     suspend fun logReceive(
-        message: String
+        message: String,
     ) {
         trace(
             message = buildString {
                 appendLine(
-                    PrettyJsonFormatter.formatJson(message)
+                    PrettyJsonFormatter.formatJson(message),
                 )
             },
             context = mapOf(
-                "json" to message
-            )
+                "json" to message,
+            ),
         )
     }
 
     private suspend fun log(
         level: Level,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logFlow.emit(
             value = LogEntry(
                 level = level,
                 message = message,
-                context = context
-            )
+                context = context,
+            ),
         )
     }
 }

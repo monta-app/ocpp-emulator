@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class TxDefaultRepository {
@@ -19,10 +19,10 @@ class TxDefaultRepository {
     fun store(
         chargePointDAO: ChargePointDAO,
         connectorDAO: ChargePointConnectorDAO,
-        chargingProfile: ChargingProfile
+        chargingProfile: ChargingProfile,
     ): TxDefaultDAO {
         require(
-            chargingProfile.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile
+            chargingProfile.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile,
         ) {
             "chargingProfile must be a TxDefaultProfile"
         }
@@ -42,7 +42,7 @@ class TxDefaultRepository {
     fun delete(
         chargePointDAO: ChargePointDAO,
         connectorDAO: ChargePointConnectorDAO?,
-        request: ClearChargingProfileRequest
+        request: ClearChargingProfileRequest,
     ) {
         /*
          v1.6 section 6.13:
@@ -67,7 +67,7 @@ class TxDefaultRepository {
     private fun findById(
         chargePointDAO: ChargePointDAO,
         connectorDAO: ChargePointConnectorDAO,
-        chargingProfileId: Int
+        chargingProfileId: Int,
     ): TxDefaultDAO? {
         val equalsProfileId = Op.build { TxDefault.chargingProfileId eq chargingProfileId }
         val onChargePoint = TxDefault.chargePointId eq chargePointDAO.chargePointId()

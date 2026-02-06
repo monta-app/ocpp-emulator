@@ -37,8 +37,8 @@ fun VehicleView() {
     var urlChoice by remember {
         mutableStateOf(
             UrlChoice.fromVehicleServiceUrl(
-                vehicleService.getVehicleServiceUrl()
-            )
+                vehicleService.getVehicleServiceUrl(),
+            ),
         )
     }
 
@@ -80,12 +80,12 @@ fun VehicleView() {
 
     Card(
         modifier = getCardStyle().fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(20.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
                 .width(400.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)
+            verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
             Spinner(
                 modifier = Modifier.fillMaxWidth(),
@@ -94,7 +94,7 @@ fun VehicleView() {
                 values = UrlChoice.entries,
                 render = { urlChoice ->
                     urlChoice.name
-                }
+                },
             ) { newUrlChoice ->
                 urlChoice = newUrlChoice
                 vehicleServiceUrl = newUrlChoice.vehicleServiceUrl
@@ -106,7 +106,7 @@ fun VehicleView() {
                 onValueChange = { newValue ->
                     vehicleServiceUrl = newValue
                 },
-                enabled = urlChoice == UrlChoice.Other
+                enabled = urlChoice == UrlChoice.Other,
             )
             PasswordField(
                 modifier = Modifier.fillMaxWidth(),
@@ -116,13 +116,13 @@ fun VehicleView() {
                 passwordListener = { newValue -> enodeSecretKey = newValue },
                 passwordVisibilityListener = { newValue ->
                     enodeSecretVisibility = newValue
-                }
+                },
             )
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = integrationExternalId,
                 onValueChange = { newValue -> integrationExternalId = newValue },
-                label = { Text("Vehicle integration external id") }
+                label = { Text("Vehicle integration external id") },
             )
 
             if (!advancedMode) {
@@ -130,13 +130,13 @@ fun VehicleView() {
                     modifier = Modifier.fillMaxWidth(),
                     value = externalVehicleId,
                     onValueChange = { newValue -> externalVehicleId = newValue },
-                    label = { Text("External vehicle id") }
+                    label = { Text("External vehicle id") },
                 )
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = soc.toString(),
                     onValueChange = { newValue: String -> soc = newValue.toDouble() },
-                    label = { Text("Battery percentage") }
+                    label = { Text("Battery percentage") },
                 )
             }
             LabelledCheckBox(
@@ -148,8 +148,8 @@ fun VehicleView() {
                         vehicleYaml = PrettyYamlFormatter.writeYaml(
                             vehiclePayload.withValues(
                                 externalVehicleId = externalVehicleId,
-                                soc = soc
-                            )
+                                soc = soc,
+                            ),
                         )
                     } else {
                         vehiclePayload = parseVehicleCatching(vehicleYaml, vehiclePayload)
@@ -157,7 +157,7 @@ fun VehicleView() {
                         soc = vehiclePayload.chargeState?.batteryLevel?.toDouble() ?: 50.0
                     }
                 },
-                label = "Advanced mode"
+                label = "Advanced mode",
             )
             if (advancedMode) {
                 OutlinedTextField(
@@ -165,7 +165,7 @@ fun VehicleView() {
                     value = vehicleYaml,
                     textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                     onValueChange = { newValue -> vehicleYaml = newValue },
-                    label = { Text("Vehicle Payload") }
+                    label = { Text("Vehicle Payload") },
                 )
             }
             Button(
@@ -180,17 +180,17 @@ fun VehicleView() {
                         vehicleIntegrationExternalId = integrationExternalId,
                         enodeSecretKey = enodeSecretKey,
                         vehicleExternalId = externalVehicleId,
-                        vehicleServiceUrl = vehicleServiceUrl
+                        vehicleServiceUrl = vehicleServiceUrl,
                     )
                     runBlocking {
                         vehicleService.sendUpdate(
                             integrationExternalId = integrationExternalId,
                             vehicle = vehiclePayload,
                             host = vehicleServiceUrl,
-                            enodeSecretKey = enodeSecretKey
+                            enodeSecretKey = enodeSecretKey,
                         )
                     }
-                }
+                },
             ) {
                 Text("Send Vehicle Update")
             }

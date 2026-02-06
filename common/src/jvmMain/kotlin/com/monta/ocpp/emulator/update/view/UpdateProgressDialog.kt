@@ -14,14 +14,14 @@ import com.monta.ocpp.emulator.update.model.GithubRelease
 @Composable
 internal fun UpdateProgressDialog(
     latestRelease: GithubRelease,
-    downloadProgress: Float
+    downloadProgress: Float,
 ) {
     AlertDialog(
         modifier = Modifier.width(400.dp),
         title = {
             Text(
                 text = "Downloading - ${latestRelease.tagName}",
-                style = MaterialTheme.typography.h6
+                style = MaterialTheme.typography.h6,
             )
         },
         onDismissRequest = {},
@@ -30,8 +30,8 @@ internal fun UpdateProgressDialog(
         text = {
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
-                progress = downloadProgress
+                progress = downloadProgress,
             )
-        }
+        },
     )
 }

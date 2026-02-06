@@ -19,22 +19,22 @@ import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransac
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.data.service.TxDefaultService
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class SmartChargingClientHandler(
     private val chargePointService: ChargePointService,
     private val chargePointTransactionService: ChargePointTransactionService,
-    private val txDefaultService: TxDefaultService
+    private val txDefaultService: TxDefaultService,
 ) : SmartChargeClientProfile.Listener {
 
     override suspend fun clearChargingProfile(
         ocppSessionInfo: OcppSession.Info,
-        request: ClearChargingProfileRequest
+        request: ClearChargingProfileRequest,
     ): ClearChargingProfileConfirmation {
         val connector = getConnector(
             ocppSessionInfo = ocppSessionInfo,
-            connectorId = request.connectorId
+            connectorId = request.connectorId,
         )
 
         if (connector != null) {
@@ -48,46 +48,46 @@ class SmartChargingClientHandler(
 
         // handle TxDefault messages
         val chargePoint = chargePointService.getByIdentity(
-            ocppSessionInfo.identity
+            ocppSessionInfo.identity,
         )
         txDefaultService.clear(chargePoint, connector, request)
 
         return ClearChargingProfileConfirmation(
-            status = ClearChargingProfileStatus.Accepted
+            status = ClearChargingProfileStatus.Accepted,
         )
     }
 
     override suspend fun getCompositeSchedule(
         ocppSessionInfo: OcppSession.Info,
-        request: GetCompositeScheduleRequest
+        request: GetCompositeScheduleRequest,
     ): GetCompositeScheduleConfirmation {
         return GetCompositeScheduleConfirmation(
-            status = GetCompositeScheduleStatus.Rejected
+            status = GetCompositeScheduleStatus.Rejected,
         )
     }
 
     override suspend fun setChargingProfile(
         ocppSessionInfo: OcppSession.Info,
-        request: SetChargingProfileRequest
+        request: SetChargingProfileRequest,
     ): SetChargingProfileConfirmation {
         return if (setChargingProfileForTransaction(ocppSessionInfo, request)) {
             SetChargingProfileConfirmation(
-                status = SetChargingProfileStatus.Accepted
+                status = SetChargingProfileStatus.Accepted,
             )
         } else if (setDefaultChargingProfile(ocppSessionInfo, request)) {
             SetChargingProfileConfirmation(
-                status = SetChargingProfileStatus.Accepted
+                status = SetChargingProfileStatus.Accepted,
             )
         } else {
             SetChargingProfileConfirmation(
-                status = SetChargingProfileStatus.Rejected
+                status = SetChargingProfileStatus.Rejected,
             )
         }
     }
 
     private suspend fun validateSetDefaultChargingProfile(
         connector: ChargePointConnectorDAO,
-        request: SetChargingProfileRequest
+        request: SetChargingProfileRequest,
     ): Boolean {
         if (request.connectorId != 0) {
             GlobalLogger.warn(connector, "TxDefault must be on connector 0")
@@ -109,7 +109,7 @@ class SmartChargingClientHandler(
 
     private suspend fun setDefaultChargingProfile(
         ocppSessionInfo: OcppSession.Info,
-        request: SetChargingProfileRequest
+        request: SetChargingProfileRequest,
     ): Boolean {
         if (request.csChargingProfiles.chargingProfilePurpose != ChargingProfilePurposeType.TxDefaultProfile) {
             return false
@@ -117,7 +117,7 @@ class SmartChargingClientHandler(
 
         val connector = getConnector(
             ocppSessionInfo = ocppSessionInfo,
-            connectorId = request.connectorId
+            connectorId = request.connectorId,
         ) ?: return false
 
         if (!validateSetDefaultChargingProfile(connector, request)) {
@@ -125,7 +125,7 @@ class SmartChargingClientHandler(
         }
 
         val chargePoint = chargePointService.getByIdentity(
-            ocppSessionInfo.identity
+            ocppSessionInfo.identity,
         )
 
         GlobalLogger.info(connector, "received TxDefault charging profile :)")
@@ -139,7 +139,7 @@ class SmartChargingClientHandler(
 
     private suspend fun setChargingProfileForTransaction(
         ocppSessionInfo: OcppSession.Info,
-        request: SetChargingProfileRequest
+        request: SetChargingProfileRequest,
     ): Boolean {
         if (request.csChargingProfiles.chargingProfilePurpose == ChargingProfilePurposeType.TxDefaultProfile) {
             return false
@@ -150,7 +150,7 @@ class SmartChargingClientHandler(
 
         val connector = getConnector(
             ocppSessionInfo = ocppSessionInfo,
-            connectorId = request.connectorId
+            connectorId = request.connectorId,
         )
 
         val chargingProfile = request.csChargingProfiles
@@ -177,7 +177,7 @@ class SmartChargingClientHandler(
         }
 
         val transaction = chargePointTransactionService.getByExternalId(
-            externalId = transactionId
+            externalId = transactionId,
         )
 
         if (transaction == null) {
@@ -201,7 +201,7 @@ class SmartChargingClientHandler(
 
     private fun getConnector(
         ocppSessionInfo: OcppSession.Info,
-        connectorId: Int?
+        connectorId: Int?,
     ): ChargePointConnectorDAO? {
         if (connectorId != null) {
             val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)

@@ -18,8 +18,8 @@ object MainModule {
             OcppClientV16Builder()
                 .settings(
                     OcppSettings(
-                        nanoSecondDates = false
-                    )
+                        nanoSecondDates = false,
+                    ),
                 )
                 .onConnect { ocppSessionInfo, reconnecting ->
                     ocppClientEventsHandler.onConnect(ocppSessionInfo, reconnecting)

@@ -18,7 +18,9 @@ fun Instant.toReadable(): String {
 }
 
 @Composable
-fun getButtonStateColor(isActive: Boolean): Color {
+fun getButtonStateColor(
+    isActive: Boolean,
+): Color {
     return if (isActive) {
         MaterialTheme.colors.primary
     } else {

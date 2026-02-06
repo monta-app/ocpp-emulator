@@ -10,17 +10,17 @@ import io.ktor.client.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.koin.core.annotation.Singleton
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.Formatter
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import javax.inject.Singleton
 
 @Singleton
 class VehicleService(
     private val appConfigService: AppConfigService,
-    private val vehicleLogger: VehicleLogger
+    private val vehicleLogger: VehicleLogger,
 ) {
 
     @Suppress("PropertyName", "ConstPropertyName")
@@ -56,13 +56,13 @@ class VehicleService(
         enodeSecretKey: String,
         vehicleIntegrationExternalId: String,
         vehicleExternalId: String,
-        vehicleServiceUrl: String
+        vehicleServiceUrl: String,
     ) {
         appConfigService.upsert(
             EnodeSecretKeyKey to enodeSecretKey,
             VehicleIntegrationExternalIdKey to vehicleIntegrationExternalId,
             VehicleExternalIdKey to vehicleExternalId,
-            VehicleServiceUrlKey to vehicleServiceUrl
+            VehicleServiceUrlKey to vehicleServiceUrl,
         )
     }
 
@@ -70,7 +70,7 @@ class VehicleService(
         integrationExternalId: String,
         vehicle: EnodeVehicle,
         host: String,
-        enodeSecretKey: String
+        enodeSecretKey: String,
     ) {
         logger.info("sending vehicle update")
         val webhookUrl = "$host/api/v1/external-services/enode/webhooks/firehose"
@@ -98,7 +98,7 @@ class VehicleService(
 
     private fun generateSignature(
         enodeSecretKey: String,
-        payload: String
+        payload: String,
     ): String {
         val signingKey = SecretKeySpec(enodeSecretKey.toByteArray(), HMAC_SHA1)
         val hmac = Mac.getInstance(HMAC_SHA1)
@@ -116,7 +116,7 @@ class VehicleService(
 
     private fun enodeVehicleUpdatePayload(
         userId: String,
-        vehicle: EnodeVehicle
+        vehicle: EnodeVehicle,
     ): List<EnodeVehicleUpdate> {
         val now = Instant.now()
         return listOf(
@@ -124,10 +124,10 @@ class VehicleService(
                 event = "user:vehicle:updated",
                 createdAt = now,
                 user = MontaApiUser(
-                    id = userId
+                    id = userId,
                 ),
-                vehicle = vehicle
-            )
+                vehicle = vehicle,
+            ),
         )
     }
 }

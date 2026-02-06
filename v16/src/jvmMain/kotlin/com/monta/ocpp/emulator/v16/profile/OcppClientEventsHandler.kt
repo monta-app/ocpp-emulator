@@ -6,7 +6,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.ChargePointManager
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class OcppClientEventsHandler {
@@ -16,7 +16,7 @@ class OcppClientEventsHandler {
 
     suspend fun onConnect(
         ocppSessionInfo: OcppSession.Info,
-        isReconnecting: Boolean
+        isReconnecting: Boolean,
     ) {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -32,7 +32,7 @@ class OcppClientEventsHandler {
     }
 
     suspend fun onDisconnect(
-        ocppSessionInfo: OcppSession.Info
+        ocppSessionInfo: OcppSession.Info,
     ): Boolean {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
         GlobalLogger.info(chargePoint, "Disconnected")

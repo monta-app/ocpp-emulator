@@ -22,11 +22,16 @@ object PrettyYamlFormatter {
     private val yamlWriter: ObjectWriter = nullableYamlMapper
         .writerWithDefaultPrettyPrinter()
 
-    fun <T> readYaml(yaml: String, clazz: Class<T>): T {
+    fun <T> readYaml(
+        yaml: String,
+        clazz: Class<T>,
+    ): T {
         return nullableYamlMapper.readerFor(clazz).readValue(yaml)
     }
 
-    fun writeYaml(value: Any): String {
+    fun writeYaml(
+        value: Any,
+    ): String {
         return yamlWriter.writeValueAsString(value)
     }
 }

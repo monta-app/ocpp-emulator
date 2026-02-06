@@ -58,7 +58,7 @@ class ChargePointConfiguration : HashMap<String, String?>() {
             if ((publicKey != null) && (privateKey != null)) {
                 return EichrechtKey.parseFromHexParts(
                     publicKey = publicKey,
-                    privateKey = privateKey
+                    privateKey = privateKey,
                 )
             } else {
                 return EichrechtKey.newInstance()

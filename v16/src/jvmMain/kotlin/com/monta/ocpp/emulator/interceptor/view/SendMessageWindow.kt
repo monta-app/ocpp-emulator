@@ -90,10 +90,10 @@ import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
+import javax.inject.Singleton
 
 @Singleton
 class SendMessageWindowViewModel {
@@ -109,8 +109,8 @@ fun ApplicationScope.SendMessageWindow() {
     val windowState = rememberWindowState(
         size = DpSize(800.dp, 750.dp),
         position = WindowPosition.Aligned(
-            Alignment.CenterEnd
-        )
+            Alignment.CenterEnd,
+        ),
     )
 
     if (sendMessageWindowViewModel.messageType == null) {
@@ -123,10 +123,10 @@ fun ApplicationScope.SendMessageWindow() {
     val previousMessagesService: PreviousMessagesService by injectAnywhere()
 
     val chargePoint = chargePointService.getById(
-        navigationViewModel.getChargePointId()
+        navigationViewModel.getChargePointId(),
     )
     sendMessageWindowViewModel.previousMessages.value = previousMessagesService.getAllOfMessageType(
-        sendMessageWindowViewModel.messageType?.name ?: ""
+        sendMessageWindowViewModel.messageType?.name ?: "",
     )
 
     Window(
@@ -134,10 +134,10 @@ fun ApplicationScope.SendMessageWindow() {
         state = windowState,
         onCloseRequest = {
             sendMessageWindowViewModel.messageType = null
-        }
+        },
     ) {
         MaterialTheme(
-            colors = appThemeViewModel.getColors()
+            colors = appThemeViewModel.getColors(),
         ) {
             Scaffold(
                 modifier = Modifier.fillMaxWidth(),
@@ -145,65 +145,65 @@ fun ApplicationScope.SendMessageWindow() {
                     TopAppBar(
                         title = {
                             Text(text = "Send message: ${sendMessageWindowViewModel.messageType?.name}")
-                        }
+                        },
                     )
-                }
+                },
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
                 ) {
                     Card(
-                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight()
+                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight(),
                     ) {
                         Column(
                             modifier = Modifier.padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             OutlinedTextField(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = sendMessageWindowViewModel.messageYaml,
                                 onValueChange = { newValue -> sendMessageWindowViewModel.messageYaml = newValue },
                                 textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                                label = { Text("message payload") }
+                                label = { Text("message payload") },
                             )
                             Button(
                                 onClick = {
                                     runBlocking {
                                         previousMessagesService.insertNewMessage(
                                             messageType = sendMessageWindowViewModel.messageType?.name ?: "",
-                                            message = sendMessageWindowViewModel.messageYaml
+                                            message = sendMessageWindowViewModel.messageYaml,
                                         )
 
                                         val payload = PrettyYamlFormatter.readYaml(
                                             sendMessageWindowViewModel.messageYaml,
-                                            sendMessageWindowViewModel.messageType!!.requestType
+                                            sendMessageWindowViewModel.messageType!!.requestType,
                                         )
                                         val ocppClientV16: OcppClientV16 by injectAnywhere()
                                         ocppClientV16.sendMessage(
                                             OcppSession.Info(
                                                 serverId = "",
-                                                identity = chargePoint.identity
+                                                identity = chargePoint.identity,
                                             ),
                                             Message.Request(
                                                 uniqueId = UUID.randomUUID().toString(),
                                                 action = sendMessageWindowViewModel.messageType!!.name,
                                                 payload = MessageSerializer(
                                                     SerializationMode.OCPP_1_6,
-                                                    OcppErrorResponderV16
+                                                    OcppErrorResponderV16,
                                                 ).toPayload(
-                                                    value = payload
-                                                )
-                                            )
+                                                    value = payload,
+                                                ),
+                                            ),
                                         )
                                         ChargePointLogger.getLogger(navigationViewModel.getChargePointId()).info(
                                             0,
-                                            "Sent message: ${sendMessageWindowViewModel.messageType!!.name}"
+                                            "Sent message: ${sendMessageWindowViewModel.messageType!!.name}",
                                         )
                                         sendMessageWindowViewModel.messageType = null
                                     }
-                                }
+                                },
                             ) {
                                 Text("Send")
                             }
@@ -214,19 +214,19 @@ fun ApplicationScope.SendMessageWindow() {
                                     modifier = getCardStyle()
                                         .fillMaxWidth()
                                         .fillMaxHeight().padding(2.dp),
-                                    border = BorderStroke(width = Dp.Hairline, color = Color.Gray)
+                                    border = BorderStroke(width = Dp.Hairline, color = Color.Gray),
                                 ) {
                                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
                                         ClickableText(
                                             text = AnnotatedString(previousMessage.message),
                                             style = TextStyle(
                                                 color = MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface),
-                                                fontFamily = FontFamily.Monospace
+                                                fontFamily = FontFamily.Monospace,
                                             ),
                                             modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
                                             onClick = {
                                                 sendMessageWindowViewModel.messageYaml = previousMessage.message
-                                            }
+                                            },
                                         )
                                         Button(
                                             modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
@@ -235,7 +235,7 @@ fun ApplicationScope.SendMessageWindow() {
                                                 sendMessageWindowViewModel.previousMessages.value =
                                                     sendMessageWindowViewModel.previousMessages.value
                                                         .filter { it.idValue != previousMessage.idValue }
-                                            }
+                                            },
                                         ) {
                                             Text("Delete")
                                         }
@@ -250,12 +250,14 @@ fun ApplicationScope.SendMessageWindow() {
     }
 }
 
-fun defaultPayload(messageType: Feature): String {
+fun defaultPayload(
+    messageType: Feature,
+): String {
     val navigationViewModel: NavigationViewModel by injectAnywhere()
     val chargePointService: ChargePointService by injectAnywhere()
 
     val chargePoint = chargePointService.getById(
-        navigationViewModel.getChargePointId()
+        navigationViewModel.getChargePointId(),
     )
 
     val transaction = transaction {
@@ -268,13 +270,13 @@ fun defaultPayload(messageType: Feature): String {
             chargePointSerialNumber = chargePoint.serial,
             firmwareVersion = chargePoint.firmware,
             chargePointModel = chargePoint.model,
-            chargePointVendor = chargePoint.brand
+            chargePointVendor = chargePoint.brand,
         )
 
         DataTransferFeature -> DataTransferRequest(
             vendorId = "generalConfiguration",
             messageId = "setMeterConfiguration",
-            data = "{}"
+            data = "{}",
         )
 
         DiagnosticsStatusNotificationFeature -> DiagnosticsStatusNotificationRequest(DiagnosticsStatusNotificationStatus.Idle)
@@ -290,23 +292,23 @@ fun defaultPayload(messageType: Feature): String {
                         meterValuesSampledData = chargePoint.configuration.meterValuesSampledData,
                         startTime = transaction?.startTime,
                         endMeter = transaction?.endMeter ?: 0.0,
-                        watts = chargePoint.getConnector(transaction?.connectorPosition ?: 1).kw * 1000
-                    )
-                )
-            )
+                        watts = chargePoint.getConnector(transaction?.connectorPosition ?: 1).kw * 1000,
+                    ),
+                ),
+            ),
         )
 
         StartTransactionFeature -> StartTransactionRequest(
             connectorId = 1,
             idTag = "",
             meterStart = 0,
-            timestamp = ZonedDateTime.now()
+            timestamp = ZonedDateTime.now(),
         )
 
         StatusNotificationFeature -> StatusNotificationRequest(
             connectorId = 1,
             errorCode = ChargePointErrorCode.NoError,
-            status = ChargePointStatus.Available
+            status = ChargePointStatus.Available,
         )
 
         StopTransactionFeature -> StopTransactionRequest(
@@ -323,9 +325,9 @@ fun defaultPayload(messageType: Feature): String {
                             context = Context.TransactionBegin.name,
                             format = ValueFormat.SignedData.name,
                             measurand = "Energy.Active.Import.Register",
-                            unit = "Wh"
-                        )
-                    )
+                            unit = "Wh",
+                        ),
+                    ),
                 ),
                 MeterValue(
                     timestamp = ZonedDateTime.now(),
@@ -335,11 +337,11 @@ fun defaultPayload(messageType: Feature): String {
                             context = Context.TransactionEnd.name,
                             format = ValueFormat.SignedData.name,
                             measurand = "Energy.Active.Import.Register",
-                            unit = "Wh"
-                        )
-                    )
-                )
-            )
+                            unit = "Wh",
+                        ),
+                    ),
+                ),
+            ),
         )
 
         else -> throw NotImplementedError("Unknown message type ${messageType.name}")

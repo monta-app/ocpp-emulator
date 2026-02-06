@@ -45,7 +45,7 @@ import com.monta.ocpp.emulator.v16.setStatus
 import com.monta.ocpp.emulator.v16.stop
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
 import kotlinx.coroutines.delay
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class CoreClientHandler : CoreClientProfile.Listener {
@@ -59,13 +59,13 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
     override suspend fun changeAvailabilityRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: ChangeAvailabilityRequest
+        request: ChangeAvailabilityRequest,
     ): ChangeAvailabilityConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
         if (!chargePoint.canPerformAction) {
             return ChangeAvailabilityConfirmation(
-                status = AvailabilityStatus.Rejected
+                status = AvailabilityStatus.Rejected,
             )
         }
 
@@ -76,7 +76,7 @@ class CoreClientHandler : CoreClientProfile.Listener {
                         status = when (request.type) {
                             AvailabilityType.Inoperative -> ChargePointStatus.Unavailable
                             AvailabilityType.Operative -> ChargePointStatus.Available
-                        }
+                        },
                     )
                 }
 
@@ -85,20 +85,20 @@ class CoreClientHandler : CoreClientProfile.Listener {
                         status = when (request.type) {
                             AvailabilityType.Inoperative -> ChargePointStatus.Unavailable
                             AvailabilityType.Operative -> ChargePointStatus.Available
-                        }
+                        },
                     )
                 }
             }
         }
 
         return ChangeAvailabilityConfirmation(
-            status = AvailabilityStatus.Accepted
+            status = AvailabilityStatus.Accepted,
         )
     }
 
     override suspend fun getConfigurationRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: GetConfigurationRequest
+        request: GetConfigurationRequest,
     ): GetConfigurationConfirmation {
         val unknownKeys = mutableListOf<String>()
         val keyValueTypes = mutableListOf<KeyValueType>()
@@ -111,8 +111,8 @@ class CoreClientHandler : CoreClientProfile.Listener {
                     KeyValueType(
                         key = config.key,
                         readonly = false,
-                        value = config.value
-                    )
+                        value = config.value,
+                    ),
                 )
             }
         }
@@ -124,33 +124,33 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
         return GetConfigurationConfirmation(
             configurationKey = keyValueTypes,
-            unknownKey = unknownKeys
+            unknownKey = unknownKeys,
         )
     }
 
     override suspend fun changeConfigurationRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: ChangeConfigurationRequest
+        request: ChangeConfigurationRequest,
     ): ChangeConfigurationConfirmation {
         return changeConfigurationService.changeConfiguration(
             chargePointIdentity = ocppSessionInfo.identity,
             key = request.key,
-            value = request.value
+            value = request.value,
         )
     }
 
     override suspend fun clearCacheRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: ClearCacheRequest
+        request: ClearCacheRequest,
     ): ClearCacheConfirmation {
         return ClearCacheConfirmation(
-            status = ClearCacheStatus.Rejected
+            status = ClearCacheStatus.Rejected,
         )
     }
 
     override suspend fun dataTransferRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: DataTransferRequest
+        request: DataTransferRequest,
     ): DataTransferConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
         var handled = false
@@ -160,19 +160,19 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
         return DataTransferConfirmation(
             status = if (handled) DataTransferStatus.Accepted else DataTransferStatus.Rejected,
-            data = null
+            data = null,
         )
     }
 
     override suspend fun remoteStartTransactionRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: RemoteStartTransactionRequest
+        request: RemoteStartTransactionRequest,
     ): RemoteStartTransactionConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
         if (!chargePoint.canPerformAction) {
             return RemoteStartTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
@@ -181,31 +181,31 @@ class CoreClientHandler : CoreClientProfile.Listener {
         if (connectorId == null) {
             GlobalLogger.warn(chargePoint, "remoteStartTransactionRequest missing connector id")
             return RemoteStartTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
         val connector = chargePointConnectorService.get(
             chargePointId = chargePoint.idValue,
-            connectorId = connectorId
+            connectorId = connectorId,
         )
 
         if (connector == null) {
             GlobalLogger.warn(chargePoint, "remoteStartTransactionRequest invalid connector position")
             return RemoteStartTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
         try {
             return RemoteStartTransactionConfirmation(
-                status = RemoteStartStopStatus.Accepted
+                status = RemoteStartStopStatus.Accepted,
             )
         } finally {
             launchThread {
                 val authorizationStatus = chargePointManager.authorize(
                     connector = connector,
-                    idTag = request.idTag
+                    idTag = request.idTag,
                 )
 
                 // If we don't get an accepted back from the authorization then return
@@ -218,50 +218,50 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
     override suspend fun remoteStopTransactionRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: RemoteStopTransactionRequest
+        request: RemoteStopTransactionRequest,
     ): RemoteStopTransactionConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
         val chargePointTransaction = chargePointTransactionService.getByExternalId(
-            externalId = request.transactionId
+            externalId = request.transactionId,
         )
 
         if (chargePointTransaction == null) {
             GlobalLogger.error(chargePoint, "transaction not found for externalId ${request.transactionId}")
             return RemoteStopTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
         if (!chargePointTransaction.isOwner(chargePoint)) {
             GlobalLogger.error(chargePointTransaction, "charge point doesn't own this transaction")
             return RemoteStopTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
         if (!chargePointTransaction.canStop()) {
             GlobalLogger.error(chargePointTransaction, "charge already ended, rejecting")
             return RemoteStopTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected
+                status = RemoteStartStopStatus.Rejected,
             )
         }
 
         launchThread {
             delay(100)
             chargePointTransaction.stop(
-                reason = Reason.Remote
+                reason = Reason.Remote,
             )
         }
 
         return RemoteStopTransactionConfirmation(
-            status = RemoteStartStopStatus.Accepted
+            status = RemoteStartStopStatus.Accepted,
         )
     }
 
     override suspend fun resetRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: ResetRequest
+        request: ResetRequest,
     ): ResetConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -269,25 +269,25 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
         if (!chargePoint.canPerformAction) {
             return ResetConfirmation(
-                status = ResetStatus.Rejected
+                status = ResetStatus.Rejected,
             )
         }
 
         launchThread {
             connectionManager.reconnect(
                 chargePointId = chargePoint.idValue,
-                delayInSeconds = 5
+                delayInSeconds = 5,
             )
         }
 
         return ResetConfirmation(
-            status = ResetStatus.Accepted
+            status = ResetStatus.Accepted,
         )
     }
 
     override suspend fun unlockConnectorRequest(
         ocppSessionInfo: OcppSession.Info,
-        request: UnlockConnectorRequest
+        request: UnlockConnectorRequest,
     ): UnlockConnectorConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
@@ -295,7 +295,7 @@ class CoreClientHandler : CoreClientProfile.Listener {
             GlobalLogger.warn(chargePoint, "Tried to unlock connector 0, not possible")
 
             UnlockConnectorConfirmation(
-                status = UnlockStatus.NotSupported
+                status = UnlockStatus.NotSupported,
             )
         } else {
             val connector = chargePoint.getConnector(request.connectorId)
@@ -308,11 +308,11 @@ class CoreClientHandler : CoreClientProfile.Listener {
 
             connector.stopActiveTransactions(
                 reason = Reason.UnlockCommand,
-                endReasonDescription = "Connector was unlocked"
+                endReasonDescription = "Connector was unlocked",
             )
 
             UnlockConnectorConfirmation(
-                status = UnlockStatus.Unlocked
+                status = UnlockStatus.Unlocked,
             )
         }
     }

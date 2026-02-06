@@ -12,15 +12,19 @@ import kotlin.time.Duration.Companion.seconds
 
 sealed class Interception {
     data object NoOp : Interception() {
-        override suspend fun intercept(message: Message): String {
+        override suspend fun intercept(
+            message: Message,
+        ): String {
             return message.toJsonString(MessageInterceptor.serializer)
         }
     }
 
     class Block(
-        val chargePointId: Long
+        val chargePointId: Long,
     ) : Interception() {
-        override suspend fun intercept(message: Message): String? {
+        override suspend fun intercept(
+            message: Message,
+        ): String? {
             val logMessage = when (message) {
                 is Message.Request -> "Blocked request: ${message.action}"
                 is Message.Response -> "Blocked response: ${message.uniqueId}"
@@ -33,9 +37,11 @@ sealed class Interception {
 
     class Delay(
         val chargePointId: Long,
-        private val delaySeconds: Int
+        private val delaySeconds: Int,
     ) : Interception() {
-        override suspend fun intercept(message: Message): String {
+        override suspend fun intercept(
+            message: Message,
+        ): String {
             val type = if (message is Message.Request) message.action else "message"
             ChargePointLogger.getLogger(chargePointId).warn(message = "Delaying $type for $delaySeconds seconds")
             delay(delaySeconds * 1000L)
@@ -44,11 +50,13 @@ sealed class Interception {
     }
 
     class Edit(
-        private val timeoutSeconds: Int
+        private val timeoutSeconds: Int,
     ) : Interception() {
         private val channel = Channel<String>()
 
-        override suspend fun intercept(message: Message): String {
+        override suspend fun intercept(
+            message: Message,
+        ): String {
             val editMessageWindowViewModel: EditMessageWindowViewModel by injectAnywhere()
             val original = message.toJsonString(MessageInterceptor.serializer)
             editMessageWindowViewModel.channel = channel
@@ -66,12 +74,14 @@ sealed class Interception {
     }
 
     data object Reject : Interception() {
-        override suspend fun intercept(message: Message): String? {
+        override suspend fun intercept(
+            message: Message,
+        ): String? {
             TODO("send reject back to source, may need to diff between client and server")
         }
     }
 
     abstract suspend fun intercept(
-        message: Message
+        message: Message,
     ): String?
 }

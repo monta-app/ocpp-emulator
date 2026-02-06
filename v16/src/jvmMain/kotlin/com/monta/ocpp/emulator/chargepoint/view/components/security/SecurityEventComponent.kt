@@ -23,7 +23,7 @@ import com.monta.ocpp.emulator.v16.ChargePointManager
 
 @Composable
 fun ColumnScope.securityEventComponent(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -41,7 +41,7 @@ fun ColumnScope.securityEventComponent(
         onClick = {
             expanded = true
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text("Security Event")
     }
@@ -62,11 +62,11 @@ fun ColumnScope.securityEventComponent(
                             chargePointManager.securityEvent(
                                 chargePoint = chargePoint,
                                 securityEvent = securityEvent,
-                                techInfo = techInfo
+                                techInfo = techInfo,
                             )
                         }
                         expanded = false
-                    }
+                    },
                 ) {
                     Text("Send")
                 }
@@ -75,21 +75,21 @@ fun ColumnScope.securityEventComponent(
                 Button(
                     onClick = {
                         expanded = false
-                    }
+                    },
                 ) {
                     Text("Close")
                 }
             },
             text = {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Spinner(
                         label = "Security Event",
                         value = securityEvent,
                         values = SecurityEvent.entries,
                         render = { it.name },
-                        onSelectionChanged = { securityEvent = it }
+                        onSelectionChanged = { securityEvent = it },
                     )
                     OutlinedTextField(
                         value = techInfo,
@@ -98,11 +98,11 @@ fun ColumnScope.securityEventComponent(
                         },
                         onValueChange = { newValue ->
                             techInfo = newValue
-                        }
+                        },
                     )
                     Text(securityEvent.description)
                 }
-            }
+            },
         )
     }
 }

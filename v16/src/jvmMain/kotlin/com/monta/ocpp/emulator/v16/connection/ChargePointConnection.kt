@@ -10,6 +10,7 @@ import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.logger.GlobalLogger
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
@@ -17,7 +18,6 @@ import io.ktor.client.request.*
 import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
-import mu.KotlinLogging
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -29,7 +29,7 @@ import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 class ChargePointConnection(
-    var chargePointId: Long
+    var chargePointId: Long,
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -55,9 +55,9 @@ class ChargePointConnection(
         get() = chargePointService.getById(chargePointId)
 
     suspend fun connect(
-        isReconnecting: Boolean = false
+        isReconnecting: Boolean = false,
     ) {
-        logger.info("Connecting... (isReconnecting=$isReconnecting)")
+        logger.info { "Connecting... (isReconnecting=$isReconnecting)" }
 
         try {
             createConnection(isReconnecting)
@@ -67,21 +67,21 @@ class ChargePointConnection(
             handleReconnection(
                 isAuthError = isAuthError,
                 forceConnect = true,
-                additionalInfo = if (!isAuthError) exception.message else null
+                additionalInfo = if (!isAuthError) exception.message else null,
             )
         } catch (exception: Exception) {
-            logger.warn("error connecting", exception)
+            logger.warn(exception) { "error connecting" }
             // Failed to connect at all, so lets try reconnecting
             handleReconnection(
                 isAuthError = false,
                 forceConnect = true,
-                additionalInfo = null
+                additionalInfo = null,
             )
         }
     }
 
     private suspend fun createConnection(
-        isReconnecting: Boolean
+        isReconnecting: Boolean,
     ) {
         client.webSocket(
             request = {
@@ -91,7 +91,7 @@ class ChargePointConnection(
                 }
                 url("${chargePoint.ocppUrl}/${chargePoint.identity}")
                 header("Sec-WebSocket-Protocol", "ocpp1.6")
-            }
+            },
         ) {
             websocketSession = this
 
@@ -105,7 +105,7 @@ class ChargePointConnection(
                 },
                 closeConnection = { reason ->
                     this.close(CloseReason(CloseReason.Codes.NORMAL, reason))
-                }
+                },
             )
 
             // Yes we should automatically reconnect on failure
@@ -144,13 +144,13 @@ class ChargePointConnection(
             handleReconnection(
                 isAuthError = false,
                 forceConnect = false,
-                additionalInfo = null
+                additionalInfo = null,
             )
         }
     }
 
     private suspend fun logLatency(
-        websocketMessage: String
+        websocketMessage: String,
     ) {
         val jsonNode = MontaSerialization.objectMapper.readTree(websocketMessage)
         val requestId = jsonNode.get(1).asText()
@@ -175,8 +175,8 @@ class ChargePointConnection(
     suspend fun disconnect(
         closeReason: CloseReason = CloseReason(
             code = CloseReason.Codes.NORMAL,
-            message = ""
-        )
+            message = "",
+        ),
     ) {
         val chargePoint = chargePointService.getById(chargePoint.idValue)
         ocppClientV16.sendMessage(
@@ -185,8 +185,8 @@ class ChargePointConnection(
                 connectorId = 0,
                 errorCode = chargePoint.errorCode,
                 info = "Disconnecting",
-                status = ChargePointStatus.Unavailable
-            )
+                status = ChargePointStatus.Unavailable,
+            ),
         )
         chargePointService.update(chargePoint) {
             this.status = ChargePointStatus.Unavailable
@@ -198,7 +198,7 @@ class ChargePointConnection(
 
     suspend fun reconnect(
         delayInSeconds: Int,
-        closeReason: CloseReason = CloseReason(CloseReason.Codes.NORMAL, "")
+        closeReason: CloseReason = CloseReason(CloseReason.Codes.NORMAL, ""),
     ) {
         GlobalLogger.info(chargePoint, "Reconnecting after $delayInSeconds seconds")
         disconnect(closeReason)
@@ -209,7 +209,7 @@ class ChargePointConnection(
     private suspend fun handleReconnection(
         isAuthError: Boolean,
         forceConnect: Boolean,
-        additionalInfo: String?
+        additionalInfo: String?,
     ) {
         val backOffTime = getBackoffTime()
 
@@ -247,8 +247,8 @@ class ChargePointConnection(
             a = 60,
             b = max(
                 a = 2.0.pow(attempts.toDouble()).roundToInt(),
-                b = 1
-            )
+                b = 1,
+            ),
         )
     }
 }

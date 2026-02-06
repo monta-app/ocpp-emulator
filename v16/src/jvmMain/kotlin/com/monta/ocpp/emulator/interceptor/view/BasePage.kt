@@ -41,7 +41,7 @@ fun BasePage(
     drawer: @Composable (ColumnScope.() -> Unit) = {},
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     val navigationViewModel: NavigationViewModel by injectAnywhere()
     val chargePointRepository: ChargePointRepository by injectAnywhere()
@@ -62,12 +62,12 @@ fun BasePage(
                 IconButton(
                     onClick = {
                         navigationViewModel.chargePointsScreen()
-                    }
+                    },
                 ) {
                     MontaIcon(
                         iconName = "database",
                         contentDescription = "Charge Points",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
                 IconButton(
@@ -81,50 +81,50 @@ fun BasePage(
                             coroutineScope.launch {
                                 scaffoldState.snackbarHostState.showSnackbar(
                                     message = "No connected charge points",
-                                    actionLabel = "OK"
+                                    actionLabel = "OK",
                                 )
                             }
                         } else {
                             if (lastActive in connectedChargePoints && lastActive != null) {
                                 navigationViewModel.currentScreen = NavigationViewModel.Screen.ChargePoint(
-                                    chargePointId = lastActive
+                                    chargePointId = lastActive,
                                 )
                             } else {
                                 navigationViewModel.currentScreen = NavigationViewModel.Screen.ChargePoint(
-                                    chargePointId = connectedChargePoints.first()
+                                    chargePointId = connectedChargePoints.first(),
                                 )
                             }
                         }
-                    }
+                    },
                 ) {
                     MontaIcon(
                         iconName = "ev_charger",
                         contentDescription = "Connected Charge Points",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
                 IconButton(
                     onClick = {
                         navigationViewModel.currentScreen = NavigationViewModel.Screen.Vehicles
-                    }
+                    },
                 ) {
                     MontaIcon(
                         iconName = "ev_car",
                         contentDescription = "Vehicles",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             }
         },
-        floatingActionButton = floatingActionButton
+        floatingActionButton = floatingActionButton,
     ) {
         Row {
             Box(
                 modifier = Modifier.weight(1f)
                     .padding(
                         top = it.calculateTopPadding(),
-                        bottom = it.calculateBottomPadding()
-                    )
+                        bottom = it.calculateBottomPadding(),
+                    ),
             ) {
                 content()
             }
@@ -134,22 +134,22 @@ fun BasePage(
 
 class NavShape(
     private val widthOffset: Dp,
-    private val scale: Float
+    private val scale: Float,
 ) : Shape {
 
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
-        density: Density
+        density: Density,
     ): Outline {
         return Outline.Rectangle(
             Rect(
                 Offset.Zero,
                 Offset(
                     size.width * scale + with(density) { widthOffset.toPx() },
-                    size.height
-                )
-            )
+                    size.height,
+                ),
+            ),
         )
     }
 }

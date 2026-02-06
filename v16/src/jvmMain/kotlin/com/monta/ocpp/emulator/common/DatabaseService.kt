@@ -7,18 +7,18 @@ import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransact
 import com.monta.ocpp.emulator.configuration.AppConfigTable
 import com.monta.ocpp.emulator.database.DatabaseInitiator
 import com.monta.ocpp.emulator.v16.data.entity.TxDefault
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
-@Singleton(createdAtStart = true)
+@Singleton
 class DatabaseService {
 
     private val logger = KotlinLogging.logger {}
     private val database = DatabaseInitiator("app.db").database
 
-    init {
+    fun connect() {
         try {
             transaction {
                 SchemaUtils.createMissingTablesAndColumns(
@@ -27,11 +27,11 @@ class DatabaseService {
                     ChargePointConnectorTable,
                     ChargePointTransaction,
                     TxDefault,
-                    PreviousMessagesTable
+                    PreviousMessagesTable,
                 )
             }
         } catch (exception: Exception) {
-            logger.error("database error", exception)
+            logger.error(exception) { "database error" }
             throw exception
         }
     }

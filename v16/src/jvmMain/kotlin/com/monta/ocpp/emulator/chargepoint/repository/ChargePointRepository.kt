@@ -5,10 +5,9 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointTable
 import com.monta.ocpp.emulator.common.createDatabaseListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointRepository {
@@ -16,11 +15,11 @@ class ChargePointRepository {
     fun upsert(
         name: String,
         identity: String,
-        password: String,
+        password: String?,
         ocppUrl: String,
         apiUrl: String,
         firmware: String,
-        maxKw: Double
+        maxKw: Double,
     ): ChargePointDAO {
         val chargePoint = ChargePointDAO.find {
             ChargePointTable.identity eq identity
@@ -43,16 +42,16 @@ class ChargePointRepository {
             ocppUrl = ocppUrl,
             apiUrl = apiUrl,
             firmware = firmware,
-            maxKw = maxKw
+            maxKw = maxKw,
         )
     }
 
     fun getAllFlow(
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
     ): Flow<List<ChargePointDAO>> {
         return createDatabaseListener(
             coroutineScope = coroutineScope,
-            entityClass = ChargePointDAO
+            entityClass = ChargePointDAO,
         ) {
             transaction {
                 getAll()
@@ -66,7 +65,7 @@ class ChargePointRepository {
     }
 
     fun getById(
-        id: Long
+        id: Long,
     ): ChargePointDAO? {
         return ChargePointDAO.find {
             ChargePointTable.id eq id
@@ -75,12 +74,12 @@ class ChargePointRepository {
 
     fun getByIdFlow(
         coroutineScope: CoroutineScope,
-        id: Long
+        id: Long,
     ): Flow<ChargePointDAO> {
         return createDatabaseListener(
             coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
-            id = id
+            id = id,
         ) {
             transaction {
                 getById(id)
@@ -89,7 +88,7 @@ class ChargePointRepository {
     }
 
     fun getByIdentity(
-        identity: String
+        identity: String,
     ): ChargePointDAO? {
         return ChargePointDAO.find {
             ChargePointTable.identity eq identity
@@ -106,7 +105,7 @@ class ChargePointRepository {
     }
 
     fun clearChargePointBootStatus(
-        chargePointId: Long
+        chargePointId: Long,
     ) {
         transaction {
             ChargePointTable.update({ ChargePointTable.id eq chargePointId }) {

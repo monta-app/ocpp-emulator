@@ -32,7 +32,7 @@ fun <T> Spinner(
     value: T,
     values: List<T>,
     render: (T) -> String,
-    onSelectionChanged: (selection: T) -> Unit
+    onSelectionChanged: (selection: T) -> Unit,
 ) {
     var expanded by remember {
         mutableStateOf(false)
@@ -51,16 +51,16 @@ fun <T> Spinner(
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Outlined.ArrowDropDown,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
-                readOnly = true
+                readOnly = true,
             )
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = {
                     expanded = false
-                }
+                },
             ) {
                 values.forEach { entry ->
                     DropdownMenuItem(
@@ -71,9 +71,9 @@ fun <T> Spinner(
                         content = {
                             Text(
                                 text = render(entry),
-                                modifier = Modifier.wrapContentWidth()
+                                modifier = Modifier.wrapContentWidth(),
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -84,8 +84,8 @@ fun <T> Spinner(
                 .background(Color.Transparent)
                 .padding(10.dp)
                 .clickable(
-                    onClick = { expanded = !expanded }
-                )
+                    onClick = { expanded = !expanded },
+                ),
         )
     }
 }
@@ -105,7 +105,7 @@ fun Spinner_Preview() {
             render = { it.second },
             onSelectionChanged = {
                 /* do something with selected */
-            }
+            },
         )
     }
 }

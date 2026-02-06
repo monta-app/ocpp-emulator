@@ -20,19 +20,19 @@ object TxDefault : LongIdTable("charge_point_default_profile") {
     val stackLeveL = integer("stack_level").nullable()
     val txDefaultProfile = json<ChargingProfile>(
         name = "tx_default_profile",
-        objectMapper = MontaSerialization.getDefaultMapper()
+        objectMapper = MontaSerialization.getDefaultMapper(),
     )
 }
 
 // DAO
 class TxDefaultDAO(
-    id: EntityID<Long>
+    id: EntityID<Long>,
 ) : LongEntity(id) {
     companion object : LongEntityClass<TxDefaultDAO>(TxDefault) {
         fun newInstance(
             chargePoint: ChargePointDAO,
             chargePointConnector: ChargePointConnectorDAO,
-            chargingProfile: ChargingProfile
+            chargingProfile: ChargingProfile,
         ): TxDefaultDAO {
             return TxDefaultDAO.new {
                 this.chargePoint = chargePoint

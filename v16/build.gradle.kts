@@ -1,98 +1,69 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
-    kotlin("multiplatform")
-    id("org.jetbrains.compose")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("org.jlleitschuh.gradle.ktlint")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.ksp)
 }
 
 group = "com.monta.ocpp.emulator"
-version = "2.4.0"
+version = "2.5.0"
 
 kotlin {
-    jvmToolchain(17)
-    jvm {
-        withJava()
-    }
+    jvm()
     sourceSets {
-        val jvmMain by getting {
-            // Adds ksp sources so that Intellij can recognize the generated sources (hacky)
-            sourceSets.getByName("jvmMain").kotlin.srcDir("build/generated/ksp/jvm/jvmMain/kotlin")
-            // The following is required for the above not to break klint
-            tasks.named("runKtlintFormatOverJvmMainSourceSet").configure { dependsOn("kspKotlinJvm") }
-            // Dependencies
-            dependencies {
+        jvmMain.dependencies {
+            implementation(project(":common"))
 
-                implementation(project(":common"))
+            implementation(compose.desktop.currentOs)
 
-                implementation(compose.desktop.currentOs)
+            // Material Icons
+            implementation(compose.materialIconsExtended)
 
-                // OCPP Libs
-                implementation("com.github.monta-app.library-ocpp:core:1.0.3")
-                implementation("com.github.monta-app.library-ocpp:v16:1.0.3")
+            // OCPP Libs
+            implementation(libs.ocpp.core)
+            implementation(libs.ocpp.v16)
 
-                // Coroutines
-                implementation(project.dependencies.platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.9.0"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive")
+            // Coroutines
+            implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
+            implementation(libs.bundles.coroutines)
 
-                // Websocket Client
-                implementation(project.dependencies.platform("io.ktor:ktor-bom:3.0.2"))
-                implementation("io.ktor:ktor-client-core")
-                implementation("io.ktor:ktor-client-cio")
-                implementation("io.ktor:ktor-client-websockets")
-                implementation("io.ktor:ktor-client-logging")
-                implementation("io.ktor:ktor-client-content-negotiation")
-                implementation("io.ktor:ktor-serialization-jackson")
+            // Websocket Client
+            implementation(project.dependencies.platform(libs.ktor.bom))
+            implementation(libs.bundles.ktor.client)
 
-                // Jackson
-                implementation(project.dependencies.platform("com.fasterxml.jackson:jackson-bom:2.18.2"))
-                implementation("com.fasterxml.jackson.core:jackson-core")
-                implementation("com.fasterxml.jackson.core:jackson-annotations")
-                implementation("com.fasterxml.jackson.core:jackson-databind")
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-                implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
-                implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
+            // Jackson
+            implementation(project.dependencies.platform(libs.jackson.bom))
+            implementation(libs.bundles.jackson)
 
-                // QR Code Library
-                implementation("io.nayuki:qrcodegen:1.8.0")
+            // QR Code Library
+            implementation(libs.qrcodegen)
 
-                // Logging
-                implementation("ch.qos.logback:logback-classic:1.5.12")
-                implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+            // Logging
+            implementation(libs.bundles.logging)
 
-                // Sentry (Crash reporting)
-                implementation(project.dependencies.platform("io.sentry:sentry-bom:7.19.0"))
-                implementation("io.sentry:sentry")
-                implementation("io.sentry:sentry-logback")
+            // Sentry (Crash reporting)
+            implementation(project.dependencies.platform(libs.sentry.bom))
+            implementation(libs.bundles.sentry)
 
-                // Markdown
-                implementation("net.swiftzer.semver:semver:2.0.0")
+            // Markdown
+            implementation(libs.semver)
 
-                // Dependency Injection
-                implementation(project.dependencies.platform("io.insert-koin:koin-bom:4.0.0"))
-                implementation("io.insert-koin:koin-core")
-                implementation("io.insert-koin:koin-ktor")
-                implementation("io.insert-koin:koin-logger-slf4j")
-                implementation("io.insert-koin:koin-annotations:1.4.0")
+            // Dependency Injection
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.bundles.koin)
 
-                // SQL Database
-                implementation(project.dependencies.platform("org.jetbrains.exposed:exposed-bom:0.57.0"))
-                implementation("org.jetbrains.exposed:exposed-core")
-                implementation("org.jetbrains.exposed:exposed-dao")
-                implementation("org.jetbrains.exposed:exposed-jdbc")
-                implementation("org.jetbrains.exposed:exposed-java-time")
-            }
+            // SQL Database
+            implementation(project.dependencies.platform(libs.exposed.bom))
+            implementation(libs.bundles.exposed)
         }
     }
 }
 
 dependencies {
-    add("kspJvm", "io.insert-koin:koin-ksp-compiler:1.4.0")
+    add("kspJvm", libs.koin.ksp.compiler)
 }
 
 ktlint {
@@ -120,7 +91,7 @@ compose.desktop {
 
             // JVM arguments, pass build-time properties here
             jvmArgs += listOfNotNull(
-                System.getenv("SENTRY_DSN")?.let { "-Dsentry.dsn=$it" }
+                System.getenv("SENTRY_DSN")?.let { "-Dsentry.dsn=$it" },
             )
 
             macOS {

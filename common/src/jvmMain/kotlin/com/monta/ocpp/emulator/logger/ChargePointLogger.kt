@@ -1,9 +1,9 @@
 package com.monta.ocpp.emulator.logger
 
 import com.monta.ocpp.emulator.common.util.PrettyJsonFormatter
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.concurrent.ConcurrentHashMap
 
@@ -15,7 +15,7 @@ class ChargePointLogger private constructor() {
 
         @JvmStatic
         fun getLogger(
-            chargePointId: Long
+            chargePointId: Long,
         ): ChargePointLogger {
             return loggers.getOrPut(chargePointId) {
                 ChargePointLogger()
@@ -28,7 +28,7 @@ class ChargePointLogger private constructor() {
     val logFlow = MutableSharedFlow<LogEntry>(
         replay = 20,
         extraBufferCapacity = 20,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
     enum class Level {
@@ -36,20 +36,20 @@ class ChargePointLogger private constructor() {
         Warn,
         Info,
         Debug,
-        Trace
+        Trace,
     }
 
     data class LogEntry(
         val level: Level,
         val message: String,
         val context: Map<String, Any?>? = null,
-        val timestamp: OffsetDateTime = OffsetDateTime.now()
+        val timestamp: OffsetDateTime = OffsetDateTime.now(),
     )
 
     suspend fun error(
         connectorId: Int = 0,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.error("[$connectorId] $message")
         log(Level.Error, message, context, connectorId)
@@ -58,7 +58,7 @@ class ChargePointLogger private constructor() {
     suspend fun warn(
         connectorId: Int = 0,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.warn("[$connectorId] $message")
         log(Level.Warn, message, context, connectorId)
@@ -67,7 +67,7 @@ class ChargePointLogger private constructor() {
     suspend fun info(
         connectorId: Int = 0,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.info("[$connectorId] $message")
         log(Level.Info, message, context, connectorId)
@@ -76,7 +76,7 @@ class ChargePointLogger private constructor() {
     suspend fun debug(
         connectorId: Int = 0,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.debug("[$connectorId] $message")
         log(Level.Debug, message, context, connectorId)
@@ -85,39 +85,39 @@ class ChargePointLogger private constructor() {
     suspend fun trace(
         connectorId: Int = 0,
         message: String,
-        context: Map<String, Any?>? = null
+        context: Map<String, Any?>? = null,
     ) {
         logger.trace("[$connectorId] $message")
         log(Level.Trace, message, context, connectorId)
     }
 
     suspend fun logSend(
-        message: String
+        message: String,
     ) {
         trace(
             message = buildString {
                 appendLine(
-                    PrettyJsonFormatter.formatJson(message)
+                    PrettyJsonFormatter.formatJson(message),
                 )
             },
             context = mapOf(
-                "json" to message
-            )
+                "json" to message,
+            ),
         )
     }
 
     suspend fun logReceive(
-        message: String
+        message: String,
     ) {
         trace(
             message = buildString {
                 appendLine(
-                    PrettyJsonFormatter.formatJson(message)
+                    PrettyJsonFormatter.formatJson(message),
                 )
             },
             context = mapOf(
-                "json" to message
-            )
+                "json" to message,
+            ),
         )
     }
 
@@ -125,14 +125,14 @@ class ChargePointLogger private constructor() {
         level: Level,
         message: String,
         context: Map<String, Any?>? = null,
-        connectorId: Int
+        connectorId: Int,
     ) {
         logFlow.emit(
             value = LogEntry(
                 level = level,
                 message = "[$connectorId] $message",
-                context = context
-            )
+                context = context,
+            ),
         )
     }
 }

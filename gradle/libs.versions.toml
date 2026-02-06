@@ -1,0 +1,97 @@
+[versions]
+kotlin = "2.3.0"
+compose = "1.9.3"
+ktlint = "14.0.1"
+ksp = "2.3.4"
+
+kotlinx-coroutines = "1.10.2"
+ktor = "3.3.3"
+jackson = "2.20.1"
+sentry = "8.29.0"
+koin = "4.1.1"
+koin-annotations = "2.3.1"
+exposed = "0.61.0"
+logback = "1.5.24"
+kotlin-logging = "7.0.14"
+qrcodegen = "1.8.0"
+semver = "2.1.0"
+bouncy-castle = "1.83"
+hikaricp = "7.0.2"
+ocpp-library = "1.0.8"
+
+[libraries]
+# Coroutines
+kotlinx-coroutines-bom = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-bom", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8" }
+kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j" }
+kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive" }
+
+# Ktor
+ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation" }
+ktor-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson" }
+
+# Jackson
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+
+# Logging
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+
+# Sentry
+sentry-bom = { module = "io.sentry:sentry-bom", version.ref = "sentry" }
+sentry = { module = "io.sentry:sentry" }
+sentry-logback = { module = "io.sentry:sentry-logback" }
+
+# Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-ktor = { module = "io.insert-koin:koin-ktor" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+
+# Exposed (SQL)
+exposed-bom = { module = "org.jetbrains.exposed:exposed-bom", version.ref = "exposed" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time" }
+
+# OCPP Libraries
+ocpp-core = { module = "com.github.monta-app.library-ocpp:ocpp-core", version.ref = "ocpp-library" }
+ocpp-v16 = { module = "com.github.monta-app.library-ocpp:ocpp-v16", version.ref = "ocpp-library" }
+
+# Other
+qrcodegen = { module = "io.nayuki:qrcodegen", version.ref = "qrcodegen" }
+semver = { module = "net.swiftzer.semver:semver", version.ref = "semver" }
+bouncy-castle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncy-castle" }
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+javax-inject = { module = "javax.inject:javax.inject", version = "1" }
+
+[bundles]
+coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-slf4j", "kotlinx-coroutines-reactive"]
+ktor-client = ["ktor-client-core", "ktor-client-cio", "ktor-client-websockets", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-jackson"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-module-kotlin", "jackson-datatype-jsr310", "jackson-dataformat-yaml"]
+logging = ["logback-classic", "kotlin-logging"]
+sentry = ["sentry", "sentry-logback"]
+koin = ["koin-core", "koin-ktor", "koin-logger-slf4j", "koin-annotations", "javax-inject"]
+exposed = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-java-time"]
+
+[plugins]
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

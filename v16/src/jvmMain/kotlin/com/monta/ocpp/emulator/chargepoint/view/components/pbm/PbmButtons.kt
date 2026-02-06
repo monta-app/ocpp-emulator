@@ -17,14 +17,14 @@ fun pbmButtons() {
         Row(
             modifier = Modifier.fillMaxWidth()
                 .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Button(
                 modifier = Modifier.fillMaxWidth().weight(1F),
                 onClick = {
                     PbmService.showSerialQR.value = false
                     PbmService.showUrlQR.value = true
-                }
+                },
             ) {
                 Text("PBM QR")
             }
@@ -33,7 +33,7 @@ fun pbmButtons() {
                 onClick = {
                     PbmService.showSerialQR.value = true
                     PbmService.showUrlQR.value = false
-                }
+                },
             ) {
                 Text("Serial QR")
             }

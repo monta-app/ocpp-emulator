@@ -17,17 +17,19 @@ object PrettyJsonFormatter {
             DefaultPrettyPrinter()
                 .withObjectIndenter(
                     DefaultIndenter()
-                        .withLinefeed("\n")
+                        .withLinefeed("\n"),
                 )
                 .withArrayIndenter(
                     DefaultIndenter()
-                        .withLinefeed("\n")
-                )
+                        .withLinefeed("\n"),
+                ),
         )
 
-    fun formatJson(message: String): String {
+    fun formatJson(
+        message: String,
+    ): String {
         return prettyWriter.writeValueAsString(
-            objectMapper.readTree(message)
+            objectMapper.readTree(message),
         )
     }
 
@@ -36,7 +38,7 @@ object PrettyJsonFormatter {
     }
 
     private fun ObjectMapper.toDefaultMapper(
-        jsonInclude: JsonInclude.Include = JsonInclude.Include.NON_NULL
+        jsonInclude: JsonInclude.Include = JsonInclude.Include.NON_NULL,
     ): ObjectMapper {
         registerKotlinModule()
         registerModule(JavaTimeModule())

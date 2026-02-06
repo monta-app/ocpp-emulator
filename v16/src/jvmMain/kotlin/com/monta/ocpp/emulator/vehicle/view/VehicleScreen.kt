@@ -13,9 +13,9 @@ internal fun VehicleScreen() {
             TopAppBar(
                 title = {
                     Text(text = "Vehicle Emulator")
-                }
+                },
             )
-        }
+        },
     ) {
         DualColumView(
             firstColumn = {
@@ -23,7 +23,7 @@ internal fun VehicleScreen() {
             },
             secondColumn = {
                 VehicleLogView()
-            }
+            },
         )
     }
 }

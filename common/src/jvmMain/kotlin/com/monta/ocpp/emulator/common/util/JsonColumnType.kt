@@ -11,7 +11,7 @@ inline fun <reified T : Any> Table.json(
     name: String,
     collate: String? = null,
     eagerLoading: Boolean = false,
-    objectMapper: ObjectMapper
+    objectMapper: ObjectMapper,
 ): Column<T> = this.json(
     name = name,
     eagerLoading = eagerLoading,
@@ -20,35 +20,37 @@ inline fun <reified T : Any> Table.json(
     },
     parse = { stringValue ->
         objectMapper.readValue(stringValue)
-    }
+    },
 )
 
 fun <T : Any> Table.json(
     name: String,
     eagerLoading: Boolean = false,
     stringify: (T) -> String,
-    parse: (String) -> T
+    parse: (String) -> T,
 ): Column<T> {
     return registerColumn(
         name = name,
         type = JsonColumnType(
             eagerLoading = eagerLoading,
             stringify = stringify,
-            parse = parse
-        )
+            parse = parse,
+        ),
     )
 }
 
 class JsonColumnType<T : Any>(
     private val eagerLoading: Boolean,
     private val stringify: (value: T) -> String,
-    private val parse: (stringValue: String) -> T
+    private val parse: (stringValue: String) -> T,
 ) : ColumnType<T>() {
 
     override fun sqlType(): String = "json"
 
     @Suppress("UNCHECKED_CAST")
-    override fun valueFromDB(value: Any): T {
+    override fun valueFromDB(
+        value: Any,
+    ): T {
         return when (value) {
             is ByteArray -> parse(value.decodeToString().unescapeSqlJsonString())
             else -> value as T
@@ -57,7 +59,7 @@ class JsonColumnType<T : Any>(
 
     override fun readObject(
         rs: ResultSet,
-        index: Int
+        index: Int,
     ): Any? {
         val value = rs.getBytes(index)
 
@@ -70,9 +72,13 @@ class JsonColumnType<T : Any>(
         }
     }
 
-    override fun notNullValueToDB(value: T): Any = stringify(value)
+    override fun notNullValueToDB(
+        value: T,
+    ): Any = stringify(value)
 
-    override fun valueToString(value: T?): String = when (value) {
+    override fun valueToString(
+        value: T?,
+    ): String = when (value) {
         is Iterable<*> -> nonNullValueToString(value)
         else -> super.valueToString(value)
     }

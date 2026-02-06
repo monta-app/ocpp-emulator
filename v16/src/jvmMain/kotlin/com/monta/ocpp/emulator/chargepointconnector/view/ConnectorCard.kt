@@ -43,7 +43,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ConnectorCard(
-    initConnector: ChargePointConnectorDAO
+    initConnector: ChargePointConnectorDAO,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val chargePointConnectorService: ChargePointConnectorService by injectAnywhere()
@@ -54,7 +54,7 @@ fun ConnectorCard(
 
     var maxAmpsPerPhase by remember {
         mutableStateOf(
-            connector.vehicleMaxAmpsPerPhase.toFloat()
+            connector.vehicleMaxAmpsPerPhase.toFloat(),
         )
     }
 
@@ -62,7 +62,7 @@ fun ConnectorCard(
         coroutineScope.launch {
             chargePointConnectorService.getByIdFlow(
                 coroutineScope = coroutineScope,
-                id = initConnector.idValue
+                id = initConnector.idValue,
             ).collectLatest {
                 connector = it
             }
@@ -75,16 +75,16 @@ fun ConnectorCard(
 
     Column(
         modifier = Modifier.padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth()
-                .padding(bottom = 8.dp)
+                .padding(bottom = 8.dp),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
                 text = "Connector ${connector.position}",
-                style = MaterialTheme.typography.h5
+                style = MaterialTheme.typography.h5,
             )
             authorizeComponent(connector)
         }
@@ -101,7 +101,7 @@ fun ConnectorCard(
             label = "Vehicle number of phases",
             value = connector.vehicleNumberPhases,
             values = listOf(1, 2, 3),
-            render = { it.toString() }
+            render = { it.toString() },
         ) { newValue ->
             launchThread {
                 connector.setNumberPhases(newValue)
@@ -118,10 +118,10 @@ fun ConnectorCard(
             onValueChangeFinished = {
                 launchThread {
                     connector.setMaxVehicleRate(
-                        amps = maxAmpsPerPhase.toDouble()
+                        amps = maxAmpsPerPhase.toDouble(),
                     )
                 }
-            }
+            },
         )
         Divider()
         if (connector.activeTransactionId != null) {
@@ -132,10 +132,10 @@ fun ConnectorCard(
                     launchThread {
                         connector.stopActiveTransactions(
                             reason = Reason.Local,
-                            endReasonDescription = "Stopped by user"
+                            endReasonDescription = "Stopped by user",
                         )
                     }
-                }
+                },
             ) {
                 Text("Stop transaction")
             }

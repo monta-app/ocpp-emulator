@@ -9,11 +9,11 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.Instant
 
 suspend fun ChargePointDAO.setStatuses(
-    vararg statuses: ChargePointStatus
+    vararg statuses: ChargePointStatus,
 ) {
     for (status in statuses) {
         setStatus(
-            status = status
+            status = status,
         )
         delay(300)
     }
@@ -22,7 +22,7 @@ suspend fun ChargePointDAO.setStatuses(
 suspend fun ChargePointDAO.setStatus(
     status: ChargePointStatus,
     errorCode: ChargePointErrorCode = ChargePointErrorCode.NoError,
-    forceUpdate: Boolean = false
+    forceUpdate: Boolean = false,
 ) {
     if (!forceUpdate && this.status == status) {
         // Don't publish the same state
@@ -38,7 +38,7 @@ suspend fun ChargePointDAO.setStatus(
         sessionInfo = sessionInfo,
         connectorId = 0,
         status = status,
-        errorCode = errorCode
+        errorCode = errorCode,
     )
 
     GlobalLogger.info(this, "Status set to $status")

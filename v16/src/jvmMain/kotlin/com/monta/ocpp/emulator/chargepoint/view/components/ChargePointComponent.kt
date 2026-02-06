@@ -30,38 +30,38 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun chargePointComponent(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     val clipboardManager = LocalClipboardManager.current
 
     Card(
-        modifier = getCardStyle().fillMaxWidth()
+        modifier = getCardStyle().fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Box(
                 modifier = Modifier.fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 8.dp),
             ) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterStart),
                     text = "Charge Point",
-                    style = MaterialTheme.typography.h5
+                    style = MaterialTheme.typography.h5,
                 )
                 ChargePointConnectionButton(
                     chargePoint = chargePoint,
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    modifier = Modifier.align(Alignment.CenterEnd),
                 )
             }
             Text(
                 "Identity: ${chargePoint.identity}",
                 modifier = Modifier.clickable {
                     clipboardManager.setText(AnnotatedString(chargePoint.identity))
-                }
+                },
             )
             Text("Latency: ${chargePoint.averageLatencyMillis} ms (${chargePoint.messageCount})")
             Text("Status: ${chargePoint.status}")
@@ -74,22 +74,22 @@ fun chargePointComponent(
 
             Row(
                 modifier = Modifier.padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 arrayOf(ChargePointStatus.Available, ChargePointStatus.Unavailable)
                     .forEach { status ->
                         Button(
                             modifier = Modifier.weight(1F).fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
-                                backgroundColor = getButtonStateColor(status == chargePoint.status)
+                                backgroundColor = getButtonStateColor(status == chargePoint.status),
                             ),
                             onClick = {
                                 coroutineScope.launch {
                                     chargePoint.setStatus(
-                                        status = status
+                                        status = status,
                                     )
                                 }
-                            }
+                            },
                         ) {
                             Text("$status")
                         }

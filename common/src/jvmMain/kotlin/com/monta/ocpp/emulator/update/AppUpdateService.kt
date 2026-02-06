@@ -10,6 +10,7 @@ import com.monta.ocpp.emulator.update.model.GithubAsset
 import com.monta.ocpp.emulator.update.model.GithubRelease
 import com.monta.ocpp.emulator.update.model.OS
 import com.monta.ocpp.emulator.update.model.UpdateState
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -24,13 +25,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 import net.swiftzer.semver.SemVer
-import org.koin.core.annotation.Singleton
 import java.awt.Desktop
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import javax.inject.Singleton
 import kotlin.system.exitProcess
 
 @Singleton
@@ -131,7 +131,7 @@ class AppUpdateService {
     }
 
     suspend fun update(
-        githubRelease: GithubRelease
+        githubRelease: GithubRelease,
     ) {
         val asset = githubRelease.assets.getByFileEnding()
 
@@ -146,7 +146,7 @@ class AppUpdateService {
                 append("monta")
                 append(File.separator)
                 append(asset.name)
-            }
+            },
         )
 
         if (shouldDownloadFile(asset, file)) {
@@ -170,7 +170,7 @@ class AppUpdateService {
 
     private fun shouldDownloadFile(
         asset: GithubAsset,
-        file: File
+        file: File,
     ): Boolean {
         return if (file.exists()) {
             Files.size(file.toPath()) != asset.size.toLong()
@@ -181,7 +181,7 @@ class AppUpdateService {
 
     private suspend fun downloadFile(
         asset: GithubAsset,
-        file: File
+        file: File,
     ) {
         val response: HttpResponse = downloadClient.get("$BASE_URL/releases/assets/${asset.id}") {
             onDownload { bytesSentTotal, contentLength ->
@@ -198,7 +198,9 @@ class AppUpdateService {
         file.writeBytes(body)
     }
 
-    private fun openInstaller(file: File) {
+    private fun openInstaller(
+        file: File,
+    ) {
         if (Desktop.isDesktopSupported()) {
             try {
                 Desktop.getDesktop().open(file)

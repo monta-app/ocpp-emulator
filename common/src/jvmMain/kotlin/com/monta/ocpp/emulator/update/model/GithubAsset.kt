@@ -16,5 +16,5 @@ data class GithubAsset(
     @JsonProperty("state")
     val state: String, // uploaded
     @JsonProperty("size")
-    val size: Int // 65635314)
+    val size: Int, // 65635314)
 )

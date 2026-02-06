@@ -17,7 +17,7 @@ import com.monta.ocpp.emulator.v16.connection.ConnectionManager
 @Composable
 fun ChargePointConnectionButton(
     chargePoint: ChargePointDAO,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val connectionManager: ConnectionManager by injectAnywhere()
 
@@ -27,7 +27,7 @@ fun ChargePointConnectionButton(
             "Disconnect charge point"
         } else {
             "Connect charge point"
-        }
+        },
     ) {
         IconButton(
             onClick = {
@@ -36,12 +36,12 @@ fun ChargePointConnectionButton(
                 } else {
                     connectionManager.connect(chargePoint.idValue)
                 }
-            }
+            },
         ) {
             MontaStateIcon(
                 state = chargePoint.connected,
                 onState = "stop_circle",
-                offState = "play_circle"
+                offState = "play_circle",
             )
         }
     }

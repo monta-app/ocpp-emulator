@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ChargePointPage(
-    chargePointId: Long
+    chargePointId: Long,
 ) {
     val chargePointRepository: ChargePointRepository by injectAnywhere()
 
@@ -52,7 +52,7 @@ fun ChargePointPage(
         coroutineScope.launch {
             chargePointRepository.getByIdFlow(
                 coroutineScope = coroutineScope,
-                id = chargePointId
+                id = chargePointId,
             ).collectLatest {
                 chargePoint = it
             }
@@ -69,7 +69,7 @@ fun ChargePointPage(
     chargePoint?.let {
         innerChargePointPage(
             it,
-            chargePoints.filter { check -> check.connected || check.idValue == chargePointId }
+            chargePoints.filter { check -> check.connected || check.idValue == chargePointId },
         )
     }
 }
@@ -77,20 +77,20 @@ fun ChargePointPage(
 @Composable
 private fun innerChargePointPage(
     chargePoint: ChargePointDAO,
-    connectedChargePoints: List<ChargePointDAO>
+    connectedChargePoints: List<ChargePointDAO>,
 ) {
     val navigationViewModel: NavigationViewModel by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()
 
     val scaffoldState = rememberScaffoldState(
-        drawerState = DrawerState(DrawerValue.Closed)
+        drawerState = DrawerState(DrawerValue.Closed),
     )
 
     var selectedTab by remember {
         mutableStateOf(
             connectedChargePoints.indexOfFirst { connectedChargePoint ->
                 connectedChargePoint.idValue == chargePoint.idValue
-            }
+            },
         )
     }
 
@@ -102,7 +102,7 @@ private fun innerChargePointPage(
         scaffoldState = scaffoldState,
         drawerShape = NavShape(
             widthOffset = 320.dp,
-            scale = 0f
+            scale = 0f,
         ),
         topBar = {
             TopAppBar(
@@ -127,18 +127,18 @@ private fun innerChargePointPage(
                                     scaffoldState.drawerState.open()
                                 }
                             }
-                        }
+                        },
                     )
-                }
+                },
             )
         },
         drawer = {
             InterceptorConfigComponent(chargePoint.idValue)
-        }
+        },
     ) {
         Column {
             ScrollableTabRow(
-                selectedTabIndex = selectedTab
+                selectedTabIndex = selectedTab,
             ) {
                 if (connectedChargePoints.isEmpty()) {
                     Tab(
@@ -150,7 +150,7 @@ private fun innerChargePointPage(
                             }
                         },
                         selected = true,
-                        onClick = {}
+                        onClick = {},
                     )
                 }
                 connectedChargePoints.forEachIndexed { idx, chargePoint ->
@@ -167,10 +167,10 @@ private fun innerChargePointPage(
                             selectedTab = idx
                             navigationViewModel.navigateTo(
                                 NavigationViewModel.Screen.ChargePoint(
-                                    chargePointId = chargePoint.idValue
-                                )
+                                    chargePointId = chargePoint.idValue,
+                                ),
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -182,7 +182,7 @@ private fun innerChargePointPage(
                 secondColumn = {
                     pbmButtons()
                     chargePointLogComponent(chargePoint.idValue)
-                }
+                },
             )
             // Shows a dialog for the user to interact with PBM features
             PbmDialog(chargePoint)

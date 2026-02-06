@@ -8,14 +8,14 @@ import java.time.Instant
 
 internal fun parseVehicleCatching(
     vehicleYaml: String,
-    vehiclePayload: EnodeVehicle
+    vehiclePayload: EnodeVehicle,
 ): EnodeVehicle {
     val vehicleLogger: VehicleLogger by injectAnywhere()
 
     return try {
         PrettyYamlFormatter.readYaml(
             yaml = vehicleYaml,
-            clazz = EnodeVehicle::class.java
+            clazz = EnodeVehicle::class.java,
         )
     } catch (e: Exception) {
         runBlocking {
@@ -27,7 +27,7 @@ internal fun parseVehicleCatching(
 
 internal fun EnodeVehicle.withValues(
     externalVehicleId: String,
-    soc: Double
+    soc: Double,
 ): EnodeVehicle {
     val now = Instant.now()
     return this.copy(
@@ -35,20 +35,20 @@ internal fun EnodeVehicle.withValues(
         lastSeen = now,
         chargeState = this.chargeState?.copy(
             batteryLevel = soc.toInt(),
-            lastUpdated = Instant.now()
+            lastUpdated = Instant.now(),
         ),
         odometer = this.odometer?.copy(
-            lastUpdated = Instant.now()
+            lastUpdated = Instant.now(),
         ),
         location = this.location?.copy(
-            lastUpdated = Instant.now()
-        )
+            lastUpdated = Instant.now(),
+        ),
     )
 }
 
 internal fun defaultVehicle(
     externalVehicleId: String,
-    soc: Double
+    soc: Double,
 ): EnodeVehicle {
     val now = Instant.now()
 
@@ -70,24 +70,24 @@ internal fun defaultVehicle(
             isFullyCharged = false,
             lastUpdated = now,
             powerDeliveryState = "PLUGGED_IN:CHARGING",
-            maxCurrent = 32
+            maxCurrent = 32,
         ),
         information = EnodeVehicle.Information(
             brand = "Monta",
             model = "Monster Truck",
             year = 2023,
-            vin = "MNT12345678912345"
+            vin = "MNT12345678912345",
         ),
         odometer = EnodeVehicle.Odometer(
             distance = 9000.1,
-            lastUpdated = now
+            lastUpdated = now,
         ),
         location = EnodeVehicle.Location(
             latitude = 34.165152,
             longitude = -118.281788,
-            lastUpdated = now
+            lastUpdated = now,
         ),
         locationId = null,
-        scopes = emptyList()
+        scopes = emptyList(),
     )
 }

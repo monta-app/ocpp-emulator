@@ -21,12 +21,12 @@ import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
-import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Singleton
 import java.time.Instant
 import java.time.ZonedDateTime
+import javax.inject.Singleton
 
 @Singleton
 class ChargePointManager {
@@ -37,15 +37,15 @@ class ChargePointManager {
     private val connectionManager: ConnectionManager by injectAnywhere()
 
     suspend fun startBootSequence(
-        chargePoint: ChargePointDAO
+        chargePoint: ChargePointDAO,
     ) {
         val confirmation = ocppClientV16.asCoreProfile(chargePoint.sessionInfo).bootNotification(
             request = BootNotificationRequest(
                 chargePointSerialNumber = chargePoint.serial,
                 firmwareVersion = chargePoint.firmware,
                 chargePointModel = chargePoint.model,
-                chargePointVendor = chargePoint.brand
-            )
+                chargePointVendor = chargePoint.brand,
+            ),
         )
 
         transaction {
@@ -66,7 +66,7 @@ class ChargePointManager {
                 chargePoint.setStatus(
                     status = ChargePointStatus.Available,
                     errorCode = ChargePointErrorCode.NoError,
-                    forceUpdate = true
+                    forceUpdate = true,
                 )
 
                 eichrechtDataTransfer(chargePoint)
@@ -74,7 +74,7 @@ class ChargePointManager {
                 for (connector in chargePoint.getConnectors()) {
                     connector.setStatuses(
                         ChargePointStatus.Available,
-                        connector.calculateState()
+                        connector.calculateState(),
                     )
                 }
             }
@@ -87,19 +87,19 @@ class ChargePointManager {
             RegistrationStatus.Rejected -> {
                 GlobalLogger.info(
                     chargePoint,
-                    "Boot was rejected, will try to reconnect in ${confirmation.interval} seconds"
+                    "Boot was rejected, will try to reconnect in ${confirmation.interval} seconds",
                 )
 
                 connectionManager.reconnect(
                     chargePointId = chargePoint.idValue,
-                    delayInSeconds = confirmation.interval
+                    delayInSeconds = confirmation.interval,
                 )
             }
         }
     }
 
     private suspend fun eichrechtDataTransfer(
-        chargePoint: ChargePointDAO
+        chargePoint: ChargePointDAO,
     ) {
         val eichrechtKey = chargePoint.configuration.eichrechtKey
         chargePointService.update(chargePoint) {
@@ -111,41 +111,41 @@ class ChargePointManager {
 
         val publicKey = eichrechtKey.publicKey()
         ocppClientV16.asCoreProfile(
-            ocppSessionInfo = chargePoint.sessionInfo
+            ocppSessionInfo = chargePoint.sessionInfo,
         ).dataTransfer(
             request = DataTransferRequest(
                 vendorId = "generalConfiguration",
                 messageId = "setMeterConfiguration",
                 data = """{"meters":[""" + chargePoint.getConnectors().joinToString(",") { connector ->
                     """{"connectorId":${connector.position},"meterSerial":"${chargePoint.serial}","type":"SIGNATURE","publicKey":"$publicKey"}"""
-                } + """]}"""
-            )
+                } + """]}""",
+            ),
         )
     }
 
     suspend fun heartbeat(
-        chargePoint: ChargePointDAO
+        chargePoint: ChargePointDAO,
     ) {
         try {
             ocppClientV16.asCoreProfile(
-                ocppSessionInfo = chargePoint.sessionInfo
+                ocppSessionInfo = chargePoint.sessionInfo,
             ).heartbeat()
         } catch (exception: Exception) {
-            logger.warn("failed to send heartbeat", exception)
+            logger.warn(exception) { "failed to send heartbeat" }
             GlobalLogger.warn(chargePoint, "Failed to send heartbeat")
         }
     }
 
     suspend fun authorize(
         connector: ChargePointConnectorDAO,
-        idTag: String
+        idTag: String,
     ): AuthorizationStatus {
         GlobalLogger.info(connector, "Attempting to authorize with idTag $idTag")
 
         val confirmation = ocppClientV16.asCoreProfile(connector.sessionInfo).authorize(
             AuthorizeRequest(
-                idTag = idTag
-            )
+                idTag = idTag,
+            ),
         )
 
         when (confirmation.idTagInfo.status) {
@@ -176,7 +176,7 @@ class ChargePointManager {
 
     suspend fun startFirmwareUpdate(
         chargePoint: ChargePointDAO,
-        firmwareVersion: String
+        firmwareVersion: String,
     ) {
         GlobalLogger.info(chargePoint, "Updating charge point to version $firmwareVersion")
 
@@ -184,7 +184,7 @@ class ChargePointManager {
             FirmwareStatusNotificationStatus.Downloading,
             FirmwareStatusNotificationStatus.Downloaded,
             FirmwareStatusNotificationStatus.Installing,
-            FirmwareStatusNotificationStatus.Installed
+            FirmwareStatusNotificationStatus.Installed,
         )
 
         for (status in statuses) {
@@ -203,11 +203,11 @@ class ChargePointManager {
 
     suspend fun firmwareStatusNotification(
         chargePoint: ChargePointDAO,
-        status: FirmwareStatusNotificationStatus
+        status: FirmwareStatusNotificationStatus,
     ) {
         try {
             ocppClientV16.asFirmwareProfile(chargePoint.sessionInfo).firmwareStatusNotification(
-                FirmwareStatusNotificationRequest(status)
+                FirmwareStatusNotificationRequest(status),
             )
 
             chargePointService.update(chargePoint) {
@@ -222,11 +222,11 @@ class ChargePointManager {
 
     suspend fun diagnosticsStatusNotification(
         chargePoint: ChargePointDAO,
-        status: DiagnosticsStatusNotificationStatus
+        status: DiagnosticsStatusNotificationStatus,
     ) {
         try {
             ocppClientV16.asFirmwareProfile(chargePoint.sessionInfo).diagnosticsStatusNotification(
-                DiagnosticsStatusNotificationRequest(status)
+                DiagnosticsStatusNotificationRequest(status),
             )
 
             chargePointService.update(chargePoint) {
@@ -246,15 +246,15 @@ class ChargePointManager {
     suspend fun securityEvent(
         chargePoint: ChargePointDAO,
         securityEvent: SecurityEvent,
-        techInfo: String? = null
+        techInfo: String? = null,
     ) {
         try {
             ocppClientV16.asSecurityProfile(chargePoint.sessionInfo).securityEventNotification(
                 request = SecurityEventNotificationRequest(
                     type = securityEvent.name,
                     timestamp = ZonedDateTime.now(),
-                    techInfo = if (techInfo.isNullOrBlank()) null else techInfo
-                )
+                    techInfo = if (techInfo.isNullOrBlank()) null else techInfo,
+                ),
             )
         } catch (exception: Exception) {
             GlobalLogger.error(chargePoint, "Failed to send security event")

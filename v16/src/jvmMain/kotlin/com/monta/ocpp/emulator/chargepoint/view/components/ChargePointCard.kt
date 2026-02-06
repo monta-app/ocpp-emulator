@@ -39,53 +39,53 @@ import org.jetbrains.exposed.sql.transactions.transaction
 @Composable
 fun ChargePointCard(
     chargePoint: ChargePointDAO,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     Card(
         modifier = getCardStyle().padding(8.dp),
-        onClick = onClick
+        onClick = onClick,
     ) {
         Column(
             modifier = Modifier.padding(
                 top = 16.dp,
                 start = 16.dp,
-                end = 16.dp
-            )
+                end = 16.dp,
+            ),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = chargePoint.name,
-                    style = MaterialTheme.typography.h6
+                    style = MaterialTheme.typography.h6,
                 )
                 MontaStateIcon(
                     state = chargePoint.connected,
                     onState = "cloud",
-                    offState = "cloud_off"
+                    offState = "cloud_off",
                 )
             }
             Divider(modifier = Modifier.padding(top = 8.dp))
             TextWithLabel(
                 label = "Identity",
-                value = chargePoint.identity
+                value = chargePoint.identity,
             )
             TextWithLabel(
                 label = "OCPP version",
-                value = chargePoint.ocppVersion.versionNumber()
+                value = chargePoint.ocppVersion.versionNumber(),
             )
             TextWithLabel(
                 label = "Server",
-                value = UrlChoice.fromUrl(chargePoint.ocppUrl).toString()
+                value = UrlChoice.fromUrl(chargePoint.ocppUrl).toString(),
             )
             TextWithLabel(
                 label = "Mode",
-                value = chargePoint.operationMode.name
+                value = chargePoint.operationMode.name,
             )
             TextWithLabel(
                 label = "Max kW",
-                value = chargePoint.maxKw.toKilowattString()
+                value = chargePoint.maxKw.toKilowattString(),
             )
             Divider(modifier = Modifier.padding(top = 16.dp))
             Row {
@@ -100,10 +100,10 @@ fun ChargePointCard(
 @Composable
 fun TextWithLabel(
     label: String,
-    value: String?
+    value: String?,
 ) {
     Row(
-        modifier = Modifier.padding(top = 16.dp)
+        modifier = Modifier.padding(top = 16.dp),
     ) {
         Text(
             modifier = Modifier.fillMaxWidth().weight(1f),
@@ -111,38 +111,38 @@ fun TextWithLabel(
             style = MaterialTheme.typography.subtitle1.copy(
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
-                letterSpacing = 0.15.sp
-            )
+                letterSpacing = 0.15.sp,
+            ),
         )
         Text(
             modifier = Modifier.fillMaxWidth().weight(1f),
             text = value ?: "",
-            style = MaterialTheme.typography.body2
+            style = MaterialTheme.typography.body2,
         )
     }
 }
 
 @Composable
 private fun ChargePointEditButton(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     val navigationViewModel: NavigationViewModel by injectAnywhere()
     IconButton(
         onClick = {
             navigationViewModel.navigateTo(NavigationViewModel.Screen.CreateChargePoint(chargePoint))
-        }
+        },
     ) {
         MontaIcon(
             iconName = "edit",
             contentDescription = "edit",
-            tooltipText = "Edit charge point"
+            tooltipText = "Edit charge point",
         )
     }
 }
 
 @Composable
 private fun ChargePointDeleteButton(
-    chargePoint: ChargePointDAO
+    chargePoint: ChargePointDAO,
 ) {
     var alertVisible by remember {
         mutableStateOf(false)
@@ -151,12 +151,12 @@ private fun ChargePointDeleteButton(
     IconButton(
         onClick = {
             alertVisible = true
-        }
+        },
     ) {
         MontaIcon(
             iconName = "delete",
             contentDescription = "delete",
-            tooltipText = "Delete charge point"
+            tooltipText = "Delete charge point",
         )
     }
 
@@ -172,7 +172,7 @@ private fun ChargePointDeleteButton(
             Button(
                 onClick = {
                     alertVisible = false
-                }
+                },
             ) {
                 Text("Cancel")
             }
@@ -194,7 +194,7 @@ private fun ChargePointDeleteButton(
                         }
                         alertVisible = false
                     }
-                }
+                },
             ) {
                 Text("Delete")
             }
@@ -204,6 +204,6 @@ private fun ChargePointDeleteButton(
         },
         text = {
             Text("Are you sure you want to delete this charge point?")
-        }
+        },
     )
 }

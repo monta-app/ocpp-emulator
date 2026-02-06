@@ -6,7 +6,7 @@ import androidx.compose.ui.window.MenuBar
 
 @Composable
 fun FrameWindowScope.setupAppThemeMenu(
-    appThemeViewModel: AppThemeViewModel
+    appThemeViewModel: AppThemeViewModel,
 ) {
     MenuBar {
         Menu("Theme", mnemonic = 'T') {
@@ -14,19 +14,19 @@ fun FrameWindowScope.setupAppThemeMenu(
                 text = "Auto",
                 onClick = {
                     appThemeViewModel.store(AppTheme.Auto)
-                }
+                },
             )
             Item(
                 "Dark",
                 onClick = {
                     appThemeViewModel.store(AppTheme.Dark)
-                }
+                },
             )
             Item(
                 "Light",
                 onClick = {
                     appThemeViewModel.store(AppTheme.Light)
-                }
+                },
             )
         }
     }

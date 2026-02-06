@@ -25,80 +25,83 @@ import com.monta.library.ocpp.v16.security.TriggerMessageStatusEnumType
 import com.monta.library.ocpp.v16.security.UpdateFirmwareStatusEnumType
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class SecurityManagementHandler(
-    private val firmwareManagementHandler: FirmwareManagementHandler
+    private val firmwareManagementHandler: FirmwareManagementHandler,
 ) : SecurityClientProfile.Listener {
 
     private val chargePointService: ChargePointService by injectAnywhere()
 
     override suspend fun certificateSigned(
         ocppSessionInfo: OcppSession.Info,
-        request: CertificateSignedRequest
+        request: CertificateSignedRequest,
     ): CertificateSignedConfirmation {
         return CertificateSignedConfirmation(
-            status = CertificateSignedStatusEnumType.Rejected
+            status = CertificateSignedStatusEnumType.Rejected,
         )
     }
 
     override suspend fun deleteCertificate(
         ocppSessionInfo: OcppSession.Info,
-        request: DeleteCertificateRequest
+        request: DeleteCertificateRequest,
     ): DeleteCertificateConfirmation {
         return DeleteCertificateConfirmation(
-            status = DeleteCertificateStatusEnumType.NotFound
+            status = DeleteCertificateStatusEnumType.NotFound,
         )
     }
 
     override suspend fun extendedTriggerMessage(
         ocppSessionInfo: OcppSession.Info,
-        request: ExtendedTriggerMessageRequest
+        request: ExtendedTriggerMessageRequest,
     ): ExtendedTriggerMessageConfirmation {
         return ExtendedTriggerMessageConfirmation(
-            status = TriggerMessageStatusEnumType.NotImplemented
+            status = TriggerMessageStatusEnumType.NotImplemented,
         )
     }
 
     override suspend fun getInstalledCertificateIds(
         ocppSessionInfo: OcppSession.Info,
-        request: GetInstalledCertificateIdsRequest
+        request: GetInstalledCertificateIdsRequest,
     ): GetInstalledCertificateIdsConfirmation {
         return GetInstalledCertificateIdsConfirmation(
-            status = GetInstalledCertificateStatusEnumType.NotFound
+            status = GetInstalledCertificateStatusEnumType.NotFound,
         )
     }
 
-    override suspend fun getLog(ocppSessionInfo: OcppSession.Info, request: GetLogRequest): GetLogConfirmation {
+    override suspend fun getLog(
+        ocppSessionInfo: OcppSession.Info,
+        request: GetLogRequest,
+    ): GetLogConfirmation {
         return GetLogConfirmation(
-            status = LogStatusEnumType.Rejected
+            status = LogStatusEnumType.Rejected,
         )
     }
 
     override suspend fun installCertificate(
         ocppSessionInfo: OcppSession.Info,
-        request: InstallCertificateRequest
+        request: InstallCertificateRequest,
     ): InstallCertificateConfirmation {
         return InstallCertificateConfirmation(
-            status = CertificateStatusEnumType.Rejected
+            status = CertificateStatusEnumType.Rejected,
         )
     }
 
     override suspend fun signedUpdateFirmware(
         ocppSessionInfo: OcppSession.Info,
-        request: SignedUpdateFirmwareRequest
+        request: SignedUpdateFirmwareRequest,
     ): SignedUpdateFirmwareConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
         try {
             return SignedUpdateFirmwareConfirmation(
-                UpdateFirmwareStatusEnumType.Accepted
+                UpdateFirmwareStatusEnumType.Accepted,
             )
         } finally {
             firmwareManagementHandler.startFirmwareUpdate(
                 chargePoint = chargePoint,
-                location = request.firmware.location
+                location = request.firmware.location,
             )
         }
     }

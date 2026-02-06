@@ -1,12 +1,12 @@
 package com.monta.ocpp.emulator.configuration
 
-import org.koin.core.annotation.Singleton
+import javax.inject.Singleton
 
 @Singleton
 class AppConfigRepository {
 
     fun get(
-        key: String
+        key: String,
     ): AppConfigDAO? {
         return AppConfigDAO.find {
             AppConfigTable.key eq key
@@ -15,7 +15,7 @@ class AppConfigRepository {
 
     fun create(
         key: String,
-        value: String?
+        value: String?,
     ): AppConfigDAO {
         return AppConfigDAO.new {
             this.key = key
@@ -25,7 +25,7 @@ class AppConfigRepository {
 
     fun upsert(
         key: String,
-        value: String?
+        value: String?,
     ): AppConfigDAO {
         val configuration = get(key)
 
@@ -36,7 +36,7 @@ class AppConfigRepository {
 
         return AppConfigDAO.newInstance(
             key = key,
-            value = value
+            value = value,
         )
     }
 }

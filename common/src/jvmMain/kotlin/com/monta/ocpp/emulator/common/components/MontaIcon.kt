@@ -16,7 +16,7 @@ fun MontaIcon(
     contentDescription: String = "",
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
-    tooltipText: String? = null
+    tooltipText: String? = null,
 ) {
     if (tooltipText != null) {
         TextTooltip(tooltipText) {
@@ -24,7 +24,7 @@ fun MontaIcon(
                 painter = painterResource("icons/$iconName.svg"),
                 contentDescription = contentDescription,
                 modifier = modifier.size(16.dp),
-                tint = tint
+                tint = tint,
             )
         }
     } else {
@@ -32,7 +32,7 @@ fun MontaIcon(
             painter = painterResource("icons/$iconName.svg"),
             contentDescription = contentDescription,
             modifier = modifier.size(16.dp),
-            tint = tint
+            tint = tint,
         )
     }
 }
@@ -43,7 +43,7 @@ fun MontaStateIcon(
     onState: String,
     offState: String,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current),
 ) {
     Icon(
         painter = if (state) {
@@ -53,6 +53,6 @@ fun MontaStateIcon(
         },
         contentDescription = "",
         modifier = modifier.size(24.dp),
-        tint = tint
+        tint = tint,
     )
 }
