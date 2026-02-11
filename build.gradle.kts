@@ -15,3 +15,10 @@ allprojects {
         maven("https://jitpack.io")
     }
 }
+
+// Register a root-level 'test' task so the shared CI workflow
+// (which runs `./gradlew test`) doesn't fail on this project.
+tasks.register("test") {
+    description = "Aggregate test task for CI compatibility"
+    group = "verification"
+}
