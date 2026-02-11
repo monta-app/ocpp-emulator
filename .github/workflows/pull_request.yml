@@ -5,10 +5,15 @@ on: [ pull_request ]
 jobs:
   test:
     name: Test
-    uses: monta-app/github-workflows/.github/workflows/pull-request.yaml@v2
+    uses: monta-app/github-workflows/.github/workflows/pull-request-kotlin.yml@main
+    with:
+      skip-sonar: true
+      gradle-module: "common"
+      kover-report-path: "common/build/reports/kover/report.xml"
     secrets:
       GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
       GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   static-code-analysis:
     name: Static Code Analysis
     runs-on: ubuntu-latest
