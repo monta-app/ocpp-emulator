@@ -71,7 +71,7 @@ class TriggerMessageHandler : TriggerMessageClientProfile.Listener {
             }
 
             TriggerMessageRequestType.MeterValues -> {
-                // TODO implement
+                chargePointManager.sendMeterValues(chargePoint, request.connectorId)
             }
 
             TriggerMessageRequestType.StatusNotification -> {
