@@ -8,6 +8,7 @@ jobs:
     uses: monta-app/github-workflows/.github/workflows/pull-request-kotlin.yml@main
     with:
       skip-sonar: true
+      architecture: "arm64"
       gradle-module: "common"
       kover-report-path: "common/build/reports/kover/report.xml"
     secrets:
