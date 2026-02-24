@@ -8,7 +8,7 @@ on:
 jobs:
   version:
     name: Extract Version
-    runs-on: ubuntu-latest
+    runs-on: linux-x64
     timeout-minutes: 5
     steps:
       - name: Get Version
@@ -67,7 +67,7 @@ jobs:
   create-change-log:
     needs: build
     name: Create and publish change log
-    runs-on: ubuntu-latest
+    runs-on: linux-x64
     timeout-minutes: 5
     steps:
       - name: Run changelog cli action
