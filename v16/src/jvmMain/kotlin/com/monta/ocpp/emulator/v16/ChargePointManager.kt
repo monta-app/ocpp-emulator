@@ -7,6 +7,8 @@ import com.monta.library.ocpp.v16.core.BootNotificationRequest
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.DataTransferRequest
+import com.monta.library.ocpp.v16.core.MeterValue
+import com.monta.library.ocpp.v16.core.MeterValuesRequest
 import com.monta.library.ocpp.v16.core.RegistrationStatus
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationRequest
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationStatus
@@ -21,6 +23,7 @@ import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -133,6 +136,50 @@ class ChargePointManager {
         } catch (exception: Exception) {
             logger.warn(exception) { "failed to send heartbeat" }
             GlobalLogger.warn(chargePoint, "Failed to send heartbeat")
+        }
+    }
+
+    suspend fun sendMeterValues(
+        chargePoint: ChargePointDAO,
+        connectorId: Int?,
+    ) {
+        val connectors = when (val cid = connectorId) {
+            null, 0 -> chargePoint.getConnectors().ifEmpty { listOf(chargePoint.getConnector(1)) }
+            else -> listOf(chargePoint.getConnector(cid))
+        }
+        val meterValuesSampledData = chargePoint.configuration.meterValuesSampledData
+        for (connector in connectors) {
+            val activeTx = transaction {
+                chargePoint.getActiveTransactions().firstOrNull { it.connectorPosition == connector.position }
+            }
+            val watts = connector.kw * 1000
+            try {
+                ocppClientV16.asCoreProfile(chargePoint.sessionInfo).meterValues(
+                    MeterValuesRequest(
+                        connectorId = connector.position,
+                        transactionId = activeTx?.externalId,
+                        meterValue = listOf(
+                            MeterValue(
+                                timestamp = ZonedDateTime.now(),
+                                sampledValue = MeterValuesGenerator.generate(
+                                    meterValuesSampledData = meterValuesSampledData,
+                                    startTime = activeTx?.startTime,
+                                    endMeter = activeTx?.endMeter ?: 0.0,
+                                    watts = watts,
+                                    numberPhases = connector.vehicleNumberPhases,
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+                activeTx?.let { tx ->
+                    transaction { tx.meterValuesAt = Instant.now() }
+                }
+                GlobalLogger.info(chargePoint, "Meter values sent for connector ${connector.position}")
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to send meter values for connector ${connector.position}" }
+                GlobalLogger.warn(chargePoint, "Failed to send meter values for connector ${connector.position}")
+            }
         }
     }
 
