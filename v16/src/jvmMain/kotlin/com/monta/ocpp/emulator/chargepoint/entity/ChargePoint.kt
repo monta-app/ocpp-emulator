@@ -9,6 +9,7 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
 import com.monta.ocpp.emulator.chargepoint.model.ChargePointConfiguration
 import com.monta.ocpp.emulator.chargepoint.model.ChargePointMode
 import com.monta.ocpp.emulator.chargepoint.model.LocalAuthList
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.model.OcppVersion
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorTable
@@ -51,6 +52,8 @@ object ChargePointTable : LongIdTable("charge_point") {
     val ocppUrl = varchar("ocpp_url", 1024)
     val apiUrl = varchar("api_url", 1024)
     val maxKw = double("max_kw")
+    val meterType = enumerationByName("meter_type", 128, MeterType::class)
+        .default(MeterType.OCPP)
 
     val messageCount = integer("message_count")
         .default(0)
@@ -100,6 +103,7 @@ class ChargePointDAO(
             apiUrl: String,
             firmware: String,
             maxKw: Double,
+            meterType: MeterType = MeterType.OCPP,
         ): ChargePointDAO {
             return ChargePointDAO.new {
                 this.name = name
@@ -132,6 +136,7 @@ class ChargePointDAO(
                 this.diagnosticsStatus = DiagnosticsStatusNotificationStatus.Idle
                 this.diagnosticsStatusAt = Instant.now()
 
+                this.meterType = meterType
                 this.configuration = ChargePointConfiguration()
                 this.localAuthList = LocalAuthList()
             }
@@ -155,6 +160,7 @@ class ChargePointDAO(
     var ocppUrl by ChargePointTable.ocppUrl
     var apiUrl by ChargePointTable.apiUrl
     var maxKw by ChargePointTable.maxKw
+    var meterType by ChargePointTable.meterType
 
     var averageLatencyMillis by ChargePointTable.averageLatencyMillis
     var messageCount by ChargePointTable.messageCount
