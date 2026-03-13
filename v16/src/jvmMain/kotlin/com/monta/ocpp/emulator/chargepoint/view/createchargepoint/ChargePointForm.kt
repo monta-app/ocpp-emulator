@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointTable
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.model.OcppVersion
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.components.FormInput
@@ -254,6 +255,17 @@ fun ChargePointForm(
                             )
                         },
                     )
+                    Spinner(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "Meter Type",
+                        value = viewModel.form.meterType,
+                        values = MeterType.entries,
+                        render = { it.displayName },
+                    ) { newMeterType ->
+                        viewModel.form = viewModel.form.copy(
+                            meterType = newMeterType,
+                        )
+                    }
                 }
                 Button(
                     enabled = viewModel.formErrors.isEmpty(),
@@ -292,6 +304,7 @@ private fun connect(
         firmware = viewModel.form.firmware,
         maxKw = viewModel.form.maxKw,
         connectorCount = viewModel.form.connectorCount,
+        meterType = viewModel.form.meterType,
     )
 
     navigationViewModel.navigateTo(
@@ -357,6 +370,7 @@ class ChargePointFormViewModel {
         var firmware: String = "1.0.0",
         var maxKw: Double = 22.0,
         var ocppVersion: OcppVersion = OcppVersion.V16,
+        var meterType: MeterType = MeterType.OCPP,
     ) {
         fun updateFromDAO(
             chargePoint: ChargePointDAO,
@@ -373,6 +387,7 @@ class ChargePointFormViewModel {
             this.firmware = chargePoint.firmware
             this.maxKw = chargePoint.maxKw
             this.ocppVersion = chargePoint.ocppVersion
+            this.meterType = chargePoint.meterType
         }
     }
 
