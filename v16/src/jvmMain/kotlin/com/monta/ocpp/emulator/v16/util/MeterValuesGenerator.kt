@@ -3,9 +3,12 @@ package com.monta.ocpp.emulator.v16.util
 import com.monta.library.ocpp.v16.Location
 import com.monta.library.ocpp.v16.SampledValue
 import com.monta.library.ocpp.v16.ValueFormat
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 import kotlin.math.min
+import kotlin.random.Random
 
 object MeterValuesGenerator {
     fun generate(
@@ -14,14 +17,20 @@ object MeterValuesGenerator {
         endMeter: Double,
         watts: Double,
         numberPhases: Int = 3,
+        meterType: MeterType,
     ): List<SampledValue> {
         val ampsPerPhase = (watts / numberPhases) / 230.0
         val sampledValues = mutableListOf<SampledValue>()
 
         if (meterValuesSampledData.contains("Energy.Active.Import.Register")) {
+            val meterValue = when (meterType) {
+                MeterType.OcppHighPrecision -> "%.1f".format(Locale.US, endMeter + Random.nextDouble(0.0, 0.5))
+                else -> endMeter.toInt().toString()
+            }
+
             sampledValues.add(
                 SampledValue(
-                    value = endMeter.toString(),
+                    value = meterValue,
                     context = "Sample.Periodic",
                     format = ValueFormat.Raw.name,
                     measurand = "Energy.Active.Import.Register",
