@@ -48,13 +48,13 @@ class ChargePointManager {
             ),
         )
 
-        transaction {
-            chargePoint.bootedAt = Instant.now()
-        }
-
         when (confirmation.status) {
             RegistrationStatus.Accepted -> {
                 GlobalLogger.info(chargePoint, "Boot was accepted")
+
+                transaction {
+                    chargePoint.bootedAt = Instant.now()
+                }
 
                 chargePointService.update(chargePoint) {
                     this.updateConfiguration {
@@ -80,8 +80,12 @@ class ChargePointManager {
             }
 
             RegistrationStatus.Pending -> {
-                // Do nothing?
-                GlobalLogger.info(chargePoint, "Boot is pending, waiting for server")
+                GlobalLogger.info(
+                    chargePoint,
+                    "Boot is pending, retrying in ${confirmation.interval} seconds",
+                )
+                delay(confirmation.interval.toLong() * 1000)
+                startBootSequence(chargePoint)
             }
 
             RegistrationStatus.Rejected -> {
