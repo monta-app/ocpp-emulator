@@ -7,6 +7,7 @@ import com.monta.library.ocpp.v16.client.OcppClientV16
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.MeterValue
+import com.monta.library.ocpp.v16.core.MeterValuesRequest
 import com.monta.library.ocpp.v16.core.Reason
 import com.monta.library.ocpp.v16.core.StartTransactionConfirmation
 import com.monta.library.ocpp.v16.core.StartTransactionRequest
@@ -171,5 +172,38 @@ suspend fun stopTransaction(
         )
     } catch (exception: Exception) {
         logger.warn(exception) { "Failed to stop charge" }
+    }
+}
+
+suspend fun sendHighPrecisionMeterStart(
+    sessionInfo: OcppSession.Info,
+    transaction: ChargePointTransactionDAO,
+) {
+    val ocppClientV16: OcppClientV16 by injectAnywhere()
+
+    try {
+        ocppClientV16.asCoreProfile(sessionInfo).meterValues(
+            MeterValuesRequest(
+                connectorId = transaction.connectorPosition,
+                transactionId = transaction.externalId,
+                meterValue = listOf(
+                    MeterValue(
+                        timestamp = transaction.startTime.atZone(ZoneOffset.UTC),
+                        sampledValue = listOf(
+                            SampledValue(
+                                value = "0.1",
+                                context = "Transaction.Begin",
+                                measurand = "Energy.Active.Import.Register",
+                                location = "Outlet",
+                                unit = "Wh",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+    } catch (exception: Exception) {
+        logger.warn(exception) { "Failed to send start meter values" }
+        throw exception
     }
 }
