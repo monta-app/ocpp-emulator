@@ -173,6 +173,7 @@ class SchedulerService(
                             endMeter = transaction.endMeter,
                             watts = watts,
                             numberPhases = vehicleNumberPhases,
+                            meterType = chargePoint.meterType,
                         ),
                     ),
                 ),
