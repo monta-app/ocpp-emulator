@@ -23,7 +23,7 @@ class DatabaseInitiator(
 
     init {
         try {
-            logger.debug("starting database $databasePath")
+            logger.debug { "starting database $databasePath" }
 
             dataSource = HikariDataSource(
                 HikariConfig().apply {
@@ -36,7 +36,7 @@ class DatabaseInitiator(
             )
             database = Database.connect(dataSource)
         } catch (exception: Exception) {
-            logger.error("database error", exception)
+            logger.error(exception) { "database error" }
             throw exception
         }
     }

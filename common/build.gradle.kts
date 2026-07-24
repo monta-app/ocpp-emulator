@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kover)
 }
 
@@ -11,6 +11,7 @@ group = "com.monta.ocpp.emulator.common"
 version = "2.2.0"
 
 kotlin {
+    jvmToolchain(25)
     jvm()
     sourceSets {
         jvmTest.dependencies {
@@ -66,10 +67,6 @@ kotlin {
             implementation(files("libs/sqlite-jdbc-3.42.0.0.jar"))
         }
     }
-}
-
-dependencies {
-    add("kspJvm", libs.koin.ksp.compiler)
 }
 
 tasks.named<Test>("jvmTest") {
