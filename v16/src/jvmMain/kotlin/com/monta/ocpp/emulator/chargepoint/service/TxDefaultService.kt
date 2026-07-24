@@ -7,7 +7,7 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.v16.data.entity.TxDefaultDAO
 import com.monta.ocpp.emulator.v16.data.repository.TxDefaultRepository
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton

@@ -3,7 +3,7 @@ package com.monta.ocpp.emulator.v16
 import com.monta.library.ocpp.v16.core.Reason
 import com.monta.ocpp.emulator.chargepointtransaction.entity.ChargePointTransactionDAO
 import com.monta.ocpp.emulator.logger.GlobalLogger
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 suspend fun ChargePointTransactionDAO.stop(

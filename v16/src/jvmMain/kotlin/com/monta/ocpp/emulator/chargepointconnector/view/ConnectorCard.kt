@@ -37,7 +37,7 @@ import com.monta.ocpp.emulator.v16.setNumberPhases
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 

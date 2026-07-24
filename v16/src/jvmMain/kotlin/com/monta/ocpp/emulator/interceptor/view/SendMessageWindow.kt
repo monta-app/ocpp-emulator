@@ -89,7 +89,7 @@ import com.monta.ocpp.emulator.logger.ChargePointLogger
 import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID

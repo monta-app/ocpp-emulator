@@ -13,7 +13,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}

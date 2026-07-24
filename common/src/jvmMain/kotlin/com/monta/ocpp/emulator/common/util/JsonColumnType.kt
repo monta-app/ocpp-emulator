@@ -2,10 +2,10 @@ package com.monta.ocpp.emulator.common.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.Table
-import java.sql.ResultSet
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.ColumnType
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.statements.api.RowApi
 
 inline fun <reified T : Any> Table.json(
     name: String,
@@ -58,10 +58,10 @@ class JsonColumnType<T : Any>(
     }
 
     override fun readObject(
-        rs: ResultSet,
+        rs: RowApi,
         index: Int,
     ): Any? {
-        val value = rs.getBytes(index)
+        val value = rs.getObject(index, ByteArray::class.java)
 
         return if (eagerLoading && value != null) {
             // return deserialized value

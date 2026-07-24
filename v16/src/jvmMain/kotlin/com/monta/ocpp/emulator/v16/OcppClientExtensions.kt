@@ -20,7 +20,7 @@ import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.eichrecht.EichrechtSignatureService
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime

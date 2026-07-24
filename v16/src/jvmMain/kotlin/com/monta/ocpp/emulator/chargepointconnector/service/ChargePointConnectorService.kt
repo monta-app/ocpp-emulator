@@ -5,7 +5,7 @@ import com.monta.ocpp.emulator.chargepointconnector.repository.ChargePointConnec
 import com.monta.ocpp.emulator.common.createDatabaseListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton
