@@ -1,5 +1,6 @@
 package com.monta.ocpp.emulator.configuration
 
+import org.jetbrains.exposed.v1.core.eq
 import javax.inject.Singleton
 
 @Singleton

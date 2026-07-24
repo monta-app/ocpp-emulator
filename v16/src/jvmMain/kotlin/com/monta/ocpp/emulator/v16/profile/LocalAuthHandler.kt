@@ -8,7 +8,7 @@ import com.monta.library.ocpp.v16.localauth.SendLocalListConfirmation
 import com.monta.library.ocpp.v16.localauth.SendLocalListRequest
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton

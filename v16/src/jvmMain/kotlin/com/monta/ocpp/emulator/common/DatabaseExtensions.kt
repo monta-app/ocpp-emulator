@@ -6,10 +6,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.dao.EntityChange
-import org.jetbrains.exposed.dao.EntityHook
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.v1.dao.EntityChange
+import org.jetbrains.exposed.v1.dao.EntityHook
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
 
 private val logger = KotlinLogging.logger {}
 
@@ -46,11 +46,11 @@ fun <T> createDatabaseListener(
         }
     }
 
-    logger.debug("hook started entityClass=${entityClass::class.java.name}, id=$id")
+    logger.debug { "hook started entityClass=${entityClass::class.java.name}, id=$id" }
     EntityHook.subscribe(listener)
 
     awaitClose {
-        logger.debug("closing hook entityClass=${entityClass::class.java.name}, id=$id")
+        logger.debug { "closing hook entityClass=${entityClass::class.java.name}, id=$id" }
         EntityHook.unsubscribe(listener)
     }
 }

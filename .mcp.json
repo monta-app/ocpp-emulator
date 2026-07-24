@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kotzilla": {
+      "type": "http",
+      "url": "https://mcp.kotzilla.io/mcp"
+    }
+  }
+}

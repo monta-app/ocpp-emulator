@@ -1,6 +1,6 @@
 package com.monta.ocpp.emulator.configuration
 
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton

@@ -15,14 +15,12 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Factory
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
-@Factory
 class SchedulerService(
     private val chargePointId: Long,
 ) {

@@ -18,7 +18,7 @@ import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorD
 import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransactionService
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.data.service.TxDefaultService
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton

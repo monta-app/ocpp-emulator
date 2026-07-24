@@ -10,12 +10,12 @@ import com.monta.ocpp.emulator.common.util.ChargingProfileCalculator
 import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.json
 import com.monta.ocpp.emulator.logger.Loggable
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.javatime.timestamp
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
+import org.jetbrains.exposed.v1.dao.LongEntity
+import org.jetbrains.exposed.v1.dao.LongEntityClass
+import org.jetbrains.exposed.v1.javatime.timestamp
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 // Table Definition

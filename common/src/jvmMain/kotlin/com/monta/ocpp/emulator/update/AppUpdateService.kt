@@ -57,7 +57,7 @@ class AppUpdateService {
                 registerKotlinModule()
                 registerModule(JavaTimeModule())
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 findAndRegisterModules()
             }
@@ -84,22 +84,22 @@ class AppUpdateService {
             try {
                 latestRelease = getUpdateFromGitHub()
             } catch (exception: Exception) {
-                // logger.warn("error updating", exception)
+                // logger.warn(exception) { "error updating" }
             }
         }
     }
 
     private suspend fun getUpdateFromGitHub(): GithubRelease? {
         if (System.getenv("EMULATOR_IGNORE_UPDATES").toBoolean()) {
-            logger.debug("ignoring updates based on env var")
+            logger.debug { "ignoring updates based on env var" }
             return null
         }
         val packageVersion = System.getProperty("jpackage.app-version", "1.0.0")
 
-        logger.info("checking for latest update currentVersion=$packageVersion")
+        logger.info { "checking for latest update currentVersion=$packageVersion" }
 
         if (packageVersion == null) {
-            logger.debug("missing package version")
+            logger.debug { "missing package version" }
             updateState.value = UpdateState.None
             return null
         }
@@ -111,7 +111,7 @@ class AppUpdateService {
         }
 
         if (latestRelease == null) {
-            logger.debug("no latest release found")
+            logger.debug { "no latest release found" }
             updateState.value = UpdateState.None
             return null
         }
@@ -120,7 +120,7 @@ class AppUpdateService {
         val latestSemVer: SemVer = SemVer.parse(latestRelease.tagName.replace("v", ""))
 
         if (currentSemVer >= latestSemVer) {
-            logger.debug("same version or higher, skipping")
+            logger.debug { "same version or higher, skipping" }
             updateState.value = UpdateState.None
             return null
         }
@@ -154,7 +154,7 @@ class AppUpdateService {
             try {
                 downloadFile(asset, file)
             } catch (exception: Exception) {
-                logger.warn("failed to download update", exception)
+                logger.warn(exception) { "failed to download update" }
                 updateState.value = UpdateState.None
             }
         }
@@ -188,7 +188,7 @@ class AppUpdateService {
                 val progress = contentLength?.let { contentLength ->
                     bytesSentTotal.toFloat() / contentLength.toFloat()
                 } ?: 0F
-                logger.trace("Downloading ($bytesSentTotal / $contentLength) $progress")
+                logger.trace { "Downloading ($bytesSentTotal / $contentLength) $progress" }
                 downloadProgress.value = progress
             }
         }

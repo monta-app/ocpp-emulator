@@ -7,10 +7,10 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.v16.data.entity.TxDefault
 import com.monta.ocpp.emulator.v16.data.entity.TxDefaultDAO
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import javax.inject.Singleton
 
 @Singleton
@@ -57,7 +57,7 @@ class TxDefaultRepository {
         val onChargePoint = TxDefault.chargePointId eq chargePointDAO.chargePointId()
         val onConnector = connectorDAO?.let { connector -> TxDefault.connectorId eq connector.id } ?: Op.TRUE
         val condition = when {
-            request.id != null -> Op.build { onChargePoint and (TxDefault.chargingProfileId eq request.id) }
+            request.id != null -> onChargePoint and (TxDefault.chargingProfileId eq request.id)
             else -> onChargePoint and onConnector
         }
 
@@ -69,7 +69,7 @@ class TxDefaultRepository {
         connectorDAO: ChargePointConnectorDAO,
         chargingProfileId: Int,
     ): TxDefaultDAO? {
-        val equalsProfileId = Op.build { TxDefault.chargingProfileId eq chargingProfileId }
+        val equalsProfileId = TxDefault.chargingProfileId eq chargingProfileId
         val onChargePoint = TxDefault.chargePointId eq chargePointDAO.chargePointId()
         val onConnector = TxDefault.connectorId eq connectorDAO.id
         return TxDefaultDAO.find { onChargePoint and onConnector and equalsProfileId }.firstOrNull()

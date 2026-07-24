@@ -5,13 +5,14 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
 }
 
 group = "com.monta.ocpp.emulator"
 version = "2.5.0"
 
 kotlin {
+    jvmToolchain(25)
     jvm()
     sourceSets {
         jvmMain.dependencies {
@@ -20,11 +21,13 @@ kotlin {
             implementation(compose.desktop.currentOs)
 
             // Material Icons
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.material.icons.extended)
 
             // OCPP Libs
             implementation(libs.ocpp.core)
             implementation(libs.ocpp.v16)
+            // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
+            implementation(libs.jackson3.databind)
 
             // Coroutines
             implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
@@ -60,10 +63,6 @@ kotlin {
             implementation(libs.bundles.exposed)
         }
     }
-}
-
-dependencies {
-    add("kspJvm", libs.koin.ksp.compiler)
 }
 
 ktlint {

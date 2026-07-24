@@ -10,7 +10,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import com.monta.ocpp.emulator.v16.startFreeCharging
 import com.monta.ocpp.emulator.v16.stopActiveTransactions
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
 @Singleton
