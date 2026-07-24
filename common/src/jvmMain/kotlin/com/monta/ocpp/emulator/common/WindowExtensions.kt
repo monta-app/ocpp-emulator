@@ -32,7 +32,7 @@ fun ApplicationScope.BaseMontaWindow(
             WindowExceptionHandlerFactory { window ->
                 WindowExceptionHandler { throwable ->
                     Sentry.captureException(throwable)
-                    logger.error("Window Exception", throwable)
+                    logger.error(throwable) { "Window Exception" }
                     window.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))
                     throw throwable
                 }

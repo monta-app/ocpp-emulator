@@ -33,7 +33,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.common.view.NavigationViewModel
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

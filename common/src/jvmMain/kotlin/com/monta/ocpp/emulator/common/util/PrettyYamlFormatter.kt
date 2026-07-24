@@ -15,7 +15,7 @@ object PrettyYamlFormatter {
         .registerKotlinModule()
         .registerModule(JavaTimeModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .setSerializationInclusion(JsonInclude.Include.ALWAYS)
+        .setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS)
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         .findAndRegisterModules()
 

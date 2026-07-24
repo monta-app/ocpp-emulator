@@ -2,7 +2,8 @@ package com.monta.ocpp.emulator.chargepointconnector.repository
 
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorTable
-import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
 import javax.inject.Singleton
 
 @Singleton

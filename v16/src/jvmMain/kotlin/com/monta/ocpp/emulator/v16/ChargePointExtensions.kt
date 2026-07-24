@@ -5,7 +5,7 @@ import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import kotlinx.coroutines.delay
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 suspend fun ChargePointDAO.setStatuses(

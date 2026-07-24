@@ -15,9 +15,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
@@ -27,14 +28,16 @@ import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.components.toReadable
 import com.monta.ocpp.emulator.v16.setStatus
 import kotlinx.coroutines.launch
+import java.awt.datatransfer.StringSelection
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun chargePointComponent(
     chargePoint: ChargePointDAO,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    val clipboardManager = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
 
     Card(
         modifier = getCardStyle().fillMaxWidth(),
@@ -60,7 +63,9 @@ fun chargePointComponent(
             Text(
                 "Identity: ${chargePoint.identity}",
                 modifier = Modifier.clickable {
-                    clipboardManager.setText(AnnotatedString(chargePoint.identity))
+                    coroutineScope.launch {
+                        clipboard.setClipEntry(ClipEntry(StringSelection(chargePoint.identity)))
+                    }
                 },
             )
             Text("Latency: ${chargePoint.averageLatencyMillis} ms (${chargePoint.messageCount})")

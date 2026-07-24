@@ -23,12 +23,12 @@ private fun restartingHandler(
     block: suspend () -> Unit,
 ): CoroutineExceptionHandler {
     return CoroutineExceptionHandler { coroutineContext, throwable ->
-        logger.error("error in $coroutineContext", throwable)
+        logger.error(throwable) { "error in $coroutineContext" }
         logger.warn { "restarting thread..." }
         launchThread(true) { block() }
     }
 }
 
 private val exceptionLogger = CoroutineExceptionHandler { coroutineContext, throwable ->
-    logger.error("error in $coroutineContext", throwable)
+    logger.error(throwable) { "error in $coroutineContext" }
 }

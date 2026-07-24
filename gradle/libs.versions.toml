@@ -1,25 +1,30 @@
 [versions]
-kotlin = "2.3.10"
-compose = "1.10.2"
+kotlin = "2.4.10"
+compose = "1.11.1"
 ktlint = "14.2.0"
-ksp = "2.3.6"
-kover = "0.9.7"
-junit = "6.0.3"
+kover = "0.9.9"
+junit = "6.1.2"
 
-kotlinx-coroutines = "1.10.2"
-ktor = "3.4.1"
-jackson = "2.21.1"
-sentry = "8.35.0"
-koin = "4.1.1"
-koin-annotations = "2.3.1"
-exposed = "0.61.0"
-logback = "1.5.32"
-kotlin-logging = "7.0.14"
+kotlinx-coroutines = "1.11.0"
+ktor = "3.5.1"
+jackson = "2.22.1"
+# Jackson 3 (tools.jackson): ocpp-library v3 exposes tools.jackson.databind.JsonNode
+# in its public API but only declares it runtime-scope, so we need it at compile time.
+# Keep in sync with the jackson-bom version used by monta-app/library-ocpp.
+jackson3 = "3.2.1"
+sentry = "8.50.1"
+# Koin 4.2+: annotations are processed by the Koin Compiler Plugin (koin-plugin below);
+# koin-annotations ships with the main Koin project and must match the koin version.
+koin = "4.2.2"
+koin-plugin = "1.0.2"
+exposed = "1.3.1"
+logback = "1.6.0"
+kotlin-logging = "8.0.4"
 qrcodegen = "1.8.0"
 semver = "2.1.0"
-bouncy-castle = "1.83"
-hikaricp = "7.0.2"
-ocpp-library = "1.0.8"
+bouncy-castle = "1.85"
+hikaricp = "7.1.0"
+ocpp-library = "3.0.0"
 
 [libraries]
 # Coroutines
@@ -46,6 +51,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" }
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+jackson3-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson3" }
 
 # Logging
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
@@ -61,8 +67,7 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-ktor = { module = "io.insert-koin:koin-ktor" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
-koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
-koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
 
 # Exposed (SQL)
 exposed-bom = { module = "org.jetbrains.exposed:exposed-bom", version.ref = "exposed" }
@@ -70,6 +75,12 @@ exposed-core = { module = "org.jetbrains.exposed:exposed-core" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time" }
+
+# Compose (artifacts without a plugin accessor, or whose accessor is deprecated)
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
+# The material-icons-extended artifact is frozen at 1.7.3 upstream; the compose plugin
+# accessor for it is deprecated and asks for an explicit pin like this one.
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
 
 # OCPP Libraries
 ocpp-core = { module = "com.github.monta-app.library-ocpp:ocpp-core", version.ref = "ocpp-library" }
@@ -100,5 +111,5 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

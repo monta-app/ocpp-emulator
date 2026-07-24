@@ -4,7 +4,7 @@ import com.monta.ocpp.emulator.common.util.appRoot
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import java.io.File
 import javax.sql.DataSource
 
@@ -23,7 +23,7 @@ class DatabaseInitiator(
 
     init {
         try {
-            logger.debug("starting database $databasePath")
+            logger.debug { "starting database $databasePath" }
 
             dataSource = HikariDataSource(
                 HikariConfig().apply {
@@ -36,7 +36,7 @@ class DatabaseInitiator(
             )
             database = Database.connect(dataSource)
         } catch (exception: Exception) {
-            logger.error("database error", exception)
+            logger.error(exception) { "database error" }
             throw exception
         }
     }
