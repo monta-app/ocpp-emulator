@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -36,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
-import com.monta.ocpp.emulator.chargepoint.view.components.ChargePointCard
+import com.monta.ocpp.emulator.chargepoint.view.components.ChargePointTable
 import com.monta.ocpp.emulator.common.components.TextTooltip
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
@@ -146,21 +143,16 @@ private fun ChargePointsListView(
         chargePoint.matchesSearchQuery(searchQuery)
     }
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 384.dp),
-    ) {
-        items(filteredChargePoints) { chargePoint ->
-            ChargePointCard(
-                chargePoint = chargePoint,
-            ) {
-                screenViewModel.navigateTo(
-                    NavigationViewModel.Screen.ChargePoint(
-                        chargePointId = chargePoint.idValue,
-                    ),
-                )
-            }
-        }
-    }
+    ChargePointTable(
+        chargePoints = filteredChargePoints,
+        onRowClick = { chargePoint ->
+            screenViewModel.navigateTo(
+                NavigationViewModel.Screen.ChargePoint(
+                    chargePointId = chargePoint.idValue,
+                ),
+            )
+        },
+    )
 }
 
 // Helper extension function to filter charge points based on the search query
