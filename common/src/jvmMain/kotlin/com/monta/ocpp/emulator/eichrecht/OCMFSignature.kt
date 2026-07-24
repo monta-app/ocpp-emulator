@@ -8,7 +8,7 @@ data class OCMFSignature(
      * This includes the signature algorithm, its parameters, and the hash algorithm that will be applied to the data to be signed.
      * This specification is optional. If it is omitted, the default value is effective.
      */
-    @JsonProperty("SA")
+    @param:JsonProperty("SA")
     val signatureAlgorithm: String?,
 
     /**
@@ -18,7 +18,7 @@ data class OCMFSignature(
      * - hex – The signature data is represented in the JSON string in hexadecimal encoding (default)
      * - base64 – The signature data is base64 encoded in the JSON string.
      */
-    @JsonProperty("SE")
+    @param:JsonProperty("SE")
     val signatureEncoding: String? = null,
 
     /**
@@ -27,12 +27,12 @@ data class OCMFSignature(
      * The following values are possible:
      * - `application/x-der` – DER encoded ASN.1 structure (default)
      */
-    @JsonProperty("SM")
+    @param:JsonProperty("SM")
     val signatureMimeType: String? = null,
 
     /**
      * Signature Data: The actual signature data according to the format specification above.
      */
-    @JsonProperty("SD")
+    @param:JsonProperty("SD")
     val signatureData: String,
 )

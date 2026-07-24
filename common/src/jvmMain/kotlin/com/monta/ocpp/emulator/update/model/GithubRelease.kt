@@ -4,38 +4,38 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.OffsetDateTime
 
 data class GithubRelease(
-    @JsonProperty("url")
+    @param:JsonProperty("url")
     val url: String,
-    @JsonProperty("assets_url")
+    @param:JsonProperty("assets_url")
     val assetsUrl: String,
-    @JsonProperty("upload_url")
+    @param:JsonProperty("upload_url")
     val uploadUrl: String,
-    @JsonProperty("html_url")
+    @param:JsonProperty("html_url")
     val htmlUrl: String,
-    @JsonProperty("id")
+    @param:JsonProperty("id")
     val id: Int,
-    @JsonProperty("node_id")
+    @param:JsonProperty("node_id")
     val nodeId: String,
-    @JsonProperty("tag_name")
+    @param:JsonProperty("tag_name")
     val tagName: String,
-    @JsonProperty("target_commitish")
+    @param:JsonProperty("target_commitish")
     val targetCommitish: String,
-    @JsonProperty("name")
+    @param:JsonProperty("name")
     val name: String,
-    @JsonProperty("draft")
+    @param:JsonProperty("draft")
     val draft: Boolean,
-    @JsonProperty("prerelease")
+    @param:JsonProperty("prerelease")
     val prerelease: Boolean,
-    @JsonProperty("created_at")
+    @param:JsonProperty("created_at")
     val createdAt: OffsetDateTime,
-    @JsonProperty("published_at")
+    @param:JsonProperty("published_at")
     val publishedAt: OffsetDateTime,
-    @JsonProperty("assets")
+    @param:JsonProperty("assets")
     val assets: List<GithubAsset>,
-    @JsonProperty("tarball_url")
+    @param:JsonProperty("tarball_url")
     val tarballUrl: String,
-    @JsonProperty("zipball_url")
+    @param:JsonProperty("zipball_url")
     val zipballUrl: String,
-    @JsonProperty("body")
+    @param:JsonProperty("body")
     val body: String,
 )

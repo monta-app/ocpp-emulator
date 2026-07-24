@@ -21,7 +21,7 @@ data class OCMFReading(
      * The synchronization state consists of a capital letter as identifier.
      * This is added to the time, separated by a space. Available states see table 19.
      */
-    @JsonProperty("TM")
+    @param:JsonProperty("TM")
     val time: String,
 
     /**
@@ -37,7 +37,7 @@ data class OCMFReading(
      * - S – Suspended = Transaction active, but currently not charging (can be used optionally)
      * - T – Tariff change <br> This field is missing if there is no transaction reference (Fiscal Metering).
      */
-    @JsonProperty("TX")
+    @param:JsonProperty("TX")
     val transaction: Char? = null,
 
     /**
@@ -48,19 +48,19 @@ data class OCMFReading(
      * since this would change the representation of the physical quantity and thus potentially the number of valid digits.
      * According to the application rule, it is recommended to represent the measured value with two decimal places of accuracy, if it is kWh.
      */
-    @JsonProperty("RV")
+    @param:JsonProperty("RV")
     val value: Double,
 
     /**
      * Reading Identification: Identifier, which quantity was read, according to OBIS code.
      */
-    @JsonProperty("RI")
+    @param:JsonProperty("RI")
     val identification: String? = null,
 
     /**
      * Reading Unit: Unit of reading, e.g. kWh, according to table 20: Predefined Units.
      */
-    @JsonProperty("RU")
+    @param:JsonProperty("RU")
     val unit: String,
 
     /**
@@ -68,7 +68,7 @@ data class OCMFReading(
      * Predefined Current Types.
      * This field is optional. No default value is defined.
      */
-    @JsonProperty("RT")
+    @param:JsonProperty("RT")
     val currenType: String? = null,
 
     /**
@@ -76,7 +76,7 @@ data class OCMFReading(
      * The value reported here represents cumulated loss withdrawned from measurement when computing loss compensation on RV.
      * CL must be reset at TX=B. CL is given in the same unit as RV which is specified in RU.
      */
-    @JsonProperty("CL")
+    @param:JsonProperty("CL")
     val cumulatedLoss: Number? = null,
 
     /**
@@ -85,13 +85,13 @@ data class OCMFReading(
      * - E – Energy
      * - t – Time
      */
-    @JsonProperty("EF")
+    @param:JsonProperty("EF")
     val errorFlags: String? = null,
 
     /**
      * Status: State of the meter at the time of reading. Noted as abbreviation according to table 10.
      */
-    @JsonProperty("ST")
+    @param:JsonProperty("ST")
     val status: Char,
 ) {
     companion object {
