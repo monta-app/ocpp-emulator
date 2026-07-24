@@ -171,6 +171,7 @@ class ChargePointManager {
                                     endMeter = activeTx?.endMeter ?: 0.0,
                                     watts = watts,
                                     numberPhases = connector.vehicleNumberPhases,
+                                    meterType = chargePoint.meterType,
                                 ),
                             ),
                         ),
