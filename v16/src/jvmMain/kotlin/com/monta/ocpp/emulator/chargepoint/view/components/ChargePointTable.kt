@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -30,6 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.model.ChargePointMode
+import com.monta.ocpp.emulator.common.components.AppDialog
 import com.monta.ocpp.emulator.common.components.Badge
 import com.monta.ocpp.emulator.common.components.BadgeVariant
 import com.monta.ocpp.emulator.common.components.CardDivider
@@ -287,11 +286,12 @@ private fun ChargePointDeleteButton(
         return
     }
 
-    AlertDialog(
-        shape = RoundedCornerShape(12.dp),
+    AppDialog(
         onDismissRequest = {
             alertVisible = false
         },
+        title = "Delete ${chargePoint.name.ifBlank { chargePoint.identity }}",
+        description = "This permanently removes the charge point and its transactions. This can't be undone.",
         dismissButton = {
             OutlineButton(
                 onClick = {
@@ -322,12 +322,6 @@ private fun ChargePointDeleteButton(
             ) {
                 Text("Delete")
             }
-        },
-        title = {
-            Text("Delete ${chargePoint.name.ifBlank { chargePoint.identity }}")
-        },
-        text = {
-            Text("Are you sure you want to delete this charge point?")
         },
     )
 }

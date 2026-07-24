@@ -1,13 +1,9 @@
 package com.monta.ocpp.emulator.chargepoint.view.components
 
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
+import com.monta.ocpp.emulator.common.components.AppDialog
 import com.monta.ocpp.emulator.common.components.OutlineButton
 import com.monta.ocpp.emulator.common.components.PrimaryButton
 import com.monta.ocpp.emulator.common.components.RfidButton
@@ -46,14 +43,13 @@ fun BoxScope.authorizeComponent(
     }
 
     if (expanded) {
-        AlertDialog(
-            shape = RoundedCornerShape(12.dp),
-            title = {
-                Text("Authorize")
-            },
+        AppDialog(
             onDismissRequest = {
                 expanded = false
             },
+            title = "Authorize",
+            description = "Present an RFID card to start or stop a transaction.",
+            modifier = Modifier.width(420.dp),
             confirmButton = {
                 PrimaryButton(
                     onClick = {
@@ -81,23 +77,17 @@ fun BoxScope.authorizeComponent(
                     Text("Close")
                 }
             },
-            text = {
-                Column {
-                    Spacer(
-                        modifier = Modifier.padding(8.dp),
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = idTag,
-                        label = {
-                            Text("RFID Card Number")
-                        },
-                        onValueChange = { newIdTag ->
-                            idTag = newIdTag
-                        },
-                    )
-                }
-            },
-        )
+        ) {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = idTag,
+                label = {
+                    Text("RFID Card Number")
+                },
+                onValueChange = { newIdTag ->
+                    idTag = newIdTag
+                },
+            )
+        }
     }
 }

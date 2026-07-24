@@ -1,6 +1,5 @@
 package com.monta.ocpp.emulator.common.components
 
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import java.time.Instant
@@ -15,17 +14,6 @@ private val formatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(For
 
 fun Instant.toReadable(): String {
     return formatter.format(this)
-}
-
-@Composable
-fun getButtonStateColor(
-    isActive: Boolean,
-): Color {
-    return if (isActive) {
-        MaterialTheme.colors.primary
-    } else {
-        Color.LightGray
-    }
 }
 
 @Composable

@@ -56,6 +56,8 @@ class AppThemeViewModel(
                 primaryVariant = MontaColors.PrimaryBlue,
                 secondary = MontaColors.LightBlue,
                 secondaryVariant = MontaColors.PrimaryBlue,
+                background = MontaColors.RichBlack,
+                surface = MontaColors.SurfaceBlack,
                 onPrimary = MontaColors.White,
                 onSecondary = MontaColors.White,
                 onBackground = MontaColors.White,

@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
+import com.monta.ocpp.emulator.common.components.AppDialog
 import com.monta.ocpp.emulator.common.components.OutlineButton
 import com.monta.ocpp.emulator.common.components.PrimaryButton
 import com.monta.ocpp.emulator.common.components.Spinner
@@ -63,15 +62,13 @@ fun ColumnScope.ConnectorStateView(
     }
 
     if (expanded) {
-        AlertDialog(
-            modifier = Modifier.width(400.dp),
-            shape = RoundedCornerShape(12.dp),
-            title = {
-                Text("Connector Status")
-            },
+        AppDialog(
             onDismissRequest = {
                 expanded = false
             },
+            title = "Connector Status",
+            description = "Push a status notification for this connector to the CSMS.",
+            modifier = Modifier.width(440.dp),
             confirmButton = {
                 PrimaryButton(
                     onClick = {
@@ -100,66 +97,65 @@ fun ColumnScope.ConnectorStateView(
                     Text("Close")
                 }
             },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Spinner(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Connector Status",
-                        value = connectorStatus,
-                        values = ChargePointStatus.entries,
-                        render = { chargePointStatus ->
-                            chargePointStatus.name
-                        },
-                        onSelectionChanged = { newChargePointStatus ->
-                            connectorStatus = newChargePointStatus
-                        },
-                    )
-                    Spinner(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "Error Code",
-                        value = errorCode,
-                        values = ChargePointErrorCode.entries,
-                        render = { chargePointErrorCode ->
-                            chargePointErrorCode.name
-                        },
-                        onSelectionChanged = { newChargePointErrorCode ->
-                            errorCode = newChargePointErrorCode
-                        },
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = statusInfo ?: "",
-                        label = {
-                            Text("Info")
-                        },
-                        onValueChange = { newStatusInfo ->
-                            statusInfo = newStatusInfo
-                        },
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = vendorId ?: "",
-                        label = {
-                            Text("Vendor ID")
-                        },
-                        onValueChange = { newVendorId ->
-                            vendorId = newVendorId
-                        },
-                    )
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = vendorErrorCode ?: "",
-                        label = {
-                            Text("Vendor Error Code")
-                        },
-                        onValueChange = { newVendorErrorCode ->
-                            vendorErrorCode = newVendorErrorCode
-                        },
-                    )
-                }
-            },
-        )
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Spinner(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Connector Status",
+                    value = connectorStatus,
+                    values = ChargePointStatus.entries,
+                    render = { chargePointStatus ->
+                        chargePointStatus.name
+                    },
+                    onSelectionChanged = { newChargePointStatus ->
+                        connectorStatus = newChargePointStatus
+                    },
+                )
+                Spinner(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Error Code",
+                    value = errorCode,
+                    values = ChargePointErrorCode.entries,
+                    render = { chargePointErrorCode ->
+                        chargePointErrorCode.name
+                    },
+                    onSelectionChanged = { newChargePointErrorCode ->
+                        errorCode = newChargePointErrorCode
+                    },
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = statusInfo ?: "",
+                    label = {
+                        Text("Info")
+                    },
+                    onValueChange = { newStatusInfo ->
+                        statusInfo = newStatusInfo
+                    },
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = vendorId ?: "",
+                    label = {
+                        Text("Vendor ID")
+                    },
+                    onValueChange = { newVendorId ->
+                        vendorId = newVendorId
+                    },
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = vendorErrorCode ?: "",
+                    label = {
+                        Text("Vendor Error Code")
+                    },
+                    onValueChange = { newVendorErrorCode ->
+                        vendorErrorCode = newVendorErrorCode
+                    },
+                )
+            }
+        }
     }
 }

@@ -25,4 +25,7 @@ object MontaColors {
     val DarkGrey = Color(0xFF4F4F4F)
     val MediumGrey = Color(0xFFA3A3A3)
     val LightGrey = Color(0xFFD4D4D4)
+    
+    val RichBlack = Color(0xFF09090B) // page background
+    val SurfaceBlack = Color(0xFF0F0F12) // cards, dialogs, sheets
 }

@@ -8,13 +8,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,19 +18,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointTable
 import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.model.OcppVersion
 import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
+import com.monta.ocpp.emulator.common.components.DialogSurface
 import com.monta.ocpp.emulator.common.components.FormInput
 import com.monta.ocpp.emulator.common.components.LabelledCheckBox
 import com.monta.ocpp.emulator.common.components.MontaIcon
+import com.monta.ocpp.emulator.common.components.OutlineButton
 import com.monta.ocpp.emulator.common.components.PasswordField
+import com.monta.ocpp.emulator.common.components.PrimaryButton
+import com.monta.ocpp.emulator.common.components.SegmentedToggle
 import com.monta.ocpp.emulator.common.components.Spinner
-import com.monta.ocpp.emulator.common.components.getButtonStateColor
-import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.model.UrlChoice
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import org.jetbrains.exposed.v1.core.eq
@@ -56,20 +54,18 @@ fun ChargePointForm(
             viewModel.isUpdating = true
         }
     }
-    Card(
-        modifier = getCardStyle()
-            .width(440.dp),
-        shape = RoundedCornerShape(20.dp),
+    DialogSurface(
+        modifier = Modifier.width(440.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = (if (viewModel.isUpdating) "Edit" else "Create") + " Charge Point",
-                style = MaterialTheme.typography.h5,
-                modifier = Modifier.padding(8.dp)
-                    .fillMaxWidth(),
+                style = MaterialTheme.typography.h6,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.fillMaxWidth(),
             )
             Column(
                 modifier = Modifier.heightIn(max = 520.dp)
@@ -145,38 +141,16 @@ fun ChargePointForm(
                     )
                 }
 
-                Row {
-                    Button(
-                        modifier = Modifier.fillMaxWidth()
-                            .weight(1f)
-                            .padding(end = 4.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = getButtonStateColor(viewModel.form.connectorCount == 1),
-                        ),
-                        onClick = {
-                            viewModel.form = viewModel.form.copy(
-                                connectorCount = 1,
-                            )
-                        },
-                    ) {
-                        Text("1")
-                    }
-                    Button(
-                        modifier = Modifier.fillMaxWidth()
-                            .weight(1f)
-                            .padding(start = 4.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = getButtonStateColor(viewModel.form.connectorCount == 2),
-                        ),
-                        onClick = {
-                            viewModel.form = viewModel.form.copy(
-                                connectorCount = 2,
-                            )
-                        },
-                    ) {
-                        Text("2")
-                    }
-                }
+                SegmentedToggle(
+                    options = listOf(1, 2),
+                    selected = viewModel.form.connectorCount,
+                    label = { "$it" },
+                    onSelect = { newCount ->
+                        viewModel.form = viewModel.form.copy(
+                            connectorCount = newCount,
+                        )
+                    },
+                )
 
                 LabelledCheckBox(
                     modifier = Modifier.fillMaxWidth(),
@@ -264,16 +238,18 @@ fun ChargePointForm(
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 8.dp,
+                    alignment = Alignment.End,
+                ),
             ) {
-                OutlinedButton(
+                OutlineButton(
                     onClick = onClose,
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     enabled = viewModel.formErrors.isEmpty(),
                     onClick = {
                         connect(viewModel, onClose)

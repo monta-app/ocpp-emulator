@@ -1,11 +1,9 @@
 package com.monta.ocpp.emulator.chargepoint.view.components.security
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,9 +14,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
+import com.monta.ocpp.emulator.common.components.AppDialog
 import com.monta.ocpp.emulator.common.components.OutlineButton
 import com.monta.ocpp.emulator.common.components.PrimaryButton
 import com.monta.ocpp.emulator.common.components.Spinner
+import com.monta.ocpp.emulator.common.components.mutedForegroundColor
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.v16.ChargePointManager
@@ -49,14 +49,13 @@ fun ColumnScope.securityEventComponent(
     }
 
     if (expanded) {
-        AlertDialog(
-            shape = RoundedCornerShape(12.dp),
-            title = {
-                Text("Security Event")
-            },
+        AppDialog(
             onDismissRequest = {
                 expanded = false
             },
+            title = "Security Event",
+            description = "Send a security notification to the CSMS.",
+            modifier = Modifier.width(440.dp),
             confirmButton = {
                 PrimaryButton(
                     onClick = {
@@ -83,29 +82,30 @@ fun ColumnScope.securityEventComponent(
                     Text("Close")
                 }
             },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Spinner(
-                        label = "Security Event",
-                        value = securityEvent,
-                        values = SecurityEvent.entries,
-                        render = { it.name },
-                        onSelectionChanged = { securityEvent = it },
-                    )
-                    OutlinedTextField(
-                        value = techInfo,
-                        label = {
-                            Text("Tech Info (Optional)")
-                        },
-                        onValueChange = { newValue ->
-                            techInfo = newValue
-                        },
-                    )
-                    Text(securityEvent.description)
-                }
-            },
-        )
+        ) {
+            Spinner(
+                modifier = Modifier.fillMaxWidth(),
+                label = "Security Event",
+                value = securityEvent,
+                values = SecurityEvent.entries,
+                render = { it.name },
+                onSelectionChanged = { securityEvent = it },
+            )
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = techInfo,
+                label = {
+                    Text("Tech Info (Optional)")
+                },
+                onValueChange = { newValue ->
+                    techInfo = newValue
+                },
+            )
+            Text(
+                text = securityEvent.description,
+                style = MaterialTheme.typography.body2,
+                color = mutedForegroundColor(),
+            )
+        }
     }
 }
