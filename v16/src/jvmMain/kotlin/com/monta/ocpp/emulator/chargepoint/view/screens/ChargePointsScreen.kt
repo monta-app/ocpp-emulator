@@ -37,7 +37,8 @@ import com.monta.ocpp.emulator.chargepoint.view.components.ChargePointTable
 import com.monta.ocpp.emulator.common.components.TextTooltip
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
+import com.monta.ocpp.emulator.common.view.Navigator
+import com.monta.ocpp.emulator.common.view.Screen
 import com.monta.ocpp.emulator.interceptor.view.BasePage
 import kotlinx.coroutines.flow.collectLatest
 
@@ -128,7 +129,7 @@ private fun ChargePointsListView(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    val screenViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
     val chargePointRepository: ChargePointRepository by injectAnywhere()
 
     val chargePoints by produceState(initialValue = listOf<ChargePointDAO>()) {
@@ -146,8 +147,8 @@ private fun ChargePointsListView(
     ChargePointTable(
         chargePoints = filteredChargePoints,
         onRowClick = { chargePoint ->
-            screenViewModel.navigateTo(
-                NavigationViewModel.Screen.ChargePoint(
+            navigator.navigate(
+                Screen.ChargePoint(
                     chargePointId = chargePoint.idValue,
                 ),
             )
@@ -169,7 +170,7 @@ private fun ChargePointDAO.matchesSearchQuery(
 
 @Composable
 private fun RowScope.AddChargePointButton() {
-    val screenViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
 
     TextTooltip("Add a new charge point") {
         Button(
@@ -180,8 +181,8 @@ private fun RowScope.AddChargePointButton() {
                     end = 8.dp,
                 ),
             onClick = {
-                screenViewModel.navigateTo(
-                    NavigationViewModel.Screen.CreateChargePoint(),
+                navigator.navigate(
+                    Screen.CreateChargePoint(),
                 )
             },
         ) {

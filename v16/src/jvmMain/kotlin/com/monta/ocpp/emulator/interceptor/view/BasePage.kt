@@ -29,7 +29,8 @@ import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
 import com.monta.ocpp.emulator.common.components.MontaIcon
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
+import com.monta.ocpp.emulator.common.view.Navigator
+import com.monta.ocpp.emulator.common.view.Screen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,7 +44,7 @@ fun BasePage(
     floatingActionButton: @Composable () -> Unit = {},
     content: @Composable BoxScope.() -> Unit,
 ) {
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
     val chargePointRepository: ChargePointRepository by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()
 
@@ -61,7 +62,7 @@ fun BasePage(
             BottomAppBar {
                 IconButton(
                     onClick = {
-                        navigationViewModel.chargePointsScreen()
+                        navigator.navigateTopLevel(Screen.ChargePoints)
                     },
                 ) {
                     MontaIcon(
@@ -75,7 +76,7 @@ fun BasePage(
                         val connectedChargePoints = chargePointRepository.getConnectedChargePoints().map { it.idValue }
 
                         val lastActive =
-                            navigationViewModel.lastActiveChargePointId ?: connectedChargePoints.firstOrNull()
+                            navigator.currentChargePointId ?: connectedChargePoints.firstOrNull()
 
                         if (connectedChargePoints.isEmpty()) {
                             coroutineScope.launch {
@@ -86,12 +87,16 @@ fun BasePage(
                             }
                         } else {
                             if (lastActive in connectedChargePoints && lastActive != null) {
-                                navigationViewModel.currentScreen = NavigationViewModel.Screen.ChargePoint(
-                                    chargePointId = lastActive,
+                                navigator.navigateTopLevel(
+                                    Screen.ChargePoint(
+                                        chargePointId = lastActive,
+                                    ),
                                 )
                             } else {
-                                navigationViewModel.currentScreen = NavigationViewModel.Screen.ChargePoint(
-                                    chargePointId = connectedChargePoints.first(),
+                                navigator.navigateTopLevel(
+                                    Screen.ChargePoint(
+                                        chargePointId = connectedChargePoints.first(),
+                                    ),
                                 )
                             }
                         }
@@ -105,7 +110,7 @@ fun BasePage(
                 }
                 IconButton(
                     onClick = {
-                        navigationViewModel.currentScreen = NavigationViewModel.Screen.Vehicles
+                        navigator.navigateTopLevel(Screen.Vehicles)
                     },
                 ) {
                     MontaIcon(

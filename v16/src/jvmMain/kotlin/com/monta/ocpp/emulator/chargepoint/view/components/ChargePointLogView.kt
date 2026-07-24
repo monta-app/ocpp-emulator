@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
+import com.monta.ocpp.emulator.common.view.Navigator
 import com.monta.ocpp.emulator.logger.ChargePointLogger
 import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ fun chargePointLogComponent(
 ) {
     val appThemeViewModel: AppThemeViewModel by injectAnywhere()
 
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -60,7 +60,7 @@ fun chargePointLogComponent(
                         if (
                             !lazyListState.isScrollInProgress &&
                             logItems.size != 0 &&
-                            navigationViewModel.windowHasFocus
+                            navigator.windowHasFocus
                         ) {
                             try {
                                 lazyListState.scrollToItem(logItems.size - 1)

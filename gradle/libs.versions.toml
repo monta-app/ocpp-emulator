@@ -1,6 +1,7 @@
 [versions]
 kotlin = "2.4.10"
 compose = "1.11.1"
+androidx-navigation = "2.9.2"
 ktlint = "14.2.0"
 kover = "0.9.9"
 junit = "6.1.2"
@@ -82,6 +83,9 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 # accessor for it is deprecated and asks for an explicit pin like this one.
 compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
 
+# Navigation (JetBrains multiplatform port of Jetpack Navigation Compose)
+androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
+
 # OCPP Libraries
 ocpp-core = { module = "com.github.monta-app.library-ocpp:ocpp-core", version.ref = "ocpp-library" }
 ocpp-v16 = { module = "com.github.monta-app.library-ocpp:ocpp-v16", version.ref = "ocpp-library" }
@@ -110,6 +114,7 @@ exposed = ["exposed-core", "exposed-dao", "exposed-jdbc", "exposed-java-time"]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

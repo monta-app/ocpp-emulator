@@ -1,11 +1,10 @@
 package com.monta.ocpp.emulator.chargepoint.view.createchargepoint
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -15,6 +14,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,7 +38,6 @@ import com.monta.ocpp.emulator.common.components.getButtonStateColor
 import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.model.UrlChoice
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.annotation.Factory
@@ -47,6 +46,7 @@ import org.koin.core.annotation.Factory
 fun ChargePointForm(
     viewModel: ChargePointFormViewModel,
     chargePoint: ChargePointDAO?,
+    onClose: () -> Unit,
 ) {
     chargePoint?.let {
         if (!viewModel.initialized) {
@@ -56,33 +56,28 @@ fun ChargePointForm(
             viewModel.isUpdating = true
         }
     }
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .verticalScroll(
-                state = rememberScrollState(),
-            ),
+    Card(
+        modifier = getCardStyle()
+            .width(440.dp),
+        shape = RoundedCornerShape(20.dp),
     ) {
-        Card(
-            modifier = getCardStyle()
-                .align(Alignment.Center)
-                .padding(
-                    top = 32.dp,
-                    bottom = 32.dp,
-                ),
-            shape = RoundedCornerShape(20.dp),
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
+            Text(
+                text = (if (viewModel.isUpdating) "Edit" else "Create") + " Charge Point",
+                style = MaterialTheme.typography.h5,
+                modifier = Modifier.padding(8.dp)
+                    .fillMaxWidth(),
+            )
             Column(
-                modifier = Modifier.padding(16.dp)
-                    .width(400.dp),
+                modifier = Modifier.heightIn(max = 520.dp)
+                    .verticalScroll(
+                        state = rememberScrollState(),
+                    ),
                 verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
-                Text(
-                    text = (if (viewModel.isUpdating) "Edit" else "Create") + " Charge Point",
-                    style = MaterialTheme.typography.h5,
-                    modifier = Modifier.padding(8.dp)
-                        .align(Alignment.Start)
-                        .fillMaxWidth(),
-                )
                 FormInput(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Charge Point Name",
@@ -267,11 +262,21 @@ fun ChargePointForm(
                         )
                     }
                 }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedButton(
+                    onClick = onClose,
+                ) {
+                    Text("Cancel")
+                }
                 Button(
                     enabled = viewModel.formErrors.isEmpty(),
-                    modifier = Modifier.align(Alignment.Start),
                     onClick = {
-                        connect(viewModel)
+                        connect(viewModel, onClose)
                     },
                 ) {
                     if (viewModel.isUpdating) {
@@ -287,8 +292,8 @@ fun ChargePointForm(
 
 private fun connect(
     viewModel: ChargePointFormViewModel,
+    onClose: () -> Unit,
 ) {
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
     val chargePointService: ChargePointService by injectAnywhere()
 
     if (viewModel.validateForm()) {
@@ -307,9 +312,7 @@ private fun connect(
         meterType = viewModel.form.meterType,
     )
 
-    navigationViewModel.navigateTo(
-        screen = NavigationViewModel.Screen.ChargePoints,
-    )
+    onClose()
 }
 
 @Factory

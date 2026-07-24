@@ -84,7 +84,7 @@ import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.PrettyYamlFormatter
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
+import com.monta.ocpp.emulator.common.view.Navigator
 import com.monta.ocpp.emulator.logger.ChargePointLogger
 import com.monta.ocpp.emulator.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.v16.util.MeterValuesGenerator
@@ -118,12 +118,12 @@ fun ApplicationScope.SendMessageWindow() {
     }
 
     val appThemeViewModel: AppThemeViewModel by injectAnywhere()
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
     val chargePointService: ChargePointService by injectAnywhere()
     val previousMessagesService: PreviousMessagesService by injectAnywhere()
 
     val chargePoint = chargePointService.getById(
-        navigationViewModel.getChargePointId(),
+        navigator.requireChargePointId(),
     )
     sendMessageWindowViewModel.previousMessages.value = previousMessagesService.getAllOfMessageType(
         sendMessageWindowViewModel.messageType?.name ?: "",
@@ -197,7 +197,7 @@ fun ApplicationScope.SendMessageWindow() {
                                                 ),
                                             ),
                                         )
-                                        ChargePointLogger.getLogger(navigationViewModel.getChargePointId()).info(
+                                        ChargePointLogger.getLogger(navigator.requireChargePointId()).info(
                                             0,
                                             "Sent message: ${sendMessageWindowViewModel.messageType!!.name}",
                                         )
@@ -254,11 +254,11 @@ fun ApplicationScope.SendMessageWindow() {
 fun defaultPayload(
     messageType: Feature,
 ): String {
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
     val chargePointService: ChargePointService by injectAnywhere()
 
     val chargePoint = chargePointService.getById(
-        navigationViewModel.getChargePointId(),
+        navigator.requireChargePointId(),
     )
 
     val transaction = transaction {

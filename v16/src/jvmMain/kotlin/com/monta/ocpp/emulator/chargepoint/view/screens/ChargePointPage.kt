@@ -29,7 +29,8 @@ import com.monta.ocpp.emulator.common.components.DualColumView
 import com.monta.ocpp.emulator.common.components.InterceptionToggle
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.NavigationViewModel
+import com.monta.ocpp.emulator.common.view.Navigator
+import com.monta.ocpp.emulator.common.view.Screen
 import com.monta.ocpp.emulator.interceptor.view.BasePage
 import com.monta.ocpp.emulator.interceptor.view.InterceptorConfigComponent
 import com.monta.ocpp.emulator.interceptor.view.NavShape
@@ -79,7 +80,7 @@ private fun innerChargePointPage(
     chargePoint: ChargePointDAO,
     connectedChargePoints: List<ChargePointDAO>,
 ) {
-    val navigationViewModel: NavigationViewModel by injectAnywhere()
+    val navigator: Navigator by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()
 
     val scaffoldState = rememberScaffoldState(
@@ -113,7 +114,7 @@ private fun innerChargePointPage(
                 },
                 navigationIcon = {
                     BackButton {
-                        navigationViewModel.chargePointsScreen()
+                        navigator.back()
                     }
                 },
                 actions = {
@@ -165,8 +166,8 @@ private fun innerChargePointPage(
                         selected = idx == selectedTab,
                         onClick = {
                             selectedTab = idx
-                            navigationViewModel.navigateTo(
-                                NavigationViewModel.Screen.ChargePoint(
+                            navigator.switchChargePoint(
+                                Screen.ChargePoint(
                                     chargePointId = chargePoint.idValue,
                                 ),
                             )

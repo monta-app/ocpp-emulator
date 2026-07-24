@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.koin.compiler)
 }
@@ -22,6 +23,9 @@ kotlin {
 
             // Material Icons
             implementation(libs.compose.material.icons.extended)
+
+            // Navigation (type-safe routes are @Serializable, hence the serialization plugin above)
+            implementation(libs.androidx.navigation.compose)
 
             // OCPP Libs
             implementation(libs.ocpp.core)
