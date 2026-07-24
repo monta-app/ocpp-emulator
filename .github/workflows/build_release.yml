@@ -31,7 +31,7 @@ jobs:
             target: ubuntu
             folder: deb
             artifact: ocppemulator_
-            artifact_ext: -1_amd64.deb
+            artifact_ext: _amd64.deb
           - os: windows-latest
             target: windows
             folder: exe
