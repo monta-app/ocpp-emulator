@@ -22,7 +22,10 @@ kotlin {
             implementation(compose.desktop.currentOs)
 
             // Material Icons
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.material.icons.extended)
+
+            // Compose resources (classpath SVG loading)
+            implementation(libs.compose.components.resources)
 
             // Coroutines
             implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))

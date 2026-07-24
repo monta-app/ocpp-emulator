@@ -21,7 +21,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
 
             // Material Icons
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.material.icons.extended)
 
             // OCPP Libs
             implementation(libs.ocpp.core)
