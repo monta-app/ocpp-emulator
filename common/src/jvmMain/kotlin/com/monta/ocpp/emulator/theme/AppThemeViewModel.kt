@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import com.monta.ocpp.emulator.common.components.toColor
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.configuration.AppConfigService
 import com.monta.ocpp.emulator.logger.ChargePointLogger
@@ -49,27 +48,35 @@ class AppThemeViewModel(
     @Composable
     fun getColors(): Colors {
         return if (isDarkMode()) {
+            // On dark surfaces the signature Primary Blue reads too dark for
+            // text/accents, so we lead with Light Blue and keep Primary Blue as
+            // the variant. Both stay in the cold family, so the palette holds.
             darkColors(
-                primary = "#FF5252".toColor(),
-                primaryVariant = "#FF3838".toColor(),
-                secondary = "#5E72E4".toColor(),
-                secondaryVariant = "#4255D9".toColor(),
-                onPrimary = Color.White,
-                onSecondary = Color.White,
-                onBackground = Color.White,
-                onSurface = Color.White,
-                onError = Color.White,
+                primary = MontaColors.LightBlue,
+                primaryVariant = MontaColors.PrimaryBlue,
+                secondary = MontaColors.LightBlue,
+                secondaryVariant = MontaColors.PrimaryBlue,
+                onPrimary = MontaColors.White,
+                onSecondary = MontaColors.White,
+                onBackground = MontaColors.White,
+                onSurface = MontaColors.White,
+                onError = MontaColors.White,
             )
         } else {
+            // Primary Blue leads (top app bar, buttons); Light Blue is the
+            // secondary accent used sparingly.
             lightColors(
-                primary = "#FF5252".toColor(),
-                secondary = "#5e72e4".toColor(),
-                background = "#E3E6E9".toColor(),
-                onPrimary = Color.White,
-                onSecondary = Color.White,
-                onBackground = Color.Black,
-                onSurface = Color.Black,
-                onError = Color.White,
+                primary = MontaColors.PrimaryBlue,
+                primaryVariant = MontaColors.DarkBlue,
+                secondary = MontaColors.LightBlue,
+                secondaryVariant = MontaColors.PrimaryBlue,
+                background = MontaColors.GreyBackground,
+                surface = MontaColors.White,
+                onPrimary = MontaColors.White,
+                onSecondary = MontaColors.White,
+                onBackground = MontaColors.Black,
+                onSurface = MontaColors.Black,
+                onError = MontaColors.White,
             )
         }
     }
