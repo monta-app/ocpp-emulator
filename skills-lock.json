@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "compose-multiplatform-patterns": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/compose-multiplatform-patterns/SKILL.md",
+      "computedHash": "fa92e0b644061d081904be32445e158d81a0bdf3b1dc95ddedb2e53d69e95609"
+    }
+  }
+}
