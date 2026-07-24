@@ -9,24 +9,22 @@ import com.monta.ocpp.emulator.user.AnalyticsHelper
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
+import org.koin.core.annotation.KoinApplication
 import org.koin.core.logger.Level
-import org.koin.ksp.generated.module
-import org.koin.mp.KoinPlatform
+import org.koin.plugin.module.dsl.startKoin
 import java.util.TimeZone
 
 private val logger = KotlinLogging.logger {}
 
+@KoinApplication(modules = [CommonKoinModule::class, MontaKoinModule::class])
+object EmulatorApp
+
 fun main() {
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
     try {
-        KoinPlatform.startKoin(
-            listOf(
-                CommonKoinModule().module,
-                MontaKoinModule().module,
-                MainModule.module,
-            ),
-            Level.INFO,
-        )
+        startKoin<EmulatorApp> {
+            printLogger(Level.INFO)
+        }
 
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {

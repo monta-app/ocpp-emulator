@@ -46,11 +46,11 @@ fun <T> createDatabaseListener(
         }
     }
 
-    logger.debug("hook started entityClass=${entityClass::class.java.name}, id=$id")
+    logger.debug { "hook started entityClass=${entityClass::class.java.name}, id=$id" }
     EntityHook.subscribe(listener)
 
     awaitClose {
-        logger.debug("closing hook entityClass=${entityClass::class.java.name}, id=$id")
+        logger.debug { "closing hook entityClass=${entityClass::class.java.name}, id=$id" }
         EntityHook.unsubscribe(listener)
     }
 }

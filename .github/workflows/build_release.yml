@@ -8,7 +8,7 @@ on:
 jobs:
   version:
     name: Extract Version
-    runs-on: ubuntu-latest
+    runs-on: linux-x64
     timeout-minutes: 5
     steps:
       - name: Get Version
@@ -42,12 +42,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '25'
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v3
       - name: Build
@@ -67,7 +67,7 @@ jobs:
   create-change-log:
     needs: build
     name: Create and publish change log
-    runs-on: ubuntu-latest
+    runs-on: linux-x64
     timeout-minutes: 5
     steps:
       - name: Run changelog cli action

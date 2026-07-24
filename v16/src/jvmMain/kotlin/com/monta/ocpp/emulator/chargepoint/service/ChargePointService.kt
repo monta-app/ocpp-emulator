@@ -2,6 +2,7 @@ package com.monta.ocpp.emulator.chargepoint.service
 
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.exception.ChargePointNotFoundException
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.inject.Singleton
@@ -36,6 +37,7 @@ class ChargePointService(
         firmware: String,
         maxKw: Double,
         connectorCount: Int,
+        meterType: MeterType,
     ): ChargePointDAO {
         return transaction {
             // Initialize our charge point
@@ -47,6 +49,7 @@ class ChargePointService(
                 apiUrl = apiUrl,
                 firmware = firmware,
                 maxKw = maxKw,
+                meterType = meterType,
             )
             // Initialize our connectors
             for (connectorId in 1..connectorCount) {

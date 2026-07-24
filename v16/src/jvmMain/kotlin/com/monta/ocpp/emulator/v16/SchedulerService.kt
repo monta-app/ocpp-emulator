@@ -16,13 +16,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.yield
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.koin.core.annotation.Factory
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
-@Factory
 class SchedulerService(
     private val chargePointId: Long,
 ) {
@@ -173,6 +171,7 @@ class SchedulerService(
                             endMeter = transaction.endMeter,
                             watts = watts,
                             numberPhases = vehicleNumberPhases,
+                            meterType = chargePoint.meterType,
                         ),
                     ),
                 ),

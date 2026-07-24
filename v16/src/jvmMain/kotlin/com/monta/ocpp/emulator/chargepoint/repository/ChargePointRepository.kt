@@ -2,6 +2,7 @@ package com.monta.ocpp.emulator.chargepoint.repository
 
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointTable
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.common.createDatabaseListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ class ChargePointRepository {
         apiUrl: String,
         firmware: String,
         maxKw: Double,
+        meterType: MeterType,
     ): ChargePointDAO {
         val chargePoint = ChargePointDAO.find {
             ChargePointTable.identity eq identity
@@ -32,6 +34,7 @@ class ChargePointRepository {
             chargePoint.apiUrl = apiUrl
             chargePoint.firmware = firmware
             chargePoint.maxKw = maxKw
+            chargePoint.meterType = meterType
             return chargePoint
         }
 
@@ -43,6 +46,7 @@ class ChargePointRepository {
             apiUrl = apiUrl,
             firmware = firmware,
             maxKw = maxKw,
+            meterType = meterType,
         )
     }
 

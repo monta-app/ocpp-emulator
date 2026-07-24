@@ -37,7 +37,7 @@ class VehicleLogger {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.error(message)
+        logger.error { message }
         log(Level.Error, message, context)
     }
 
@@ -45,7 +45,7 @@ class VehicleLogger {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.warn(message)
+        logger.warn { message }
         log(Level.Warn, message, context)
     }
 
@@ -53,7 +53,7 @@ class VehicleLogger {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.info(message)
+        logger.info { message }
         log(Level.Info, message, context)
     }
 
@@ -61,7 +61,7 @@ class VehicleLogger {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.debug(message)
+        logger.debug { message }
         log(Level.Debug, message, context)
     }
 
@@ -69,7 +69,7 @@ class VehicleLogger {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.trace(message)
+        logger.trace { message }
         log(Level.Trace, message, context)
     }
 

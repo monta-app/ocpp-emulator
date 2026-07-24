@@ -5,6 +5,7 @@ import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.Reason
 import com.monta.library.ocpp.v16.core.StartTransactionConfirmation
+import com.monta.ocpp.emulator.chargepoint.model.MeterType
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointconnector.model.CarState
 import com.monta.ocpp.emulator.chargepointtransaction.service.ChargePointTransactionService
@@ -152,6 +153,12 @@ private suspend fun ChargePointConnectorDAO.onStartSuccess(
             // The last notification sent should be calculated on the connector state
             calculateState(),
         )
+        if (getChargePoint().meterType == MeterType.OcppHighPrecision) {
+            sendHighPrecisionMeterStart(
+                sessionInfo = this.sessionInfo,
+                transaction = chargePointTransaction,
+            )
+        }
     } catch (exception: Exception) {
         logger.warn(exception) { "Failed to start charge" }
     }

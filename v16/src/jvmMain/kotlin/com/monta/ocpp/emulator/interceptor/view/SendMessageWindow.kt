@@ -293,6 +293,7 @@ fun defaultPayload(
                         startTime = transaction?.startTime,
                         endMeter = transaction?.endMeter ?: 0.0,
                         watts = chargePoint.getConnector(transaction?.connectorPosition ?: 1).kw * 1000,
+                        meterType = chargePoint.meterType,
                     ),
                 ),
             ),

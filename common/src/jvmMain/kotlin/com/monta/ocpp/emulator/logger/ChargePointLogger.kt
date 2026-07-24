@@ -51,7 +51,7 @@ class ChargePointLogger private constructor() {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.error("[$connectorId] $message")
+        logger.error { "[$connectorId] $message" }
         log(Level.Error, message, context, connectorId)
     }
 
@@ -60,7 +60,7 @@ class ChargePointLogger private constructor() {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.warn("[$connectorId] $message")
+        logger.warn { "[$connectorId] $message" }
         log(Level.Warn, message, context, connectorId)
     }
 
@@ -69,7 +69,7 @@ class ChargePointLogger private constructor() {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.info("[$connectorId] $message")
+        logger.info { "[$connectorId] $message" }
         log(Level.Info, message, context, connectorId)
     }
 
@@ -78,7 +78,7 @@ class ChargePointLogger private constructor() {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.debug("[$connectorId] $message")
+        logger.debug { "[$connectorId] $message" }
         log(Level.Debug, message, context, connectorId)
     }
 
@@ -87,7 +87,7 @@ class ChargePointLogger private constructor() {
         message: String,
         context: Map<String, Any?>? = null,
     ) {
-        logger.trace("[$connectorId] $message")
+        logger.trace { "[$connectorId] $message" }
         log(Level.Trace, message, context, connectorId)
     }
 
