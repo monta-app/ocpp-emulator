@@ -179,15 +179,19 @@ class ChargePointConnection(
         ),
     ) {
         val chargePoint = chargePointService.getById(chargePoint.idValue)
-        ocppClientV16.sendMessage(
-            chargePoint.identity,
-            StatusNotificationRequest(
-                connectorId = 0,
-                errorCode = chargePoint.errorCode,
-                info = "Disconnecting",
-                status = ChargePointStatus.Unavailable,
-            ),
-        )
+        try {
+            ocppClientV16.sendMessage(
+                chargePoint.identity,
+                StatusNotificationRequest(
+                    connectorId = 0,
+                    errorCode = chargePoint.errorCode,
+                    info = "Disconnecting",
+                    status = ChargePointStatus.Unavailable,
+                ),
+            )
+        } catch (exception: Exception) {
+            logger.warn(exception) { "Failed to send disconnect status notification for ${chargePoint.identity}, session may already be closed" }
+        }
         chargePointService.update(chargePoint) {
             this.status = ChargePointStatus.Unavailable
             this.connected = false
