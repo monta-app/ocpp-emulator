@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -32,8 +31,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
+import com.monta.ocpp.emulator.chargepoint.model.ChargePointMode
+import com.monta.ocpp.emulator.common.components.Badge
+import com.monta.ocpp.emulator.common.components.BadgeVariant
 import com.monta.ocpp.emulator.common.components.MontaIcon
-import com.monta.ocpp.emulator.common.components.MontaStateIcon
 import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.components.toKilowattString
 import com.monta.ocpp.emulator.common.idValue
@@ -180,12 +181,15 @@ private fun TableRow(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        Text(
-            text = chargePoint.ocppVersion.versionNumber(),
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
+        Row(
             modifier = Modifier.width(ocppColumnWidth),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Badge(
+                text = chargePoint.ocppVersion.versionNumber(),
+                variant = BadgeVariant.Outline,
+            )
+        }
         Text(
             text = UrlChoice.fromUrl(chargePoint.ocppUrl).toString(),
             style = MaterialTheme.typography.body2,
@@ -193,13 +197,18 @@ private fun TableRow(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(0.7f),
         )
-        Text(
-            text = chargePoint.operationMode.name,
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        Row(
             modifier = Modifier.weight(0.7f),
-        )
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Badge(
+                text = chargePoint.operationMode.name,
+                variant = when (chargePoint.operationMode) {
+                    ChargePointMode.Auto -> BadgeVariant.Secondary
+                    ChargePointMode.Manual -> BadgeVariant.Neutral
+                },
+            )
+        }
         Text(
             text = chargePoint.maxKw.toKilowattString(),
             style = MaterialTheme.typography.body2,
@@ -210,22 +219,19 @@ private fun TableRow(
             modifier = Modifier.width(statusColumnWidth),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MontaStateIcon(
-                state = chargePoint.connected,
-                onState = "cloud",
-                offState = "cloud_off",
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (chargePoint.connected) "Connected" else "Offline",
-                style = MaterialTheme.typography.body2,
-                color = if (chargePoint.connected) {
-                    MaterialTheme.colors.onSurface
-                } else {
-                    MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
-                },
-                maxLines = 1,
-            )
+            if (chargePoint.connected) {
+                Badge(
+                    text = "Connected",
+                    iconName = "cloud",
+                    variant = BadgeVariant.Success,
+                )
+            } else {
+                Badge(
+                    text = "Offline",
+                    iconName = "cloud_off",
+                    variant = BadgeVariant.Neutral,
+                )
+            }
         }
         Row(
             modifier = Modifier.width(actionsColumnWidth),
