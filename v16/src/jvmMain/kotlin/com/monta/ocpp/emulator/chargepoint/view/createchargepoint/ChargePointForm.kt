@@ -39,8 +39,8 @@ import com.monta.ocpp.emulator.common.components.getCardStyle
 import com.monta.ocpp.emulator.common.model.UrlChoice
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.view.NavigationViewModel
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.annotation.Factory
 
 @Composable
