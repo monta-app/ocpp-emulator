@@ -19,7 +19,7 @@ qrcodegen = "1.8.0"
 semver = "2.1.0"
 bouncy-castle = "1.83"
 hikaricp = "7.0.2"
-ocpp-library = "1.0.8"
+ocpp-library = "2.0.0"
 
 [libraries]
 # Coroutines
