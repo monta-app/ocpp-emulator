@@ -4,9 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
@@ -19,12 +16,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.Reason
+import com.monta.ocpp.emulator.chargepoint.view.components.StatusBadge
 import com.monta.ocpp.emulator.chargepoint.view.components.authorizeComponent
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepointconnector.service.ChargePointConnectorService
+import com.monta.ocpp.emulator.common.components.CardDivider
+import com.monta.ocpp.emulator.common.components.DetailRow
+import com.monta.ocpp.emulator.common.components.OutlineButton
+import com.monta.ocpp.emulator.common.components.SectionCard
+import com.monta.ocpp.emulator.common.components.SectionLabel
 import com.monta.ocpp.emulator.common.components.Spinner
+import com.monta.ocpp.emulator.common.components.mutedForegroundColor
 import com.monta.ocpp.emulator.common.components.toAmpString
 import com.monta.ocpp.emulator.common.components.toKilowattString
 import com.monta.ocpp.emulator.common.components.toReadable
@@ -73,74 +78,130 @@ fun ConnectorCard(
         connector.activeTransaction
     }
 
-    Column(
-        modifier = Modifier.padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    SectionCard(
+        modifier = Modifier.fillMaxWidth(),
     ) {
+        // Header — connector number on the left, RFID authorize action on the right.
         Box(
-            modifier = Modifier.fillMaxWidth()
-                .padding(bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
                 text = "Connector ${connector.position}",
-                style = MaterialTheme.typography.h5,
+                style = MaterialTheme.typography.h6,
+                fontWeight = FontWeight.SemiBold,
             )
             authorizeComponent(connector)
         }
-        Text("Status: ${connector.status}")
-        Text("Status At: ${connector.statusAt.toReadable()}")
-        Text("Meter: ${connector.meterWh.wattToKilowattString()} kWh")
-        Text("Locked: ${connector.locked}")
-        if (activeTransaction != null) {
-            Text("Active Transaction: ${activeTransaction.externalId}")
-        }
-        Divider()
-        Spinner(
-            modifier = Modifier.fillMaxWidth(),
-            label = "Vehicle number of phases",
-            value = connector.vehicleNumberPhases,
-            values = listOf(1, 2, 3),
-            render = { it.toString() },
-        ) { newValue ->
-            launchThread {
-                connector.setNumberPhases(newValue)
+
+        CardDivider()
+
+        // Live state.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            DetailRow(
+                label = "Status",
+            ) {
+                StatusBadge(
+                    status = connector.status,
+                )
+            }
+            DetailRow(
+                label = "Status changed",
+                value = connector.statusAt.toReadable(),
+            )
+            DetailRow(
+                label = "Meter",
+                value = "${connector.meterWh.wattToKilowattString()} kWh",
+            )
+            DetailRow(
+                label = "Locked",
+                value = if (connector.locked) "Yes" else "No",
+            )
+            if (activeTransaction != null) {
+                DetailRow(
+                    label = "Active transaction",
+                    value = "${activeTransaction.externalId}",
+                )
             }
         }
-        Text(text = "Vehicle max amps per phase: ${connector.vehicleMaxAmpsPerPhase.toAmpString()}A")
-        val maxValueRange = ceil(connector.maxKw * 1000 / 230).toFloat()
-        Slider(
-            value = maxAmpsPerPhase,
-            valueRange = 0F..maxValueRange,
-            onValueChange = { value ->
-                maxAmpsPerPhase = (value * 10).roundToInt() / 10F
-            },
-            onValueChangeFinished = {
-                launchThread {
-                    connector.setMaxVehicleRate(
-                        amps = maxAmpsPerPhase.toDouble(),
-                    )
-                }
-            },
-        )
-        Divider()
-        if (connector.activeTransactionId != null) {
-            Text("Current charging speed: ${connector.kw.toKilowattString()}kW")
-            Button(
+
+        CardDivider()
+
+        // Vehicle charging parameters.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Spinner(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = {
+                label = "Vehicle number of phases",
+                value = connector.vehicleNumberPhases,
+                values = listOf(1, 2, 3),
+                render = { it.toString() },
+            ) { newValue ->
+                launchThread {
+                    connector.setNumberPhases(newValue)
+                }
+            }
+            Text(
+                text = "Vehicle max amps per phase: ${connector.vehicleMaxAmpsPerPhase.toAmpString()} A",
+                style = MaterialTheme.typography.body2,
+                color = mutedForegroundColor(),
+            )
+            val maxValueRange = ceil(connector.maxKw * 1000 / 230).toFloat()
+            Slider(
+                value = maxAmpsPerPhase,
+                valueRange = 0F..maxValueRange,
+                onValueChange = { value ->
+                    maxAmpsPerPhase = (value * 10).roundToInt() / 10F
+                },
+                onValueChangeFinished = {
                     launchThread {
-                        connector.stopActiveTransactions(
-                            reason = Reason.Local,
-                            endReasonDescription = "Stopped by user",
+                        connector.setMaxVehicleRate(
+                            amps = maxAmpsPerPhase.toDouble(),
                         )
                     }
                 },
+            )
+        }
+
+        if (connector.activeTransactionId != null) {
+            CardDivider()
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text("Stop transaction")
+                DetailRow(
+                    label = "Charging speed",
+                    value = "${connector.kw.toKilowattString()} kW",
+                )
+                OutlineButton(
+                    onClick = {
+                        launchThread {
+                            connector.stopActiveTransactions(
+                                reason = Reason.Local,
+                                endReasonDescription = "Stopped by user",
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Stop transaction")
+                }
             }
         }
-        VehicleStateView(connector)
-        ConnectorStateView(connector)
+
+        CardDivider()
+
+        // Simulator controls.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            SectionLabel(
+                text = "Vehicle state",
+            )
+            VehicleStateView(connector)
+            ConnectorStateView(connector)
+        }
     }
 }

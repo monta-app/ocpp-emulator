@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
+import com.monta.ocpp.emulator.common.components.OutlineButton
+import com.monta.ocpp.emulator.common.components.PrimaryButton
 import com.monta.ocpp.emulator.common.components.Spinner
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.util.launchThread
@@ -37,7 +39,7 @@ fun ColumnScope.securityEventComponent(
         mutableStateOf("")
     }
 
-    Button(
+    OutlineButton(
         onClick = {
             expanded = true
         },
@@ -48,6 +50,7 @@ fun ColumnScope.securityEventComponent(
 
     if (expanded) {
         AlertDialog(
+            shape = RoundedCornerShape(12.dp),
             title = {
                 Text("Security Event")
             },
@@ -55,7 +58,7 @@ fun ColumnScope.securityEventComponent(
                 expanded = false
             },
             confirmButton = {
-                Button(
+                PrimaryButton(
                     onClick = {
                         launchThread {
                             val chargePointManager: ChargePointManager by injectAnywhere()
@@ -72,7 +75,7 @@ fun ColumnScope.securityEventComponent(
                 }
             },
             dismissButton = {
-                Button(
+                OutlineButton(
                     onClick = {
                         expanded = false
                     },

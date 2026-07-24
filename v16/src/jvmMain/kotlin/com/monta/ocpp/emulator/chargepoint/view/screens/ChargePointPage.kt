@@ -1,10 +1,14 @@
 package com.monta.ocpp.emulator.chargepoint.view.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
@@ -16,6 +20,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.repository.ChargePointRepository
@@ -25,8 +30,10 @@ import com.monta.ocpp.emulator.chargepoint.view.components.pbm.PbmDialog
 import com.monta.ocpp.emulator.chargepoint.view.components.pbm.pbmButtons
 import com.monta.ocpp.emulator.chargepointconnector.view.ConnectorList
 import com.monta.ocpp.emulator.common.components.BackButton
+import com.monta.ocpp.emulator.common.components.CardDivider
 import com.monta.ocpp.emulator.common.components.DualColumView
 import com.monta.ocpp.emulator.common.components.InterceptionToggle
+import com.monta.ocpp.emulator.common.components.mutedForegroundColor
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.view.Navigator
@@ -142,6 +149,21 @@ private fun innerChargePointPage(
         Column {
             ScrollableTabRow(
                 selectedTabIndex = selectedTab,
+                backgroundColor = MaterialTheme.colors.surface,
+                contentColor = MaterialTheme.colors.primary,
+                edgePadding = 12.dp,
+                indicator = { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        modifier = Modifier.tabIndicatorOffset(
+                            tabPositions[selectedTab.coerceIn(0, tabPositions.lastIndex)],
+                        ),
+                        height = 2.dp,
+                        color = MaterialTheme.colors.primary,
+                    )
+                },
+                divider = {
+                    CardDivider()
+                },
             ) {
                 if (connectedChargePoints.isEmpty()) {
                     Tab(
@@ -153,6 +175,8 @@ private fun innerChargePointPage(
                             }
                         },
                         selected = true,
+                        selectedContentColor = MaterialTheme.colors.onSurface,
+                        unselectedContentColor = mutedForegroundColor(),
                         onClick = {},
                     )
                 }
@@ -166,6 +190,8 @@ private fun innerChargePointPage(
                             }
                         },
                         selected = idx == selectedTab,
+                        selectedContentColor = MaterialTheme.colors.onSurface,
+                        unselectedContentColor = mutedForegroundColor(),
                         onClick = {
                             selectedTab = idx
                             navigator.switchChargePoint(
@@ -184,7 +210,11 @@ private fun innerChargePointPage(
                 },
                 secondColumn = {
                     pbmButtons()
-                    chargePointLogComponent(chargePoint.idValue)
+                    chargePointLogComponent(
+                        chargePointId = chargePoint.idValue,
+                        modifier = Modifier.weight(1F)
+                            .fillMaxWidth(),
+                    )
                 },
             )
             // Shows a dialog for the user to interact with PBM features

@@ -2,17 +2,15 @@ package com.monta.ocpp.emulator.chargepoint.view.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -34,8 +32,12 @@ import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.model.ChargePointMode
 import com.monta.ocpp.emulator.common.components.Badge
 import com.monta.ocpp.emulator.common.components.BadgeVariant
+import com.monta.ocpp.emulator.common.components.CardDivider
+import com.monta.ocpp.emulator.common.components.DestructiveButton
 import com.monta.ocpp.emulator.common.components.MontaIcon
-import com.monta.ocpp.emulator.common.components.getCardStyle
+import com.monta.ocpp.emulator.common.components.OutlineButton
+import com.monta.ocpp.emulator.common.components.SectionCard
+import com.monta.ocpp.emulator.common.components.mutedForegroundColor
 import com.monta.ocpp.emulator.common.components.toKilowattString
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.model.UrlChoice
@@ -60,27 +62,26 @@ fun ChargePointTable(
     chargePoints: List<ChargePointDAO>,
     onRowClick: (ChargePointDAO) -> Unit,
 ) {
-    Card(
-        modifier = getCardStyle()
-            .fillMaxWidth()
+    SectionCard(
+        modifier = Modifier.fillMaxWidth()
             .padding(8.dp),
+        contentPadding = PaddingValues(0.dp),
+        verticalArrangement = Arrangement.Top,
     ) {
-        Column {
-            TableHeader()
-            Divider()
-            LazyColumn {
-                items(
-                    items = chargePoints,
-                    key = { chargePoint -> chargePoint.idValue },
-                ) { chargePoint ->
-                    TableRow(
-                        chargePoint = chargePoint,
-                        onClick = {
-                            onRowClick(chargePoint)
-                        },
-                    )
-                    Divider()
-                }
+        TableHeader()
+        CardDivider()
+        LazyColumn {
+            items(
+                items = chargePoints,
+                key = { chargePoint -> chargePoint.idValue },
+            ) { chargePoint ->
+                TableRow(
+                    chargePoint = chargePoint,
+                    onClick = {
+                        onRowClick(chargePoint)
+                    },
+                )
+                CardDivider()
             }
         }
     }
@@ -141,7 +142,7 @@ private fun HeaderCell(
         text = text,
         style = MaterialTheme.typography.subtitle2,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+        color = mutedForegroundColor(),
         maxLines = 1,
         modifier = modifier,
     )
@@ -176,7 +177,7 @@ private fun TableRow(
             style = MaterialTheme.typography.body2.copy(
                 fontFamily = FontFamily.Monospace,
             ),
-            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+            color = mutedForegroundColor(),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -287,11 +288,12 @@ private fun ChargePointDeleteButton(
     }
 
     AlertDialog(
+        shape = RoundedCornerShape(12.dp),
         onDismissRequest = {
             alertVisible = false
         },
         dismissButton = {
-            Button(
+            OutlineButton(
                 onClick = {
                     alertVisible = false
                 },
@@ -300,7 +302,7 @@ private fun ChargePointDeleteButton(
             }
         },
         confirmButton = {
-            Button(
+            DestructiveButton(
                 onClick = {
                     launchThread {
                         val connectionManager: ConnectionManager by injectAnywhere()

@@ -2,6 +2,7 @@ package com.monta.ocpp.emulator.common.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,8 +14,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun DualColumView(
-    firstColumn: @Composable () -> Unit,
-    secondColumn: @Composable () -> Unit,
+    firstColumn: @Composable ColumnScope.() -> Unit,
+    secondColumn: @Composable ColumnScope.() -> Unit,
 ) {
     Row {
         Column(

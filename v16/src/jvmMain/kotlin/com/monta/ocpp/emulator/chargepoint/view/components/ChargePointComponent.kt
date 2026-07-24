@@ -2,14 +2,11 @@ package com.monta.ocpp.emulator.chargepoint.view.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,12 +16,22 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.view.components.security.securityEventComponent
-import com.monta.ocpp.emulator.common.components.getButtonStateColor
-import com.monta.ocpp.emulator.common.components.getCardStyle
+import com.monta.ocpp.emulator.common.components.Badge
+import com.monta.ocpp.emulator.common.components.BadgeVariant
+import com.monta.ocpp.emulator.common.components.CardDivider
+import com.monta.ocpp.emulator.common.components.DetailRow
+import com.monta.ocpp.emulator.common.components.SectionCard
+import com.monta.ocpp.emulator.common.components.SectionLabel
+import com.monta.ocpp.emulator.common.components.SegmentedToggle
+import com.monta.ocpp.emulator.common.components.TextTooltip
+import com.monta.ocpp.emulator.common.components.mutedForegroundColor
+import com.monta.ocpp.emulator.common.components.svgPainterResource
 import com.monta.ocpp.emulator.common.components.toReadable
 import com.monta.ocpp.emulator.v16.setStatus
 import kotlinx.coroutines.launch
@@ -36,72 +43,139 @@ fun chargePointComponent(
     chargePoint: ChargePointDAO,
 ) {
     val coroutineScope = rememberCoroutineScope()
-
     val clipboard = LocalClipboard.current
 
-    Card(
-        modifier = getCardStyle().fillMaxWidth(),
+    SectionCard(
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+        // Header — identity on the left, live state + connect toggle on the right.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top,
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(bottom = 8.dp),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterStart),
-                    text = "Charge Point",
-                    style = MaterialTheme.typography.h5,
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        painter = svgPainterResource("icons/ev-charger.svg"),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colors.primary,
+                    )
+                    Text(
+                        text = "Charge Point",
+                        style = MaterialTheme.typography.h6,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+                TextTooltip(
+                    text = "Click to copy identity",
+                ) {
+                    Text(
+                        text = chargePoint.identity,
+                        style = MaterialTheme.typography.body2,
+                        color = mutedForegroundColor(),
+                        modifier = Modifier.clickable {
+                            coroutineScope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(StringSelection(chargePoint.identity)),
+                                )
+                            }
+                        },
+                    )
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                StatusBadge(
+                    status = chargePoint.status,
                 )
                 ChargePointConnectionButton(
                     chargePoint = chargePoint,
-                    modifier = Modifier.align(Alignment.CenterEnd),
                 )
             }
-            Text(
-                "Identity: ${chargePoint.identity}",
-                modifier = Modifier.clickable {
+        }
+
+        CardDivider()
+
+        // Connection & health.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            DetailRow(
+                label = "Connection",
+            ) {
+                Badge(
+                    text = if (chargePoint.connected) "Connected" else "Disconnected",
+                    variant = if (chargePoint.connected) BadgeVariant.Success else BadgeVariant.Neutral,
+                )
+            }
+            DetailRow(
+                label = "Latency",
+                value = "${chargePoint.averageLatencyMillis} ms · ${chargePoint.messageCount} msgs",
+            )
+            DetailRow(
+                label = "Status changed",
+                value = chargePoint.statusAt.toReadable(),
+            )
+            DetailRow(
+                label = "Firmware",
+                value = chargePoint.firmware,
+            )
+            DetailRow(
+                label = "Firmware status",
+                value = "${chargePoint.firmwareStatus}",
+            )
+            DetailRow(
+                label = "Diagnostics",
+                value = "${chargePoint.diagnosticsStatus}",
+            )
+            if (chargePoint.errorCode != ChargePointErrorCode.NoError) {
+                DetailRow(
+                    label = "Error",
+                ) {
+                    Badge(
+                        text = "${chargePoint.errorCode}",
+                        variant = BadgeVariant.Destructive,
+                    )
+                }
+            }
+        }
+
+        CardDivider()
+
+        chargePointDisplayComponent(chargePoint)
+
+        CardDivider()
+
+        // Availability control.
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            SectionLabel(
+                text = "Availability",
+            )
+            SegmentedToggle(
+                options = listOf(ChargePointStatus.Available, ChargePointStatus.Unavailable),
+                selected = chargePoint.status,
+                label = { "$it" },
+                onSelect = { status ->
                     coroutineScope.launch {
-                        clipboard.setClipEntry(ClipEntry(StringSelection(chargePoint.identity)))
+                        chargePoint.setStatus(
+                            status = status,
+                        )
                     }
                 },
             )
-            Text("Latency: ${chargePoint.averageLatencyMillis} ms (${chargePoint.messageCount})")
-            Text("Status: ${chargePoint.status}")
-            Text("Status At: ${chargePoint.statusAt.toReadable()}")
-            Text("Firmware: ${chargePoint.firmware}")
-            Text("Firmware Status: ${chargePoint.firmwareStatus}")
-            Text("Diagnostic Status: ${chargePoint.diagnosticsStatus}")
-
-            chargePointDisplayComponent(chargePoint)
-
-            Row(
-                modifier = Modifier.padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                arrayOf(ChargePointStatus.Available, ChargePointStatus.Unavailable)
-                    .forEach { status ->
-                        Button(
-                            modifier = Modifier.weight(1F).fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = getButtonStateColor(status == chargePoint.status),
-                            ),
-                            onClick = {
-                                coroutineScope.launch {
-                                    chargePoint.setStatus(
-                                        status = status,
-                                    )
-                                }
-                            },
-                        ) {
-                            Text("$status")
-                        }
-                    }
-            }
-
-            securityEventComponent(chargePoint)
         }
+
+        securityEventComponent(chargePoint)
     }
 }

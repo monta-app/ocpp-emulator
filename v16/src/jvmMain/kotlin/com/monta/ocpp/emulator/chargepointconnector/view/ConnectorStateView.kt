@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepointconnector.entity.ChargePointConnectorDAO
+import com.monta.ocpp.emulator.common.components.OutlineButton
+import com.monta.ocpp.emulator.common.components.PrimaryButton
 import com.monta.ocpp.emulator.common.components.Spinner
 import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.v16.setStatus
@@ -51,7 +53,7 @@ fun ColumnScope.ConnectorStateView(
         mutableStateOf(connector.statusInfo)
     }
 
-    Button(
+    OutlineButton(
         onClick = {
             expanded = true
         },
@@ -63,6 +65,7 @@ fun ColumnScope.ConnectorStateView(
     if (expanded) {
         AlertDialog(
             modifier = Modifier.width(400.dp),
+            shape = RoundedCornerShape(12.dp),
             title = {
                 Text("Connector Status")
             },
@@ -70,7 +73,7 @@ fun ColumnScope.ConnectorStateView(
                 expanded = false
             },
             confirmButton = {
-                Button(
+                PrimaryButton(
                     onClick = {
                         launchThread {
                             connector.setStatus(
@@ -89,7 +92,7 @@ fun ColumnScope.ConnectorStateView(
                 }
             },
             dismissButton = {
-                Button(
+                OutlineButton(
                     onClick = {
                         expanded = false
                     },
