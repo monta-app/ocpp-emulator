@@ -36,6 +36,18 @@ class ChargePointTransactionService(
         }
     }
 
+    fun getActiveByExternalIdAndChargePoint(
+        externalId: Int,
+        chargePoint: ChargePointDAO,
+    ): ChargePointTransactionDAO? {
+        return transaction {
+            chargePointTransactionRepository.getActiveByExternalIdAndChargePointId(
+                externalId = externalId,
+                chargePointId = chargePoint.id.value,
+            )
+        }
+    }
+
     fun update(
         externalId: Int,
         block: ChargePointTransactionDAO.() -> Unit,

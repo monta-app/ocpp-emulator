@@ -222,26 +222,13 @@ class CoreClientHandler : CoreClientProfile.Listener {
     ): RemoteStopTransactionConfirmation {
         val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
 
-        val chargePointTransaction = chargePointTransactionService.getByExternalId(
+        val chargePointTransaction = chargePointTransactionService.getActiveByExternalIdAndChargePoint(
             externalId = request.transactionId,
+            chargePoint = chargePoint,
         )
 
         if (chargePointTransaction == null) {
-            GlobalLogger.error(chargePoint, "transaction not found for externalId ${request.transactionId}")
-            return RemoteStopTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected,
-            )
-        }
-
-        if (!chargePointTransaction.isOwner(chargePoint)) {
-            GlobalLogger.error(chargePointTransaction, "charge point doesn't own this transaction")
-            return RemoteStopTransactionConfirmation(
-                status = RemoteStartStopStatus.Rejected,
-            )
-        }
-
-        if (!chargePointTransaction.canStop()) {
-            GlobalLogger.error(chargePointTransaction, "charge already ended, rejecting")
+            GlobalLogger.error(chargePoint, "active transaction not found for externalId ${request.transactionId}")
             return RemoteStopTransactionConfirmation(
                 status = RemoteStartStopStatus.Rejected,
             )
