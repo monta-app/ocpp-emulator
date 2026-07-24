@@ -32,6 +32,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.view.Navigator
 import com.monta.ocpp.emulator.common.view.Screen
 import com.monta.ocpp.emulator.interceptor.view.BasePage
+import com.monta.ocpp.emulator.interceptor.view.BottomNavDestination
 import com.monta.ocpp.emulator.interceptor.view.InterceptorConfigComponent
 import com.monta.ocpp.emulator.interceptor.view.NavShape
 import com.monta.ocpp.emulator.v16.connection.ConnectionManager
@@ -100,6 +101,7 @@ private fun innerChargePointPage(
     }
 
     BasePage(
+        selectedDestination = BottomNavDestination.ChargePoint,
         scaffoldState = scaffoldState,
         drawerShape = NavShape(
             widthOffset = 320.dp,

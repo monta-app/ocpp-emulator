@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomAppBar
-import androidx.compose.material.IconButton
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,8 +34,17 @@ import com.monta.ocpp.emulator.common.view.Navigator
 import com.monta.ocpp.emulator.common.view.Screen
 import kotlinx.coroutines.launch
 
+/** Top-level destinations shown in the [BasePage] bottom navigation bar. */
+enum class BottomNavDestination {
+    ChargePoints,
+    ChargePoint,
+    Vehicles,
+}
+
 @Composable
 fun BasePage(
+    // Which bottom-navigation destination this page represents; drives the selected item.
+    selectedDestination: BottomNavDestination? = null,
     // State
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     // Drawer
@@ -59,19 +69,25 @@ fun BasePage(
         drawerContent = drawer,
         drawerShape = drawerShape,
         bottomBar = {
-            BottomAppBar {
-                IconButton(
+            BottomNavigation {
+                BottomNavigationItem(
+                    selected = selectedDestination == BottomNavDestination.ChargePoints,
                     onClick = {
                         navigator.navigateTopLevel(Screen.ChargePoints)
                     },
-                ) {
-                    MontaIcon(
-                        iconName = "database",
-                        contentDescription = "Charge Points",
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-                IconButton(
+                    icon = {
+                        MontaIcon(
+                            iconName = "ev-charger",
+                            contentDescription = "Charge Points",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    },
+                    label = {
+                        Text("Charge Points")
+                    },
+                )
+                BottomNavigationItem(
+                    selected = selectedDestination == BottomNavDestination.ChargePoint,
                     onClick = {
                         val connectedChargePoints = chargePointRepository.getConnectedChargePoints().map { it.idValue }
 
@@ -101,24 +117,33 @@ fun BasePage(
                             }
                         }
                     },
-                ) {
-                    MontaIcon(
-                        iconName = "ev_charger",
-                        contentDescription = "Connected Charge Points",
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-                IconButton(
+                    icon = {
+                        MontaIcon(
+                            iconName = "globe-check",
+                            contentDescription = "Connected Charge Points",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    },
+                    label = {
+                        Text("Connected")
+                    },
+                )
+                BottomNavigationItem(
+                    selected = selectedDestination == BottomNavDestination.Vehicles,
                     onClick = {
                         navigator.navigateTopLevel(Screen.Vehicles)
                     },
-                ) {
-                    MontaIcon(
-                        iconName = "ev_car",
-                        contentDescription = "Vehicles",
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
+                    icon = {
+                        MontaIcon(
+                            iconName = "car",
+                            contentDescription = "Vehicles",
+                            modifier = Modifier.size(24.dp),
+                        )
+                    },
+                    label = {
+                        Text("Vehicles")
+                    },
+                )
             }
         },
         floatingActionButton = floatingActionButton,

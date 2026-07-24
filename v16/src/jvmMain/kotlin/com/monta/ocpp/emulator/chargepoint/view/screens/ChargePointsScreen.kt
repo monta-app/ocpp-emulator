@@ -40,6 +40,7 @@ import com.monta.ocpp.emulator.common.util.injectAnywhere
 import com.monta.ocpp.emulator.common.view.Navigator
 import com.monta.ocpp.emulator.common.view.Screen
 import com.monta.ocpp.emulator.interceptor.view.BasePage
+import com.monta.ocpp.emulator.interceptor.view.BottomNavDestination
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -49,6 +50,7 @@ fun ChargePointsScreen() {
     }
 
     BasePage(
+        selectedDestination = BottomNavDestination.ChargePoints,
         topBar = {
             TopAppBar(
                 title = {
