@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 
@@ -57,7 +56,7 @@ fun RfidButton(
         contentPadding = PaddingValues(0.dp),
     ) {
         Icon(
-            painter = painterResource("icons/rfid.svg"),
+            painter = svgPainterResource("icons/rfid.svg"),
             contentDescription = "Authorize",
             modifier = Modifier
                 .padding(0.dp)

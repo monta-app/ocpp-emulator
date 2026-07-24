@@ -1,6 +1,7 @@
 package com.monta.ocpp.emulator.interceptor.view
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Card
@@ -217,16 +217,17 @@ fun ApplicationScope.SendMessageWindow() {
                                     border = BorderStroke(width = Dp.Hairline, color = Color.Gray),
                                 ) {
                                     Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                        ClickableText(
+                                        Text(
                                             text = AnnotatedString(previousMessage.message),
                                             style = TextStyle(
                                                 color = MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface),
                                                 fontFamily = FontFamily.Monospace,
                                             ),
-                                            modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
-                                            onClick = {
-                                                sendMessageWindowViewModel.messageYaml = previousMessage.message
-                                            },
+                                            modifier = Modifier.padding(12.dp)
+                                                .pointerHoverIcon(PointerIcon.Hand)
+                                                .clickable {
+                                                    sendMessageWindowViewModel.messageYaml = previousMessage.message
+                                                },
                                         )
                                         Button(
                                             modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),

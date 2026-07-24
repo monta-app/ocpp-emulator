@@ -21,7 +21,7 @@ class DatabaseService {
     fun connect() {
         try {
             transaction {
-                SchemaUtils.createMissingTablesAndColumns(
+                val tables = arrayOf(
                     AppConfigTable,
                     ChargePointTable,
                     ChargePointConnectorTable,
@@ -29,6 +29,10 @@ class DatabaseService {
                     TxDefault,
                     PreviousMessagesTable,
                 )
+                SchemaUtils.create(*tables)
+                SchemaUtils.addMissingColumnsStatements(*tables).forEach { statement ->
+                    exec(statement)
+                }
             }
         } catch (exception: Exception) {
             logger.error(exception) { "database error" }

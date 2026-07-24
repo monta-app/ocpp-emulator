@@ -60,7 +60,7 @@ object MontaSerialization {
         objectMapper.registerKotlinModule()
         objectMapper.registerModule(JavaTimeModule())
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        objectMapper.setSerializationInclusion(
+        objectMapper.setDefaultPropertyInclusion(
             if (serializeNulls) {
                 JsonInclude.Include.ALWAYS
             } else {

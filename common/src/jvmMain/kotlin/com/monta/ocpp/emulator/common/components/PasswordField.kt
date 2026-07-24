@@ -8,7 +8,6 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -44,9 +43,9 @@ fun ColumnScope.PasswordField(
             ) {
                 Icon(
                     painter = if (passwordVisibility) {
-                        painterResource("icons/visibility_off.svg")
+                        svgPainterResource("icons/visibility_off.svg")
                     } else {
-                        painterResource("icons/visibility.svg")
+                        svgPainterResource("icons/visibility.svg")
                     },
                     contentDescription = "",
                     modifier = Modifier.size(24.dp),

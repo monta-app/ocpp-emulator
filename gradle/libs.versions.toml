@@ -76,6 +76,12 @@ exposed-dao = { module = "org.jetbrains.exposed:exposed-dao" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time" }
 
+# Compose (artifacts without a plugin accessor, or whose accessor is deprecated)
+compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
+# The material-icons-extended artifact is frozen at 1.7.3 upstream; the compose plugin
+# accessor for it is deprecated and asks for an explicit pin like this one.
+compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+
 # OCPP Libraries
 ocpp-core = { module = "com.github.monta-app.library-ocpp:ocpp-core", version.ref = "ocpp-library" }
 ocpp-v16 = { module = "com.github.monta-app.library-ocpp:ocpp-v16", version.ref = "ocpp-library" }

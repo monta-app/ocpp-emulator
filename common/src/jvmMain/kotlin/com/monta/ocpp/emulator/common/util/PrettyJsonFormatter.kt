@@ -43,7 +43,7 @@ object PrettyJsonFormatter {
         registerKotlinModule()
         registerModule(JavaTimeModule())
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        setSerializationInclusion(jsonInclude)
+        setDefaultPropertyInclusion(jsonInclude)
         disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         findAndRegisterModules()
         return this

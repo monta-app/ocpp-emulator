@@ -57,7 +57,7 @@ class AppUpdateService {
                 registerKotlinModule()
                 registerModule(JavaTimeModule())
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 findAndRegisterModules()
             }
