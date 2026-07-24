@@ -17,7 +17,7 @@ sentry = "8.50.1"
 # koin-annotations ships with the main Koin project and must match the koin version.
 koin = "4.2.2"
 koin-plugin = "1.0.2"
-exposed = "0.61.0"
+exposed = "1.3.1"
 logback = "1.6.0"
 kotlin-logging = "8.0.4"
 qrcodegen = "1.8.0"
