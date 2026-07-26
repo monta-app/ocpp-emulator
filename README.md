@@ -35,7 +35,7 @@ If you're just using the terminal, you can run the following command:
 **OCPP 1.6**
 
 ```shell
-./gradlew run v16:run
+./gradlew :app:run
 ```
 
 **OCPP 2.0.1**

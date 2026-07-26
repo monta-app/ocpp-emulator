@@ -55,12 +55,12 @@ jobs:
           GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
           GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: ./gradlew --no-daemon v16:packageDistributionForCurrentOS
+        run: ./gradlew --no-daemon app:packageDistributionForCurrentOS
       - name: Upload binary file to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: v16/build/compose/binaries/main/${{ matrix.folder }}/${{ matrix.artifact }}${{ needs.version.outputs.version }}${{ matrix.artifact_ext }}
+          file: app/build/compose/binaries/main/${{ matrix.folder }}/${{ matrix.artifact }}${{ needs.version.outputs.version }}${{ matrix.artifact_ext }}
           asset_name: OcppEmulator-${{ needs.version.outputs.version }}.${{ matrix.folder }}
           tag: ${{ github.ref }}
           overwrite: true

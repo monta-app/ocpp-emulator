@@ -88,7 +88,7 @@ tasks.named<Test>("jvmTest") {
     useJUnitPlatform()
 }
 
-// Alias for shared CI workflow which runs `:v16:test`
+// Alias for shared CI workflow which runs `:app:test`
 tasks.register("test") {
     dependsOn("jvmTest")
 }
