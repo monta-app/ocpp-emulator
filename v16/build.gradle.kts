@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.kover)
 }
 
 group = "com.monta.ocpp.emulator"
@@ -16,13 +17,18 @@ kotlin {
     jvmToolchain(25)
     jvm()
     sourceSets {
+        jvmTest.dependencies {
+            implementation(libs.kotlin.test.junit5)
+            implementation(libs.junit.jupiter)
+        }
         jvmMain.dependencies {
-            implementation(project(":common"))
-
             implementation(compose.desktop.currentOs)
 
             // Material Icons
             implementation(libs.compose.material.icons.extended)
+
+            // Compose resources (classpath SVG loading)
+            implementation(libs.compose.components.resources)
 
             // Navigation (type-safe routes are @Serializable, hence the serialization plugin above)
             implementation(libs.androidx.navigation.compose)
@@ -48,6 +54,9 @@ kotlin {
             // QR Code Library
             implementation(libs.qrcodegen)
 
+            // Bouncy Castle for Eichrecht signed data
+            implementation(libs.bouncy.castle)
+
             // Logging
             implementation(libs.bundles.logging)
 
@@ -65,8 +74,23 @@ kotlin {
             // SQL Database
             implementation(project.dependencies.platform(libs.exposed.bom))
             implementation(libs.bundles.exposed)
+
+            // Data Source Connection Pool
+            implementation(libs.hikaricp)
+
+            // SQLite JDBC Driver
+            implementation(files("libs/sqlite-jdbc-3.42.0.0.jar"))
         }
     }
+}
+
+tasks.named<Test>("jvmTest") {
+    useJUnitPlatform()
+}
+
+// Alias for shared CI workflow which runs `:v16:test`
+tasks.register("test") {
+    dependsOn("jvmTest")
 }
 
 ktlint {

@@ -31,7 +31,7 @@ _The motivation: the problem, the user/business need, the bug. Why now._
 
 ## How was it built and verified?
 
-_Your attestation that you read the full diff and confirmed it does what the Intent says — you own this code regardless of how it was produced ("the model wrote it" is never a defense). Note what you ran (`./gradlew ktlintCheck`, `:common:jvmTest`) and what you verified manually in the running emulator (`./gradlew :v16:run`) — e.g. against which CSMS backend. Call out anything AI-generated that you reviewed, redirected, or rewrote._
+_Your attestation that you read the full diff and confirmed it does what the Intent says — you own this code regardless of how it was produced ("the model wrote it" is never a defense). Note what you ran (`./gradlew ktlintCheck`, `:v16:jvmTest`) and what you verified manually in the running emulator (`./gradlew :v16:run`) — e.g. against which CSMS backend. Call out anything AI-generated that you reviewed, redirected, or rewrote._
 
 _For UI changes, attach before/after screenshots or a short recording, and list the steps a reviewer can follow to see it themselves._
 

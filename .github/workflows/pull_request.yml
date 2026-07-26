@@ -10,8 +10,8 @@ jobs:
       skip-sonar: true
       java-version: "25"
       architecture: "arm64"
-      gradle-module: "common"
-      kover-report-path: "common/build/reports/kover/report.xml"
+      gradle-module: "v16"
+      kover-report-path: "v16/build/reports/kover/report.xml"
     secrets:
       GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
       GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}

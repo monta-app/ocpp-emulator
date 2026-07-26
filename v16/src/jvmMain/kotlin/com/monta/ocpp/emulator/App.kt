@@ -16,7 +16,7 @@ import java.util.TimeZone
 
 private val logger = KotlinLogging.logger {}
 
-@KoinApplication(modules = [CommonKoinModule::class, MontaKoinModule::class])
+@KoinApplication(modules = [MontaKoinModule::class])
 object EmulatorApp
 
 fun main() {
