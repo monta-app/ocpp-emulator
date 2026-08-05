@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.designsystem.ui.component.MontaIcon
 import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedSurfaceColor
+import com.monta.ocpp.emulator.designsystem.ui.component.svgPainterResource
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.model.TopLevelDestination
 import com.monta.ocpp.emulator.navigation.service.Navigator
@@ -121,19 +124,19 @@ private fun SidebarBrand() {
                 horizontal = 8.dp,
                 vertical = 8.dp,
             ),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MontaIcon(
-            iconName = "ev-charger",
-            contentDescription = "OCPP Emulator",
-            modifier = Modifier.size(20.dp),
-            tint = MaterialTheme.colors.primary,
-        )
-        Text(
-            text = "OCPP Emulator",
-            style = MaterialTheme.typography.subtitle1,
-            fontWeight = FontWeight.SemiBold,
+        Icon(
+            painter = svgPainterResource("logo.svg"),
+            contentDescription = "Monta OCPP Emulator",
+            // The logo is 149x28; pin the height and keep the aspect ratio.
+            modifier = Modifier
+                .height(20.dp)
+                .aspectRatio(
+                    ratio = 149f / 28f,
+                    matchHeightConstraintsFirst = true,
+                ),
+            tint = MaterialTheme.colors.onBackground,
         )
     }
 }
