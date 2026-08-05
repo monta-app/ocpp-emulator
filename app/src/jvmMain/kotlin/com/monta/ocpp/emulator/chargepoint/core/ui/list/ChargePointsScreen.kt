@@ -12,10 +12,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LocalAbsoluteElevation
 import androidx.compose.material.LocalElevationOverlay
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
@@ -34,10 +32,9 @@ import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
-import com.monta.ocpp.emulator.interceptor.ui.BasePage
-import com.monta.ocpp.emulator.interceptor.ui.BottomNavDestination
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.navigation.ui.PageScaffold
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.flow.collectLatest
@@ -48,15 +45,8 @@ fun ChargePointsScreen() {
         mutableStateOf("")
     }
 
-    BasePage(
-        selectedDestination = BottomNavDestination.ChargePoints,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "Charge Points")
-                },
-            )
-        },
+    PageScaffold(
+        title = "Charge Points",
     ) {
         Column {
             Spacer(

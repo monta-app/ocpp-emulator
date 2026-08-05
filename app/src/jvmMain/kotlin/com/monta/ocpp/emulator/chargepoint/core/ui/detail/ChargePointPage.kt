@@ -10,7 +10,6 @@ import androidx.compose.material.Tab
 import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,12 +33,11 @@ import com.monta.ocpp.emulator.designsystem.ui.component.CardDivider
 import com.monta.ocpp.emulator.designsystem.ui.component.DualColumView
 import com.monta.ocpp.emulator.designsystem.ui.component.InterceptionToggle
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
-import com.monta.ocpp.emulator.interceptor.ui.BasePage
-import com.monta.ocpp.emulator.interceptor.ui.BottomNavDestination
 import com.monta.ocpp.emulator.interceptor.ui.InterceptorConfigComponent
-import com.monta.ocpp.emulator.interceptor.ui.NavShape
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.navigation.ui.NavShape
+import com.monta.ocpp.emulator.navigation.ui.PageScaffold
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -107,41 +105,32 @@ private fun innerChargePointPage(
         selectedTab = 0
     }
 
-    BasePage(
-        selectedDestination = BottomNavDestination.ChargePoint,
+    PageScaffold(
+        title = "Charge Point — ${chargePoint.identity}",
+        navigationIcon = {
+            BackButton {
+                navigator.back()
+            }
+        },
+        actions = {
+            InterceptionToggle(
+                checked = scaffoldState.drawerState.isOpen,
+                onCheckedChange = {
+                    coroutineScope.launch {
+                        if (scaffoldState.drawerState.isOpen) {
+                            scaffoldState.drawerState.close()
+                        } else {
+                            scaffoldState.drawerState.open()
+                        }
+                    }
+                },
+            )
+        },
         scaffoldState = scaffoldState,
         drawerShape = NavShape(
             widthOffset = 320.dp,
             scale = 0f,
         ),
-        topBar = {
-            TopAppBar(
-                elevation = 0.dp,
-                title = {
-                    // this doesn't show up when actions are defined
-                    Text(text = "Charge Point — ${chargePoint.identity}")
-                },
-                navigationIcon = {
-                    BackButton {
-                        navigator.back()
-                    }
-                },
-                actions = {
-                    InterceptionToggle(
-                        checked = scaffoldState.drawerState.isOpen,
-                        onCheckedChange = {
-                            coroutineScope.launch {
-                                if (scaffoldState.drawerState.isOpen) {
-                                    scaffoldState.drawerState.close()
-                                } else {
-                                    scaffoldState.drawerState.open()
-                                }
-                            }
-                        },
-                    )
-                },
-            )
-        },
         drawer = {
             InterceptorConfigComponent(chargePoint.idValue)
         },

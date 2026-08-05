@@ -2,11 +2,11 @@ package com.monta.ocpp.emulator
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,9 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -28,7 +30,9 @@ import com.monta.ocpp.emulator.designsystem.ui.component.BaseMontaWindow
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.setupAppThemeMenu
 import com.monta.ocpp.emulator.navigation.model.Screen
+import com.monta.ocpp.emulator.navigation.model.TopLevelDestination
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.navigation.ui.AppShell
 import com.monta.ocpp.emulator.platform.update.ui.UpdateDialog
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.vehicle.ui.VehicleScreen
@@ -97,7 +101,7 @@ fun ApplicationScope.MainWindow() {
             }
 
             // Track the on-screen charge point so windows outside the NavHost (e.g. SendMessageWindow)
-            // can resolve it, and so the bottom bar can restore the last active charge point.
+            // can resolve it, and so the sidebar can restore the last active charge point.
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { entry ->
                     runCatching { entry.toRoute<Screen.ChargePoint>() }
@@ -108,29 +112,44 @@ fun ApplicationScope.MainWindow() {
                 }
             }
 
-            NavHost(
-                navController = navController,
-                startDestination = Screen.ChargePoints,
-                modifier = Modifier.fillMaxSize()
-                    .background(MaterialTheme.colors.background),
-                // Swap pages instantly, matching the previous when-based navigation. The default
-                // cross-fade briefly revealed the window background as a white flash on switch.
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None },
-                popEnterTransition = { EnterTransition.None },
-                popExitTransition = { ExitTransition.None },
+            // The sidebar lives outside the NavHost so it persists across destinations; its
+            // selected item is derived from the top of the back stack.
+            val backStackEntry by navController.currentBackStackEntryAsState()
+            val selectedDestination = backStackEntry?.destination?.let { destination ->
+                when {
+                    destination.hasRoute<Screen.ChargePoint>() -> TopLevelDestination.Connected
+                    destination.hasRoute<Screen.Vehicles>() -> TopLevelDestination.Vehicles
+                    // The create/edit dialog stacks on top of the list, so keep its item selected.
+                    else -> TopLevelDestination.ChargePoints
+                }
+            }
+
+            AppShell(
+                selectedDestination = selectedDestination,
             ) {
-                composable<Screen.ChargePoints> {
-                    ChargePointsScreen()
-                }
-                composable<Screen.Vehicles> {
-                    VehicleScreen()
-                }
-                composable<Screen.ChargePoint> { backStackEntry ->
-                    ChargePointPage(backStackEntry.toRoute<Screen.ChargePoint>().chargePointId)
-                }
-                dialog<Screen.CreateChargePoint> { backStackEntry ->
-                    CreateChargePointDialog(backStackEntry.toRoute<Screen.CreateChargePoint>().chargePointId)
+                NavHost(
+                    navController = navController,
+                    startDestination = Screen.ChargePoints,
+                    modifier = Modifier.fillMaxSize(),
+                    // Swap pages instantly, matching the previous when-based navigation. The default
+                    // cross-fade briefly revealed the window background as a white flash on switch.
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None },
+                ) {
+                    composable<Screen.ChargePoints> {
+                        ChargePointsScreen()
+                    }
+                    composable<Screen.Vehicles> {
+                        VehicleScreen()
+                    }
+                    composable<Screen.ChargePoint> { backStackEntry ->
+                        ChargePointPage(backStackEntry.toRoute<Screen.ChargePoint>().chargePointId)
+                    }
+                    dialog<Screen.CreateChargePoint> { backStackEntry ->
+                        CreateChargePointDialog(backStackEntry.toRoute<Screen.CreateChargePoint>().chargePointId)
+                    }
                 }
             }
             // Shows a dialog notifying users an update is available if there is one

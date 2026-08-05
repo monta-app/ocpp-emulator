@@ -26,6 +26,9 @@ class Navigator {
 
     var windowHasFocus: Boolean by mutableStateOf(true)
 
+    /** Whether the app sidebar is shown; toggled from each page's header trigger. */
+    var sidebarVisible: Boolean by mutableStateOf(true)
+
     /**
      * Id of the charge-point detail currently shown. Kept up to date by `MainWindow` as the back
      * stack changes and retained afterwards as the "last active" charge point, mirroring the old
@@ -44,7 +47,7 @@ class Navigator {
     }
 
     /**
-     * Navigate to a top-level destination (the bottom navigation bar), collapsing the back stack
+     * Navigate to a top-level destination (the app sidebar), collapsing the back stack
      * to the graph's start destination so top-level switches don't pile up history.
      */
     fun navigateTopLevel(
