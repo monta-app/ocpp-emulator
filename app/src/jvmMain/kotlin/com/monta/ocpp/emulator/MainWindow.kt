@@ -21,17 +21,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.monta.ocpp.emulator.chargepoint.view.createchargepoint.CreateChargePointDialog
-import com.monta.ocpp.emulator.chargepoint.view.screens.ChargePointPage
-import com.monta.ocpp.emulator.chargepoint.view.screens.ChargePointsScreen
-import com.monta.ocpp.emulator.common.BaseMontaWindow
-import com.monta.ocpp.emulator.common.util.injectAnywhere
-import com.monta.ocpp.emulator.common.view.Navigator
-import com.monta.ocpp.emulator.common.view.Screen
-import com.monta.ocpp.emulator.theme.AppThemeViewModel
-import com.monta.ocpp.emulator.theme.setupAppThemeMenu
-import com.monta.ocpp.emulator.update.view.UpdateDialog
-import com.monta.ocpp.emulator.vehicle.view.VehicleScreen
+import com.monta.ocpp.emulator.chargepoint.core.ui.detail.ChargePointPage
+import com.monta.ocpp.emulator.chargepoint.core.ui.form.CreateChargePointDialog
+import com.monta.ocpp.emulator.chargepoint.core.ui.list.ChargePointsScreen
+import com.monta.ocpp.emulator.designsystem.ui.component.BaseMontaWindow
+import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
+import com.monta.ocpp.emulator.designsystem.ui.theme.setupAppThemeMenu
+import com.monta.ocpp.emulator.navigation.model.Screen
+import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.platform.update.ui.UpdateDialog
+import com.monta.ocpp.emulator.platform.util.injectAnywhere
+import com.monta.ocpp.emulator.vehicle.ui.VehicleScreen
 
 @Preview
 @Composable

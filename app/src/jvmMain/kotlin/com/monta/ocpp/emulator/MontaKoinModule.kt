@@ -10,8 +10,8 @@ import com.monta.library.ocpp.v16.localauth.LocalListClientProfile
 import com.monta.library.ocpp.v16.remotetrigger.TriggerMessageClientProfile
 import com.monta.library.ocpp.v16.security.SecurityClientProfile
 import com.monta.library.ocpp.v16.smartcharge.SmartChargeClientProfile
-import com.monta.ocpp.emulator.interceptor.MessageInterceptor
-import com.monta.ocpp.emulator.v16.profile.OcppClientEventsHandler
+import com.monta.ocpp.emulator.interceptor.service.MessageInterceptor
+import com.monta.ocpp.emulator.ocpp.v16.profile.OcppClientEventsHandler
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
