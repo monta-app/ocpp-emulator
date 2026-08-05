@@ -2,9 +2,11 @@ package com.monta.ocpp.emulator.designsystem.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -70,6 +72,29 @@ fun OutlineButton(
         ),
         content = content,
     )
+}
+
+/**
+ * Square [PrimaryButton] sized for a single icon — shadcn's `size="icon"`
+ * button. 36dp to line up with [InputField].
+ */
+@Composable
+fun PrimaryIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.size(36.dp),
+        enabled = enabled,
+        shape = ButtonShape,
+        elevation = flatElevation(),
+        contentPadding = PaddingValues(0.dp),
+    ) {
+        content()
+    }
 }
 
 /**
