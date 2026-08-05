@@ -28,7 +28,6 @@ import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointLogComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.pbm.PbmDialog
 import com.monta.ocpp.emulator.chargepoint.core.ui.pbm.pbmButtons
-import com.monta.ocpp.emulator.designsystem.ui.component.BackButton
 import com.monta.ocpp.emulator.designsystem.ui.component.CardDivider
 import com.monta.ocpp.emulator.designsystem.ui.component.DualColumView
 import com.monta.ocpp.emulator.designsystem.ui.component.InterceptionToggle
@@ -107,11 +106,6 @@ private fun innerChargePointPage(
 
     PageScaffold(
         title = "Charge Point — ${chargePoint.identity}",
-        navigationIcon = {
-            BackButton {
-                navigator.back()
-            }
-        },
         actions = {
             InterceptionToggle(
                 checked = scaffoldState.drawerState.isOpen,
