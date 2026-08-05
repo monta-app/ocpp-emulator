@@ -8,6 +8,7 @@ import com.monta.ocpp.emulator.chargepoint.service.ChargePointService
 import com.monta.ocpp.emulator.common.idValue
 import com.monta.ocpp.emulator.common.util.MontaSerialization
 import com.monta.ocpp.emulator.common.util.injectAnywhere
+import com.monta.ocpp.emulator.common.util.launchThread
 import com.monta.ocpp.emulator.interceptor.MessageInterceptor
 import com.monta.ocpp.emulator.logger.GlobalLogger
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -17,7 +18,11 @@ import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.util.collections.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -51,6 +56,11 @@ class ChargePointConnection(
     private val totalLatencyNanos = AtomicLong(0L)
     private val messageCount = AtomicInteger(0)
 
+    private val chainLock = Any()
+
+    private var connectionJob: Job? = null
+    private var connectedAtNanos: Long? = null
+
     val chargePoint: ChargePointDAO
         get() = chargePointService.getById(chargePointId)
 
@@ -62,6 +72,7 @@ class ChargePointConnection(
         try {
             createConnection(isReconnecting)
         } catch (exception: WebSocketException) {
+            currentCoroutineContext().ensureActive()
             val isAuthError = exception.message?.contains("401") == true
             // Failed to connect at all, so lets try reconnecting
             handleReconnection(
@@ -70,6 +81,7 @@ class ChargePointConnection(
                 additionalInfo = if (!isAuthError) exception.message else null,
             )
         } catch (exception: Exception) {
+            currentCoroutineContext().ensureActive()
             logger.warn(exception) { "error connecting" }
             // Failed to connect at all, so lets try reconnecting
             handleReconnection(
@@ -110,8 +122,8 @@ class ChargePointConnection(
 
             // Yes we should automatically reconnect on failure
             reconnect.set(true)
-            // Set our connection attempts to 3 (used for the backoff calculation)
-            connectionAttempts = 0
+            // Only reset the backoff once the connection has proven stable
+            connectedAtNanos = System.nanoTime()
             // Set our charge point as connected
             chargePointService.update(chargePoint) {
                 this.connected = true
@@ -200,14 +212,46 @@ class ChargePointConnection(
         websocketSession?.close(closeReason)
     }
 
-    suspend fun reconnect(
+    // Only one connect/retry chain at a time, the client keys its sessions by identity so a
+    // second chain just fights the first one over the same slot
+    fun start(
+        block: suspend () -> Unit,
+    ): Boolean {
+        synchronized(chainLock) {
+            if (connectionJob?.isActive == true) {
+                return false
+            }
+            connectionJob = launchThread(block = block)
+        }
+        return true
+    }
+
+    suspend fun stop(
+        closeReason: CloseReason = CloseReason(CloseReason.Codes.NORMAL, ""),
+    ) {
+        // Say goodbye first, cancelling closes the socket and the status notification
+        // would have nowhere to go
+        disconnect(closeReason)
+        // A chain already asleep in its backoff never sees the flag disconnect() clears
+        synchronized(chainLock) { connectionJob }?.cancelAndJoin()
+    }
+
+    fun restart(
         delayInSeconds: Int,
         closeReason: CloseReason = CloseReason(CloseReason.Codes.NORMAL, ""),
     ) {
-        GlobalLogger.info(chargePoint, "Reconnecting after $delayInSeconds seconds")
-        disconnect(closeReason)
-        delay(delayInSeconds.toLong() * 1000)
-        connect(true)
+        synchronized(chainLock) {
+            val previous = connectionJob
+            connectionJob = launchThread {
+                GlobalLogger.info(chargePoint, "Reconnecting after $delayInSeconds seconds")
+                // Let the old chain flush what's still in flight and wind itself down,
+                // cancelling is just the backstop for when it doesn't
+                disconnect(closeReason)
+                previous?.cancelAndJoin()
+                delay(delayInSeconds.toLong() * 1000)
+                connect(true)
+            }
+        }
     }
 
     private suspend fun handleReconnection(
@@ -215,6 +259,8 @@ class ChargePointConnection(
         forceConnect: Boolean,
         additionalInfo: String?,
     ) {
+        resetBackoffIfConnectionWasStable()
+
         val backOffTime = getBackoffTime()
 
         val shouldReconnect = try {
@@ -244,6 +290,15 @@ class ChargePointConnection(
         }
     }
 
+    // A socket that opens and closes straight away isn't a success, only count one that stayed up
+    private fun resetBackoffIfConnectionWasStable() {
+        val connectedAt = connectedAtNanos ?: return
+        connectedAtNanos = null
+        if (Duration.ofNanos(System.nanoTime() - connectedAt) >= STABLE_CONNECTION_DURATION) {
+            connectionAttempts = 0
+        }
+    }
+
     private fun getBackoffTime(): Int {
         val attempts = connectionAttempts++
 
@@ -254,5 +309,9 @@ class ChargePointConnection(
                 b = 1,
             ),
         )
+    }
+
+    private companion object {
+        private val STABLE_CONNECTION_DURATION: Duration = Duration.ofSeconds(30)
     }
 }

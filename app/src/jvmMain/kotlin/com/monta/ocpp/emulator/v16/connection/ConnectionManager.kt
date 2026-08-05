@@ -7,6 +7,7 @@ import com.monta.ocpp.emulator.v16.SchedulerService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Singleton
 
 @Singleton
@@ -17,27 +18,26 @@ class ConnectionManager(
 
     private val logger = KotlinLogging.logger {}
 
-    private val chargePointSchedulers: MutableMap<Long, SchedulerService?> = mutableMapOf()
-    private val chargePointConnections: MutableMap<Long, ChargePointConnection?> = mutableMapOf()
+    private val chargePointSchedulers = ConcurrentHashMap<Long, SchedulerService>()
+    private val chargePointConnections = ConcurrentHashMap<Long, ChargePointConnection>()
 
     fun connect(
         chargePointId: Long,
     ) {
-        val isConnected = chargePointConnections[chargePointId]?.chargePoint?.connected
-
-        if (isConnected == true) {
-            return
+        // Claim the charge point on the calling thread, the persisted connected flag is false
+        // for the whole of every reconnect backoff so it can't guard this
+        val chargePointConnection = chargePointConnections.computeIfAbsent(chargePointId) {
+            ChargePointConnection(it)
         }
 
-        launchThread {
+        val started = chargePointConnection.start {
             logger.info { "Connecting chargePointId=$chargePointId" }
-            //
             chargePointRepository.clearChargePointBootStatus(chargePointId)
-            // Create a new connection and add it to the map
-            chargePointConnections[chargePointId]?.disconnect()
-            chargePointConnections[chargePointId] = null
-            chargePointConnections[chargePointId] = ChargePointConnection(chargePointId)
-            chargePointConnections[chargePointId]?.connect()
+            chargePointConnection.connect()
+        }
+
+        if (!started) {
+            return
         }
 
         getSchedulingService(chargePointId, true)?.start()
@@ -48,7 +48,7 @@ class ConnectionManager(
     }
 
     suspend fun disconnectAll() {
-        chargePointConnections.mapNotNull { (chargePointId, _) ->
+        chargePointConnections.keys.mapNotNull { chargePointId ->
             disconnect(chargePointId)
         }.joinAll()
     }
@@ -56,13 +56,13 @@ class ConnectionManager(
     fun disconnect(
         chargePointId: Long,
     ): Job? {
-        return chargePointConnections[chargePointId]?.let { chargePointConnection ->
+        // Release the claim on the calling thread so a later connect() is admitted
+        return chargePointConnections.remove(chargePointId)?.let { chargePointConnection ->
             logger.info { "Disconnecting chargePointId=$chargePointId" }
             launchThread {
                 chargePointRepository.clearChargePointBootStatus(chargePointId)
                 getSchedulingService(chargePointId)?.stop()
-                chargePointConnection.disconnect()
-                chargePointConnections.remove(chargePointId)
+                chargePointConnection.stop()
             }
         }
     }
@@ -72,10 +72,8 @@ class ConnectionManager(
         delayInSeconds: Int,
     ) {
         chargePointConnections[chargePointId]?.let { chargePointConnection ->
-            launchThread {
-                logger.info { "Reconnecting chargePointId=$chargePointId" }
-                chargePointConnection.reconnect(delayInSeconds)
-            }
+            logger.info { "Reconnecting chargePointId=$chargePointId" }
+            chargePointConnection.restart(delayInSeconds)
         }
     }
 
@@ -84,8 +82,8 @@ class ConnectionManager(
         create: Boolean = false,
     ): SchedulerService? {
         return if (create) {
-            chargePointSchedulers.getOrPut(chargePointId) {
-                SchedulerService(chargePointId)
+            chargePointSchedulers.computeIfAbsent(chargePointId) {
+                SchedulerService(it)
             }
         } else {
             chargePointSchedulers[chargePointId]
