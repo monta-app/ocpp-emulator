@@ -23,7 +23,7 @@ logback = "1.6.1"
 kotlin-logging = "8.0.4"
 qrcodegen = "1.8.0"
 semver = "2.1.0"
-bouncy-castle = "1.85"
+bouncy-castle = "1.85.2"
 hikaricp = "7.1.0"
 ocpp-library = "3.0.0"
 
