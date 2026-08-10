@@ -116,7 +116,7 @@ class ChargePointDAO(
                 // Info
                 this.brand = "Monta"
                 this.model = "E-Emulator"
-                this.serial = "MontaEmulator"
+                this.serial = name
                 this.firmware = firmware
                 // Settings
                 this.connected = false

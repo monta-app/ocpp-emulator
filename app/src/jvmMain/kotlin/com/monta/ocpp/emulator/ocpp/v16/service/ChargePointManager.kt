@@ -51,6 +51,8 @@ class ChargePointManager {
                 firmwareVersion = chargePoint.firmware,
                 chargePointModel = chargePoint.model,
                 chargePointVendor = chargePoint.brand,
+                meterType = chargePoint.meterType.name,
+                meterSerialNumber = "M${chargePoint.serial}",
             ),
         )
 

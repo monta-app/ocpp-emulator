@@ -13,11 +13,15 @@ import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.*
+import io.ktor.client.plugins.websocket.cio.webSocketRaw
 import io.ktor.client.request.*
+import io.ktor.http.encodeURLPathPart
 import io.ktor.util.collections.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,9 +45,8 @@ class ChargePointConnection(
     private val reconnect = AtomicBoolean(true)
     private var websocketSession: WebSocketSession? = null
     private val client = HttpClient(CIO) {
-        install(WebSockets) {
-            pingInterval = 20.seconds
-        }
+        install(WebSockets)
+        install(Logging)
     }
     private var connectionAttempts = 1
 
@@ -83,17 +86,19 @@ class ChargePointConnection(
     private suspend fun createConnection(
         isReconnecting: Boolean,
     ) {
-        client.webSocket(
+        client.webSocketRaw(
             request = {
                 // Set basic auth password if needed
                 chargePoint.basicAuthPassword?.let { password ->
                     basicAuth(chargePoint.identity, password)
                 }
-                url("${chargePoint.ocppUrl}/${chargePoint.identity}")
+                url("${chargePoint.ocppUrl}/${chargePoint.identity.encodeURLPathPart()}")
                 header("Sec-WebSocket-Protocol", "ocpp1.6")
             },
         ) {
             websocketSession = this
+            val negotiatedProtocol = this.call.response.headers["Sec-WebSocket-Protocol"]
+            logger.info { "negotiated Sec-WebSocket-Protocol: $negotiatedProtocol" }
 
             ocppClientV16.connect(
                 identity = chargePoint.identity,
@@ -117,6 +122,14 @@ class ChargePointConnection(
                 this.connected = true
             }
 
+            launch {
+                while (true) {
+                    delay(30.seconds)
+                    GlobalLogger.debug(chargePoint, "WebSocket PING sent")
+                    send(Frame.Ping(byteArrayOf()))
+                }
+            }
+
             try {
                 for (frame in this.incoming) {
                     when (frame) {
@@ -130,13 +143,22 @@ class ChargePointConnection(
                             logLatency(message)
                         }
 
+                        is Frame.Ping -> {
+                            GlobalLogger.debug(chargePoint, "WebSocket PING received (${frame.data.size} bytes)")
+                            send(Frame.Pong(frame.data))
+                        }
+
+                        is Frame.Pong -> {
+                            GlobalLogger.debug(chargePoint, "WebSocket PONG received (${frame.data.size} bytes)")
+                        }
+
                         else -> {
                             GlobalLogger.warn(chargePoint, "unknown frame $frame")
                         }
                     }
                 }
             } catch (e: Throwable) {
-                GlobalLogger.warn(chargePoint, "onError ${chargePoint.identity} ${closeReason.await()}")
+                GlobalLogger.warn(chargePoint, "onError ${chargePoint.identity} $e")
             }
 
             // Once our connection stuff is done in the above
