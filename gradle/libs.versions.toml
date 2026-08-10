@@ -89,6 +89,7 @@ androidx-navigation-compose = { module = "org.jetbrains.androidx.navigation:navi
 # OCPP Libraries
 ocpp-core = { module = "com.github.monta-app.library-ocpp:ocpp-core", version.ref = "ocpp-library" }
 ocpp-v16 = { module = "com.github.monta-app.library-ocpp:ocpp-v16", version.ref = "ocpp-library" }
+ocpp-v201 = { module = "com.github.monta-app.library-ocpp:ocpp-v201", version.ref = "ocpp-library" }
 
 # Other
 qrcodegen = { module = "io.nayuki:qrcodegen", version.ref = "qrcodegen" }

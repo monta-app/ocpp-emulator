@@ -3,7 +3,7 @@ package com.monta.ocpp.emulator
 import androidx.compose.ui.window.application
 import com.monta.ocpp.emulator.interceptor.ui.EditMessageWindow
 import com.monta.ocpp.emulator.interceptor.ui.SendMessageWindow
-import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.connection.ProtocolConnectionManager
 import com.monta.ocpp.emulator.platform.analytics.service.AnalyticsHelper
 import com.monta.ocpp.emulator.platform.database.service.DatabaseService
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -29,7 +29,7 @@ fun main() {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
                 runBlocking {
-                    val connectionManager: ConnectionManager by injectAnywhere()
+                    val connectionManager: ProtocolConnectionManager by injectAnywhere()
                     connectionManager.disconnectAll()
                 }
             }

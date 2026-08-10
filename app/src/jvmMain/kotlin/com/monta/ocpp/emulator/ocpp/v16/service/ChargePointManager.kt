@@ -14,7 +14,10 @@ import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationRequest
 import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationStatus
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationRequest
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
+import com.monta.library.ocpp.v16.security.LogStatusNotificationRequest
 import com.monta.library.ocpp.v16.security.SecurityEventNotificationRequest
+import com.monta.library.ocpp.v16.security.SignCertificateRequest
+import com.monta.library.ocpp.v16.security.UploadLogStatus
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
@@ -288,9 +291,65 @@ class ChargePointManager {
                 this.diagnosticsStatus = status
             }
 
-            GlobalLogger.info(chargePoint, "Firmware status set to $status")
+            GlobalLogger.info(chargePoint, "Diagnostics status set to $status")
         } catch (t: Throwable) {
             logger.warn { "Failed to send diagnostics status notification, $t" }
+        }
+    }
+
+    suspend fun startDiagnosticsUpload(
+        chargePoint: ChargePointDAO,
+        location: String,
+        fileName: String,
+    ) {
+        GlobalLogger.info(chargePoint, "Uploading diagnostics $fileName to $location")
+        diagnosticsStatusNotification(chargePoint, DiagnosticsStatusNotificationStatus.Uploading)
+        delay(1000)
+        diagnosticsStatusNotification(chargePoint, DiagnosticsStatusNotificationStatus.Uploaded)
+    }
+
+    suspend fun startLogUpload(
+        chargePoint: ChargePointDAO,
+        remoteLocation: String,
+        fileName: String,
+        requestId: Int,
+    ) {
+        GlobalLogger.info(chargePoint, "Uploading log $fileName to $remoteLocation")
+        logStatusNotification(chargePoint, UploadLogStatus.Uploading, requestId)
+        delay(1000)
+        logStatusNotification(chargePoint, UploadLogStatus.Uploaded, requestId)
+    }
+
+    suspend fun logStatusNotification(
+        chargePoint: ChargePointDAO,
+        status: UploadLogStatus,
+        requestId: Int,
+    ) {
+        try {
+            ocppClientV16.asSecurityProfile(chargePoint.sessionInfo).logStatusNotification(
+                LogStatusNotificationRequest(
+                    status = status,
+                    requestId = requestId,
+                ),
+            )
+            GlobalLogger.info(chargePoint, "Log status set to $status")
+        } catch (exception: Exception) {
+            logger.warn(exception) { "Failed to send log status notification" }
+        }
+    }
+
+    suspend fun signCertificate(
+        chargePoint: ChargePointDAO,
+    ) {
+        try {
+            ocppClientV16.asSecurityProfile(chargePoint.sessionInfo).signCertificate(
+                SignCertificateRequest(
+                    csr = "-----BEGIN CERTIFICATE REQUEST-----\nEMULATOR\n-----END CERTIFICATE REQUEST-----",
+                ),
+            )
+            GlobalLogger.info(chargePoint, "SignCertificate sent")
+        } catch (exception: Exception) {
+            GlobalLogger.warn(chargePoint, "Failed to send SignCertificate")
         }
     }
 
