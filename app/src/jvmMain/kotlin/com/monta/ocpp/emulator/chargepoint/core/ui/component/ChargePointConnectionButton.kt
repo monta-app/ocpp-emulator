@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.MontaStateIcon
 import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
-import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.connection.ProtocolConnectionManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 
@@ -19,7 +19,7 @@ fun ChargePointConnectionButton(
     chargePoint: ChargePointDAO,
     modifier: Modifier = Modifier,
 ) {
-    val connectionManager: ConnectionManager by injectAnywhere()
+    val connectionManager: ProtocolConnectionManager by injectAnywhere()
 
     TextTooltip(
         modifier = modifier,

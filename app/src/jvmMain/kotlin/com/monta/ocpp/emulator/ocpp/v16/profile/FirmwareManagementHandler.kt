@@ -27,7 +27,19 @@ class FirmwareManagementHandler : FirmwareManagementClientProfile.Listener {
         ocppSessionInfo: OcppSession.Info,
         request: GetDiagnosticsRequest,
     ): GetDiagnosticsConfirmation {
-        return GetDiagnosticsConfirmation()
+        val chargePoint = chargePointService.getByIdentity(ocppSessionInfo.identity)
+        if (!chargePoint.canPerformAction) {
+            return GetDiagnosticsConfirmation()
+        }
+        val fileName = "diagnostics-${chargePoint.identity}-${System.currentTimeMillis()}.log"
+        launchThread {
+            chargePointManager.startDiagnosticsUpload(
+                chargePoint = chargePoint,
+                location = request.location,
+                fileName = fileName,
+            )
+        }
+        return GetDiagnosticsConfirmation(fileName = fileName)
     }
 
     override suspend fun updateFirmware(
