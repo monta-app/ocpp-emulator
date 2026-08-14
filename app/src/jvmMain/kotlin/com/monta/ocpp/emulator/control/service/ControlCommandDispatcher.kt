@@ -217,6 +217,7 @@ class ControlCommandDispatcher(
         return ConnectorStateResult(
             connectorId = position,
             status = status,
+            errorCode = errorCode,
             carState = carState,
             activeTransactionId = activeTransactionId?.value,
             meterWh = meterWh,

@@ -21,6 +21,7 @@ data class ChargePointStateResult(
 data class ConnectorStateResult(
     val connectorId: Int,
     val status: ChargePointStatus,
+    val errorCode: ChargePointErrorCode,
     val carState: CarState,
     val activeTransactionId: Long?,
     val meterWh: Double,
