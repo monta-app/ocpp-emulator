@@ -1,6 +1,7 @@
 package com.monta.ocpp.emulator
 
 import androidx.compose.ui.window.application
+import com.monta.ocpp.emulator.control.service.ControlServerService
 import com.monta.ocpp.emulator.interceptor.ui.EditMessageWindow
 import com.monta.ocpp.emulator.interceptor.ui.SendMessageWindow
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
@@ -28,6 +29,9 @@ fun main() {
 
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
+                val controlServerService: ControlServerService by injectAnywhere()
+                controlServerService.stop()
+
                 runBlocking {
                     val connectionManager: ConnectionManager by injectAnywhere()
                     connectionManager.disconnectAll()
@@ -42,6 +46,11 @@ fun main() {
         // Connect to our database
         val databaseService by injectAnywhere<DatabaseService>()
         databaseService.connect()
+
+        // Start the control socket (see docs/cli/cli-plan.md) so external test suites
+        // can drive this instance without the GUI
+        val controlServerService by injectAnywhere<ControlServerService>()
+        controlServerService.start()
 
         application {
             SendMessageWindow()
