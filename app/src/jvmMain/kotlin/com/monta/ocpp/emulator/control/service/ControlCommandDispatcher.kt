@@ -27,6 +27,7 @@ import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.MontaSerialization
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.delay
 import javax.inject.Singleton
 
 @Singleton
@@ -35,6 +36,11 @@ class ControlCommandDispatcher(
     private val connectionManager: ConnectionManager,
     private val chargePointManager: ChargePointManager,
 ) {
+
+    companion object {
+        private const val CONNECT_TIMEOUT_MILLIS = 10_000L
+        private const val CONNECT_POLL_INTERVAL_MILLIS = 100L
+    }
 
     private val logger = KotlinLogging.logger {}
     private val objectMapper = MontaSerialization.objectMapper
@@ -88,13 +94,33 @@ class ControlCommandDispatcher(
         )
     }
 
-    private fun connect(
+    private suspend fun connect(
         paramsNode: JsonNode,
     ): ChargePointStateResult {
         val params = bind<IdentityParams>(paramsNode)
         val chargePoint = chargePointService.getByIdentity(params.identity)
         connectionManager.connect(chargePoint.idValue)
-        return chargePoint.toResult()
+        return awaitConnected(params.identity)
+    }
+
+    /**
+     * ConnectionManager.connect() launches a coroutine that runs for the entire life of
+     * the websocket session (see its doc comment) - it never completes just because the
+     * connect succeeded, so there's nothing to join(). Poll the persisted `connected` flag
+     * instead, bounded by [CONNECT_TIMEOUT_MILLIS] so a charge point that never reaches the
+     * CSMS doesn't hang the control connection.
+     */
+    private suspend fun awaitConnected(
+        identity: String,
+    ): ChargePointStateResult {
+        val deadline = System.currentTimeMillis() + CONNECT_TIMEOUT_MILLIS
+        while (true) {
+            val chargePoint = chargePointService.getByIdentity(identity)
+            if (chargePoint.connected || System.currentTimeMillis() >= deadline) {
+                return chargePoint.toResult()
+            }
+            delay(CONNECT_POLL_INTERVAL_MILLIS)
+        }
     }
 
     private suspend fun disconnect(
@@ -103,7 +129,7 @@ class ControlCommandDispatcher(
         val params = bind<IdentityParams>(paramsNode)
         val chargePoint = chargePointService.getByIdentity(params.identity)
         connectionManager.disconnect(chargePoint.idValue)?.join()
-        return chargePoint.toResult()
+        return chargePointService.getByIdentity(params.identity).toResult()
     }
 
     private suspend fun setAvailability(

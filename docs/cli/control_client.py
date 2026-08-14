@@ -8,7 +8,12 @@ object per line in, one response object per line out.
 
 Run directly to say hello and print the running emulator's version:
 
-    python control_client.py [--host HOST] [--port PORT]
+    python control_client.py hello [--host HOST] [--port PORT]
+
+Or to bring a charge point online / offline (connect/disconnect its websocket to the CSMS):
+
+    python control_client.py connect CP001 [--host HOST] [--port PORT]
+    python control_client.py disconnect CP001 [--host HOST] [--port PORT]
 """
 
 from __future__ import annotations
@@ -27,11 +32,15 @@ class ControlClient:
     Usage as a library, e.g. from an integration test:
 
         with ControlClient() as client:
-            client.send("chargePoint.connect", identity="CP001")
+            client.connect("CP001")
             client.send("connector.setCarState", identity="CP001", carState="B")
+            client.disconnect("CP001")
     """
 
-    def __init__(self, host: str = "127.0.0.1", port: int = DEFAULT_PORT, timeout: float = 5.0) -> None:
+    def __init__(self, host: str = "127.0.0.1", port: int = DEFAULT_PORT, timeout: float = 15.0) -> None:
+        # `chargePoint.connect` blocks server-side until the charge point's websocket is
+        # up or a 10s internal timeout elapses (see ControlCommandDispatcher.awaitConnected
+        # in the emulator) - give that room plus margin for the connection attempt itself.
         self._socket = socket.create_connection((host, port), timeout=timeout)
         self._reader = self._socket.makefile("r", encoding="utf-8", newline="\n")
         self._next_id = 0
@@ -57,6 +66,16 @@ class ControlClient:
     def hello(self) -> dict[str, Any]:
         return self.send("hello")
 
+    def connect(self, identity: str) -> dict[str, Any]:
+        """Bring the charge point with the given OCPP identity online (connects its
+        websocket to the CSMS). Mirrors the GUI's connect/disconnect toggle."""
+        return self.send("chargePoint.connect", identity=identity)
+
+    def disconnect(self, identity: str) -> dict[str, Any]:
+        """Take the charge point with the given OCPP identity offline (closes its
+        websocket to the CSMS). Mirrors the GUI's connect/disconnect toggle."""
+        return self.send("chargePoint.disconnect", identity=identity)
+
     def close(self) -> None:
         self._socket.close()
 
@@ -68,15 +87,33 @@ class ControlClient:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
+
+    subparsers = parser.add_subparsers(dest="action", required=True)
+
+    subparsers.add_parser("hello", help="print the running emulator's version")
+
+    connect_parser = subparsers.add_parser("connect", help="bring a charge point online")
+    connect_parser.add_argument("identity", help="OCPP identity of the charge point to connect")
+
+    disconnect_parser = subparsers.add_parser("disconnect", help="take a charge point offline")
+    disconnect_parser.add_argument("identity", help="OCPP identity of the charge point to disconnect")
+
     args = parser.parse_args()
 
     with ControlClient(host=args.host, port=args.port) as client:
-        result = client.hello()
-        print(f"emulator version: {result.get('emulatorVersion')}")
-        print(f"protocol version: {result.get('protocolVersion')}")
+        if args.action == "hello":
+            result = client.hello()
+            print(f"emulator version: {result.get('emulatorVersion')}")
+            print(f"protocol version: {result.get('protocolVersion')}")
+        elif args.action == "connect":
+            result = client.connect(args.identity)
+            print(f"{args.identity}: connected={result.get('connected')}")
+        elif args.action == "disconnect":
+            result = client.disconnect(args.identity)
+            print(f"{args.identity}: connected={result.get('connected')}")
 
 
 if __name__ == "__main__":
