@@ -34,12 +34,25 @@ class ControlServerService(
     @Volatile
     private var serverSocket: ServerSocket? = null
 
-    fun start() {
+    /**
+     * The port actually bound by [start], once it has run - `null` before [start] or after
+     * [stop]. Useful for callers (and tests) that start with `port = 0` to get an
+     * OS-assigned ephemeral port and need to find out what it was.
+     */
+    val boundPort: Int?
+        get() = serverSocket?.localPort
+
+    /**
+     * @param port Defaults to [PORT_ENV_VAR] if set, else [DEFAULT_PORT]. Pass `0` to bind
+     * an OS-assigned ephemeral port (e.g. from tests, to avoid colliding with a real running
+     * instance) and read it back afterwards via [boundPort].
+     */
+    fun start(
+        port: Int = System.getenv(PORT_ENV_VAR)?.toIntOrNull() ?: DEFAULT_PORT,
+    ) {
         if (serverSocket != null) {
             return
         }
-
-        val port = System.getenv(PORT_ENV_VAR)?.toIntOrNull() ?: DEFAULT_PORT
 
         val socket = ServerSocket()
         socket.reuseAddress = true

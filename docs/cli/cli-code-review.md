@@ -6,7 +6,7 @@ Verified by reading the diff and enclosing functions, compiling `:app:compileTes
 running `ktlintCheck` and `:app:jvmTest`, and empirically checking Jackson's
 null-deserialization behavior for `ControlCommandDispatcher.bind()`.
 
-**Status:** #1 and #2 are fixed (see "Fix applied" under each). #3 and #4 are still open.
+**Status:** #1, #2, and #3 are fixed (see "Fix applied"/"Tests added" under each). #4 is still open.
 
 ## 1. `chargePoint.disconnect` has no bounded timeout, unlike `chargePoint.connect` — FIXED
 
@@ -88,7 +88,7 @@ JSON `null`), and uses that `id` in the `INVALID_REQUEST` response if the subseq
 `command` field). Only genuinely unparsable JSON (the `readTree` call itself throwing)
 still reports `id = null`, since there's no tree to pull an id out of in that case.
 
-## 3. New `control/` subsystem has no automated test coverage
+## 3. New `control/` subsystem has no automated test coverage — FIXED
 
 **Files:** `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/service/ControlCommandDispatcher.kt`,
 `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/service/ControlServerService.kt`
@@ -107,6 +107,42 @@ covered by `:app:jvmTest`, so CI would not catch a regression in any of them.
 
 **Suggested fix:** add the socket-level integration test §13 already calls for, at minimum
 covering the malformed-request/`id` case (finding 2) and a full round trip per command.
+
+**Tests added:**
+
+- `app/src/jvmTest/kotlin/com/monta/ocpp/emulator/control/service/ControlTestFixture.kt` —
+  shared, lazily-initialized `object` fixture that builds a real
+  `ChargePointService`/`ConnectionManager`/`ChargePointManager`/`ControlCommandDispatcher`
+  graph by hand (constructor injection, no Koin — this project has no test mocking library)
+  against a throwaway SQLite database under `~/monta/` (unique per test run, deleted via a
+  JVM shutdown hook). It's a single shared `object` specifically so only *one*
+  `DatabaseService.connect()` call happens for the whole `control/` test suite — Exposed's
+  no-arg `transaction { }` follows whichever `Database` was connected *most recently*, so two
+  independent `connect()` calls from two test classes would have made the second one silently
+  steal the "current" database out from under the first.
+- `app/src/jvmTest/kotlin/com/monta/ocpp/emulator/control/service/ControlCommandDispatcherTest.kt`
+  — 10 tests against `ControlCommandDispatcher.dispatch()` directly: `hello`, unknown-command →
+  `UNKNOWN_COMMAND`, a params object missing a required field → `INVALID_PARAMS`, an unknown
+  identity → `CHARGE_POINT_NOT_FOUND`, `chargePoint.getState`/`connector.getState` (including
+  connector self-heal) against seeded data, and that `chargePoint.setAvailability`,
+  `connector.setCarState`, `connector.setStatus`, and `connector.stopTransaction` actually
+  persist their changes.
+- `app/src/jvmTest/kotlin/com/monta/ocpp/emulator/control/service/ControlServerServiceTest.kt`
+  — 7 tests driving a real loopback `Socket` against a real `ControlServerService`: a `hello`
+  round trip through actual NDJSON, the malformed-JSON case, **the regression case for finding
+  2** (well-formed JSON missing `command` still echoes the caller's `id`), unknown-command,
+  a request with no `id` gets a response with no `id`, blank lines between commands being
+  ignored, and one connection pipelining several commands and matching responses by `id`.
+
+**Enabled by a small testability addition to `ControlServerService`:** `start()` now takes an
+optional `port` parameter (default unchanged: the `OCPP_EMULATOR_CONTROL_PORT` env var, else
+`9911`), and a new `boundPort: Int?` property exposes the actually-bound port. Tests call
+`start(port = 0)` to get an OS-assigned ephemeral port (avoiding collisions with a real running
+instance or other test runs) and read it back via `boundPort`.
+
+Deliberately still out of scope (documented in `ControlTestFixture`'s doc comment): `chargePoint.connect`/`disconnect`
+and `connector.authorize`, which need a live (or fake) OCPP websocket/CSMS — and the actual
+timeout behavior added for finding 1, which would need a slow/fake CSMS endpoint to trigger.
 
 ## 4. `ControlServerService.start()` double-start check is not atomic
 
