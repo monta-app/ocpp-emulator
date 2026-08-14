@@ -1,7 +1,8 @@
 # Remote control for integration testing — implementation plan
 
 Status: **MVP implemented** (`app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/`,
-wired into `App.kt`; reference client at `docs/cli/control_client.py`). The control socket
+wired into `App.kt`; reference client at `remotecontrol/python/remotecontrol.py`, backed by
+the reusable `ocpp_emulator_remote_control` package in the same directory). The control socket
 is opt-in: `OcppEmulator` with no arguments behaves exactly as before (no socket started).
 Pass `-integration` to start it, and optionally `--db <name>` (only valid together with
 `-integration`) to point the run at a different SQLite database file under `~/monta/`
