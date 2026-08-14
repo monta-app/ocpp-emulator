@@ -1,7 +1,13 @@
 # Remote control for integration testing — implementation plan
 
 Status: **MVP implemented** (`app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/`,
-wired into `App.kt`; reference client at `docs/cli/control_client.py`). This document
+wired into `App.kt`; reference client at `docs/cli/control_client.py`). The control socket
+is opt-in: `OcppEmulator` with no arguments behaves exactly as before (no socket started).
+Pass `-integration` to start it, and optionally `--db <name>` (only valid together with
+`-integration`) to point the run at a different SQLite database file under `~/monta/`
+instead of the default `app.db`, so separate integration test scenarios can keep separate
+charge point configurations. `OcppEmulator -?`/`-h`/`--help` prints usage and exits. See
+`platform/util/CliArgs.kt`. This document
 captures the design for letting an external process (e.g. a CSMS's own integration-test
 suite) drive a *running* emulator instance — connect/disconnect charge points,
 plug/unplug cars, force connector status, start/stop transactions — without touching the
@@ -187,15 +193,18 @@ UI thread is needed, and nothing here depends on Compose being loaded at all.
 - `ControlServerService` is `@Singleton` (`javax.inject.Singleton`) — auto-registered by
   Koin's existing `@ComponentScan("com.monta.ocpp.emulator")` in `MontaKoinModule`, no
   manual DI wiring needed (same as every other service in the app).
-- `App.kt` needs **one added line**, in the same spot `databaseService.connect()` is
+- `App.kt` parses CLI args first (`platform/util/CliArgs.kt`) and only starts the server
+  when `-integration` was passed, in the same spot `databaseService.connect()` is
   called today:
   ```kotlin
-  val controlServerService: ControlServerService by injectAnywhere()
-  controlServerService.start()
+  if (cliArgs.integrationMode) {
+      val controlServerService: ControlServerService by injectAnywhere()
+      controlServerService.start()
+  }
   ```
 - Shutdown: extend the existing `Runtime.getRuntime().addShutdownHook { ... }` block
   (already calls `connectionManager.disconnectAll()`) to also call
-  `controlServerService.stop()`.
+  `controlServerService.stop()` when integration mode was enabled.
 - No dependency on the `application { }` Compose block — `ControlServerService.start()`
   runs regardless of whether/when the GUI window opens, so this wiring works unchanged
   even if a `--headless` mode is added later (open question, see §12).
