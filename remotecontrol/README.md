@@ -59,6 +59,30 @@ before anything else happens:
 | `OcppEmulator -?` / `-h` / `--help` | Prints usage and exits 0 — nothing else starts. |
 | anything else | Prints an error to stderr and exits 1. |
 
+### Packaging: the exe now always opens a console window
+
+`app/build.gradle.kts`'s `nativeDistributions` block sets `windows { console = true }`.
+This is a tradeoff, not a free improvement, and worth calling out for whoever reviews it:
+
+- **Why it's there:** `-?`/`-h`/`--help` and CLI arg errors are `println`/`System.err`
+  calls (`CliArgs.kt`). jpackage's default on Windows is a GUI-subsystem exe with *no*
+  console attached, so without this flag that output has nowhere to go — the process just
+  exits and it looks like the flag did nothing, even when run from an existing terminal.
+  `console = true` makes jpackage emit a console-subsystem exe instead, so that output (and
+  any future stdout/stderr logging) is visible.
+- **The cost:** a console-subsystem exe always allocates a console window on launch —
+  including the plain double-click, GUI-only, non-`-integration` path that's still the
+  default and unchanged otherwise. Every normal user now sees a black console window sitting
+  behind the app window for the life of the process.
+- **Upside beyond `--help`:** that console window also surfaces any stray `println`/stack
+  trace/logging that would otherwise be silently swallowed, which has already been handy
+  during integration-testing this feature.
+- **Not decided:** whether that always-visible console is acceptable to the project owners
+  for the normal GUI user, or whether it should instead be scoped to `-integration`/`--help`
+  only (e.g. a separate console-mode launcher, or attaching/allocating a console at runtime
+  via JNA only when needed). Left as `console = true` for now since it's the simplest option
+  and unblocks CLI testing; revisit if it draws pushback.
+
 Supporting change: `DatabaseService` took a `databaseName` constructor parameter
 (default `"app.db"`, exposed as `DEFAULT_DATABASE_NAME`) instead of hardcoding it, and
 `App.kt` now constructs it directly (`DatabaseService(databaseName = cliArgs.databaseName

@@ -128,6 +128,12 @@ compose.desktop {
             linux {
                 iconFile.set(project.file("src/jvmMain/resources/icon.png"))
             }
+            windows {
+                // Without this, jpackage builds a GUI-subsystem exe with no console
+                // attached, so println() output (e.g. -h/--help, CLI arg errors) is
+                // silently discarded instead of showing up in the caller's terminal.
+                console = true
+            }
         }
     }
 }
