@@ -30,6 +30,7 @@ class ControlServerService(
 
     private val logger = KotlinLogging.logger {}
     private val objectMapper = MontaSerialization.objectMapper
+    private val lifecycleLock = Any()
 
     @Volatile
     private var serverSocket: ServerSocket? = null
@@ -50,32 +51,36 @@ class ControlServerService(
     fun start(
         port: Int = System.getenv(PORT_ENV_VAR)?.toIntOrNull() ?: DEFAULT_PORT,
     ) {
-        if (serverSocket != null) {
-            return
+        synchronized(lifecycleLock) {
+            if (serverSocket != null) {
+                return
+            }
+
+            val socket = ServerSocket()
+            socket.reuseAddress = true
+            socket.bind(InetSocketAddress(InetAddress.getLoopbackAddress(), port))
+            serverSocket = socket
+
+            logger.info { "control server listening on ${socket.inetAddress.hostAddress}:${socket.localPort}" }
+
+            Thread {
+                acceptLoop(socket)
+            }.apply {
+                isDaemon = true
+                name = "control-server-accept"
+            }.start()
         }
-
-        val socket = ServerSocket()
-        socket.reuseAddress = true
-        socket.bind(InetSocketAddress(InetAddress.getLoopbackAddress(), port))
-        serverSocket = socket
-
-        logger.info { "control server listening on ${socket.inetAddress.hostAddress}:${socket.localPort}" }
-
-        Thread {
-            acceptLoop(socket)
-        }.apply {
-            isDaemon = true
-            name = "control-server-accept"
-        }.start()
     }
 
     fun stop() {
-        val socket = serverSocket ?: return
-        serverSocket = null
-        try {
-            socket.close()
-        } catch (exception: IOException) {
-            logger.warn(exception) { "failed to close control server socket" }
+        synchronized(lifecycleLock) {
+            val socket = serverSocket ?: return
+            serverSocket = null
+            try {
+                socket.close()
+            } catch (exception: IOException) {
+                logger.warn(exception) { "failed to close control server socket" }
+            }
         }
     }
 

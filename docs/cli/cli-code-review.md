@@ -6,7 +6,7 @@ Verified by reading the diff and enclosing functions, compiling `:app:compileTes
 running `ktlintCheck` and `:app:jvmTest`, and empirically checking Jackson's
 null-deserialization behavior for `ControlCommandDispatcher.bind()`.
 
-**Status:** #1, #2, and #3 are fixed (see "Fix applied"/"Tests added" under each). #4 is still open.
+**Status:** all four findings are fixed (see "Fix applied"/"Tests added" under each).
 
 ## 1. `chargePoint.disconnect` has no bounded timeout, unlike `chargePoint.connect` — FIXED
 
@@ -144,7 +144,7 @@ Deliberately still out of scope (documented in `ControlTestFixture`'s doc commen
 and `connector.authorize`, which need a live (or fake) OCPP websocket/CSMS — and the actual
 timeout behavior added for finding 1, which would need a slow/fake CSMS endpoint to trigger.
 
-## 4. `ControlServerService.start()` double-start check is not atomic
+## 4. `ControlServerService.start()` double-start check is not atomic — FIXED
 
 **File:** `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/service/ControlServerService.kt:658-678`
 
@@ -168,6 +168,13 @@ null`, and both proceed to `ServerSocket().bind(...)` on the same port; the seco
 throws `BindException`, which is uncaught by `start()` and propagates to the caller. Low
 likelihood given the current single call site, but cheap to close off (e.g. a
 `synchronized` block or `AtomicReference.compareAndSet`).
+
+**Fix applied:** added a private `lifecycleLock` and wrapped the bodies of both `start()`
+and `stop()` in `synchronized(lifecycleLock) { ... }`, making the check-then-act guard in
+each atomic with respect to the other. `boundPort` still reads the `@Volatile` field
+directly (no lock needed for a single read). Verified via `:app:compileTestKotlinJvm`,
+`ktlintCheck`, and the existing `ControlServerServiceTest` suite (12 tests, all passing —
+no deadlock between the accept thread and concurrent `start`/`stop` calls).
 
 ---
 
