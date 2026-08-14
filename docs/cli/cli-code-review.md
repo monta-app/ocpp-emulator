@@ -6,7 +6,9 @@ Verified by reading the diff and enclosing functions, compiling `:app:compileTes
 running `ktlintCheck` and `:app:jvmTest`, and empirically checking Jackson's
 null-deserialization behavior for `ControlCommandDispatcher.bind()`.
 
-## 1. `chargePoint.disconnect` has no bounded timeout, unlike `chargePoint.connect`
+**Status:** #1 and #2 are fixed (see "Fix applied" under each). #3 and #4 are still open.
+
+## 1. `chargePoint.disconnect` has no bounded timeout, unlike `chargePoint.connect` — FIXED
 
 **File:** `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/service/ControlCommandDispatcher.kt:504`
 
@@ -36,7 +38,13 @@ eventually completes the disconnect server-side.
 `withTimeoutOrNull(CONNECT_TIMEOUT_MILLIS) { job?.join() }`), and document the bound the
 same way `awaitConnected()` is documented.
 
-## 2. Malformed request loses the caller's `id`, breaking the documented pipelining contract
+**Fix applied:** `ControlCommandDispatcher.disconnect()` now wraps the `.join()` in
+`withTimeoutOrNull(DISCONNECT_TIMEOUT_MILLIS)` (a new 10s constant, matching
+`CONNECT_TIMEOUT_MILLIS`). If the deadline passes, dispatch stops waiting and returns
+whatever `ChargePointDAO` state is currently persisted, instead of hanging the control
+connection indefinitely.
+
+## 2. Malformed request loses the caller's `id`, breaking the documented pipelining contract — FIXED
 
 **File:** `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/control/service/ControlServerService.kt:740-751`
 
@@ -72,6 +80,13 @@ failure response back to the request that caused it.
 **Suggested fix:** parse the JSON generically first (`objectMapper.readTree(line)`), pull
 `id` out of the raw tree before attempting to bind to `ControlRequest`, and use that `id` in
 the failure response regardless of where deserialization failed.
+
+**Fix applied:** `ControlServerService.handleLine()` now parses the line with
+`objectMapper.readTree(line)` first, extracts `id` from the raw tree (`null` if absent or
+JSON `null`), and uses that `id` in the `INVALID_REQUEST` response if the subsequent
+`objectMapper.treeToValue(tree, ControlRequest::class.java)` binding fails (e.g. a missing
+`command` field). Only genuinely unparsable JSON (the `readTree` call itself throwing)
+still reports `id = null`, since there's no tree to pull an id out of in that case.
 
 ## 3. New `control/` subsystem has no automated test coverage
 

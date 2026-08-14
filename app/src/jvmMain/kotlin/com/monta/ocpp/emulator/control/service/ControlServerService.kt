@@ -119,11 +119,27 @@ class ControlServerService(
     private fun handleLine(
         line: String,
     ): ControlResponse {
-        val request = try {
-            objectMapper.readValue(line, ControlRequest::class.java)
+        // Parse to a raw tree first so a caller-supplied `id` can still be echoed back even
+        // when the request fails to bind to ControlRequest (e.g. a missing `command` field) -
+        // see docs/cli/cli-plan.md §7: `id` is echoed back unchanged so a client can match
+        // responses to pipelined requests, including failure responses.
+        val tree = try {
+            objectMapper.readTree(line)
         } catch (exception: Exception) {
             return ControlResponse.failure(
                 id = null,
+                code = "INVALID_REQUEST",
+                message = exception.message ?: "malformed request",
+            )
+        }
+
+        val id = tree.get("id")?.takeUnless { it.isNull }?.asText()
+
+        val request = try {
+            objectMapper.treeToValue(tree, ControlRequest::class.java)
+        } catch (exception: Exception) {
+            return ControlResponse.failure(
+                id = id,
                 code = "INVALID_REQUEST",
                 message = exception.message ?: "malformed request",
             )

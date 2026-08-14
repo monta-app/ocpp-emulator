@@ -28,6 +28,7 @@ import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.MontaSerialization
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Singleton
 
 @Singleton
@@ -40,6 +41,7 @@ class ControlCommandDispatcher(
     companion object {
         private const val CONNECT_TIMEOUT_MILLIS = 10_000L
         private const val CONNECT_POLL_INTERVAL_MILLIS = 100L
+        private const val DISCONNECT_TIMEOUT_MILLIS = 10_000L
     }
 
     private val logger = KotlinLogging.logger {}
@@ -123,12 +125,22 @@ class ControlCommandDispatcher(
         }
     }
 
+    /**
+     * ChargePointConnection.disconnect() sends a StatusNotificationRequest over the live
+     * websocket before closing it, which can block if the CSMS is slow or unreachable.
+     * Bound the wait by [DISCONNECT_TIMEOUT_MILLIS] - matching [awaitConnected]'s bound on
+     * the connect side - so a stuck CSMS doesn't hang the control connection; the actual
+     * disconnect still completes on its own coroutine in the background, we just stop
+     * waiting for it and report whatever state is persisted at the deadline.
+     */
     private suspend fun disconnect(
         paramsNode: JsonNode,
     ): ChargePointStateResult {
         val params = bind<IdentityParams>(paramsNode)
         val chargePoint = chargePointService.getByIdentity(params.identity)
-        connectionManager.disconnect(chargePoint.idValue)?.join()
+        withTimeoutOrNull(DISCONNECT_TIMEOUT_MILLIS) {
+            connectionManager.disconnect(chargePoint.idValue)?.join()
+        }
         return chargePointService.getByIdentity(params.identity).toResult()
     }
 
