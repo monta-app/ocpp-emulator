@@ -16,7 +16,8 @@
         'Set-OcppCarState',
         'Set-OcppConnectorReady',
         'Set-OcppConnectorUnplugged',
-        'Set-OcppConnectorStatus'
+        'Set-OcppConnectorStatus',
+        'Get-OcppConnectorStatus'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()

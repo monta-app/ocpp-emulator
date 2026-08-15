@@ -26,22 +26,27 @@ directly, e.g. from a Pester test project: Import-Module .\OcppEmulatorRemoteCon
 .\remotecontrol.ps1 unplug CP001:2
 
 .EXAMPLE
-.\remotecontrol.ps1 connector-status CP001:2 -Status Faulted -ErrorCode NoError
+.\remotecontrol.ps1 set-connector-status CP001:2 -Status Faulted -ErrorCode NoError
 
 .EXAMPLE
-.\remotecontrol.ps1 connector-status CP001:2 -ErrorCode OverVoltage
+.\remotecontrol.ps1 set-connector-status CP001:2 -ErrorCode OverVoltage
 
--Status/-ErrorCode are independent for connector-status - pass either or both; whichever
-one is omitted keeps its current value. Values are matched case-insensitively.
+-Status/-ErrorCode are independent for set-connector-status - pass either or both;
+whichever one is omitted keeps its current value. Values are matched case-insensitively.
+
+.EXAMPLE
+.\remotecontrol.ps1 get-connector-status CP001:2
+
+Reads a connector's current status/error code (read-only).
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory, Position = 0)]
-    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'connector-status')]
+    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status')]
     [string]$Action,
 
-    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/connector-status
+    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/set-connector-status/get-connector-status
     [Parameter(Position = 1)]
     [string]$Target,
 
@@ -72,17 +77,17 @@ function Split-ChargePointConnector {
     throw "invalid target '$Value': expected CP or CP:connector, e.g. CP001 or CP001:2"
 }
 
-if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'connector-status') -and -not $Target) {
+if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status') -and -not $Target) {
     throw "$Action requires a target (identity, or CP[:connector])"
 }
-if ($Action -eq 'connector-status' -and -not $Status -and -not $ErrorCode) {
-    throw 'connector-status requires at least one of -Status or -ErrorCode'
+if ($Action -eq 'set-connector-status' -and -not $Status -and -not $ErrorCode) {
+    throw 'set-connector-status requires at least one of -Status or -ErrorCode'
 }
 
 # Parse CP[:connector] targets up front, before opening any connection, so a malformed
 # target fails fast instead of after an unnecessary socket connect.
 $chargePointConnector = $null
-if ($Action -in @('plug', 'unplug', 'connector-status')) {
+if ($Action -in @('plug', 'unplug', 'set-connector-status', 'get-connector-status')) {
     $chargePointConnector = Split-ChargePointConnector -Value $Target
 }
 
@@ -112,9 +117,14 @@ try {
             $result = Set-OcppConnectorUnplugged -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId
             Write-Output "$($cp.Identity):$($cp.ConnectorId): carState=$($result.carState)"
         }
-        'connector-status' {
+        'set-connector-status' {
             $cp = $chargePointConnector
             $result = Set-OcppConnectorStatus -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId -Status $Status -ErrorCode $ErrorCode
+            Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status) errorCode=$($result.errorCode)"
+        }
+        'get-connector-status' {
+            $cp = $chargePointConnector
+            $result = Get-OcppConnectorStatus -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId
             Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status) errorCode=$($result.errorCode)"
         }
     }

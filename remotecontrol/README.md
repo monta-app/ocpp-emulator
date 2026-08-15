@@ -224,9 +224,10 @@ Methods: `hello()`, `connect(identity)`, `disconnect(identity)`,
 are independent, pass either or both; whichever is omitted is read from the connector's
 current state first and resent unchanged (matches the GUI dialog's pre-fill behavior).
 `status`/`error` values are matched case-insensitively against the OCPP enum names and
-normalized before being sent. Any other command from the catalog above can be issued with
-the low-level `send(command, **params)`, which returns the parsed `result` dict and raises
-`RuntimeError` on an error response.
+normalized before being sent. `get_connector_status(identity, connector_id=1)` — read-only
+counterpart, returns the connector's current `status`/`errorCode`/`carState`/etc. Any other
+command from the catalog above can be issued with the low-level `send(command, **params)`,
+which returns the parsed `result` dict and raises `RuntimeError` on an error response.
 
 ### CLI
 
@@ -236,8 +237,9 @@ python remotecontrol.py connect CP001
 python remotecontrol.py disconnect CP001
 python remotecontrol.py plug CP001:2                          # connector defaults to 1 if omitted
 python remotecontrol.py unplug CP001:2
-python remotecontrol.py connector-status CP001:2 --status Faulted --error NoError
-python remotecontrol.py connector-status CP001:2 --error OverVoltage   # --status/--error independent
+python remotecontrol.py set-connector-status CP001:2 --status Faulted --error NoError
+python remotecontrol.py set-connector-status CP001:2 --error OverVoltage   # --status/--error independent
+python remotecontrol.py get-connector-status CP001:2
 ```
 
 Global options: `--host` (default `127.0.0.1`), `--port` (default `9911`). Charge
@@ -276,7 +278,9 @@ escape hatch for any command in the catalog),
 `Set-OcppConnectorUnplugged -Client <client> -Identity <string> [-ConnectorId <int>]`,
 `Set-OcppConnectorStatus -Client <client> -Identity <string> [-ConnectorId <int>] [-Status <string>] [-ErrorCode <string>]`
 (`-Status`/`-ErrorCode` independent, same pre-fill behavior as the Python client;
-case-insensitive against the OCPP enum names).
+case-insensitive against the OCPP enum names),
+`Get-OcppConnectorStatus -Client <client> -Identity <string> [-ConnectorId <int>]`
+(read-only counterpart to `Set-OcppConnectorStatus`).
 
 ### CLI
 
@@ -286,14 +290,15 @@ case-insensitive against the OCPP enum names).
 .\remotecontrol.ps1 disconnect CP001
 .\remotecontrol.ps1 plug CP001:2
 .\remotecontrol.ps1 unplug CP001:2
-.\remotecontrol.ps1 connector-status CP001:2 -Status Faulted -ErrorCode NoError
-.\remotecontrol.ps1 connector-status CP001:2 -ErrorCode OverVoltage
+.\remotecontrol.ps1 set-connector-status CP001:2 -Status Faulted -ErrorCode NoError
+.\remotecontrol.ps1 set-connector-status CP001:2 -ErrorCode OverVoltage
+.\remotecontrol.ps1 get-connector-status CP001:2
 ```
 
-Params: `-Action <hello|connect|disconnect|plug|unplug|connector-status>` (positional),
-`-Target <string>` (positional; identity for `connect`/`disconnect`, `CP` or `CP:connector`
-for `plug`/`unplug`/`connector-status`), `-Status`, `-ErrorCode`,
-`-ComputerName` (default `127.0.0.1`), `-Port` (default `9911`).
+Params: `-Action <hello|connect|disconnect|plug|unplug|set-connector-status|get-connector-status>`
+(positional), `-Target <string>` (positional; identity for `connect`/`disconnect`, `CP` or
+`CP:connector` for `plug`/`unplug`/`set-connector-status`/`get-connector-status`), `-Status`,
+`-ErrorCode`, `-ComputerName` (default `127.0.0.1`), `-Port` (default `9911`).
 
 ## End-to-end example
 
@@ -304,7 +309,8 @@ for `plug`/`unplug`/`connector-status`), `-Status`, `-ErrorCode`,
 # from another shell, once a charge point named CP001 exists in that DB
 python remotecontrol/python/remotecontrol.py connect CP001
 python remotecontrol/python/remotecontrol.py plug CP001
-python remotecontrol/python/remotecontrol.py connector-status CP001 --error OverVoltage
+python remotecontrol/python/remotecontrol.py set-connector-status CP001 --error OverVoltage
+python remotecontrol/python/remotecontrol.py get-connector-status CP001
 python remotecontrol/python/remotecontrol.py disconnect CP001
 ```
 

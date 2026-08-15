@@ -166,6 +166,11 @@ class ControlClient:
             errorCode=error,
         )
 
+    def get_connector_status(self, identity: str, connector_id: int = 1) -> dict[str, Any]:
+        """Read a connector's current status/error code (and carState/transaction/meter) -
+        the read-only counterpart to set_connector_status()."""
+        return self.send("connector.getState", identity=identity, connectorId=connector_id)
+
     def close(self) -> None:
         self._socket.close()
 

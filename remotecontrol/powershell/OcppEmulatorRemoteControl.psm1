@@ -338,6 +338,29 @@ function Set-OcppConnectorStatus {
     }
 }
 
+function Get-OcppConnectorStatus {
+    <#
+    .SYNOPSIS
+    Reads a connector's current status/error code - the read-only counterpart to
+    Set-OcppConnectorStatus.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Client,
+
+        [Parameter(Mandatory)]
+        [string]$Identity,
+
+        [int]$ConnectorId = 1
+    )
+
+    Send-OcppControlCommand -Client $Client -Command 'connector.getState' -Params @{
+        identity    = $Identity
+        connectorId = $ConnectorId
+    }
+}
+
 Export-ModuleMember -Function @(
     'New-OcppControlClient',
     'Close-OcppControlClient',
@@ -348,5 +371,6 @@ Export-ModuleMember -Function @(
     'Set-OcppCarState',
     'Set-OcppConnectorReady',
     'Set-OcppConnectorUnplugged',
-    'Set-OcppConnectorStatus'
+    'Set-OcppConnectorStatus',
+    'Get-OcppConnectorStatus'
 )

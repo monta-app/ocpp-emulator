@@ -26,8 +26,12 @@ Or to force a connector's raw status/error code (the GUI's "Connector Status"
 dialog) - --status and --error are independent, pass either or both; whichever
 one is omitted keeps its current value:
 
-    python remotecontrol.py connector-status CP001:2 --status Faulted --error NoError
-    python remotecontrol.py connector-status CP001:2 --error OverVoltage
+    python remotecontrol.py set-connector-status CP001:2 --status Faulted --error NoError
+    python remotecontrol.py set-connector-status CP001:2 --error OverVoltage
+
+Or to read a connector's current status/error code (read-only):
+
+    python remotecontrol.py get-connector-status CP001:2
 """
 
 from __future__ import annotations
@@ -74,23 +78,37 @@ def main() -> None:
         help="e.g. CP001 or CP001:2 (connector defaults to 1)",
     )
 
-    connector_status_parser = subparsers.add_parser(
-        "connector-status",
+    set_connector_status_parser = subparsers.add_parser(
+        "set-connector-status",
         help='force a connector\'s raw status/error code (GUI "Connector Status" dialog)',
     )
-    connector_status_parser.add_argument(
+    set_connector_status_parser.add_argument(
         "charge_point",
         metavar="CP[:connector]",
         type=parse_charge_point_connector,
         help="e.g. CP001 or CP001:2 (connector defaults to 1)",
     )
-    connector_status_parser.add_argument("--status", help="e.g. Available, Faulted, ... (see ChargePointStatus)")
-    connector_status_parser.add_argument("--error", help="e.g. NoError, OverVoltage, ... (see ChargePointErrorCode)")
+    set_connector_status_parser.add_argument("--status", help="e.g. Available, Faulted, ... (see ChargePointStatus)")
+    set_connector_status_parser.add_argument(
+        "--error",
+        help="e.g. NoError, OverVoltage, ... (see ChargePointErrorCode)",
+    )
+
+    get_connector_status_parser = subparsers.add_parser(
+        "get-connector-status",
+        help="read a connector's current status/error code (read-only)",
+    )
+    get_connector_status_parser.add_argument(
+        "charge_point",
+        metavar="CP[:connector]",
+        type=parse_charge_point_connector,
+        help="e.g. CP001 or CP001:2 (connector defaults to 1)",
+    )
 
     args = parser.parse_args()
 
-    if args.action == "connector-status" and args.status is None and args.error is None:
-        parser.error("connector-status requires at least one of --status or --error")
+    if args.action == "set-connector-status" and args.status is None and args.error is None:
+        parser.error("set-connector-status requires at least one of --status or --error")
 
     with ControlClient(host=args.host, port=args.port) as client:
         if args.action == "hello":
@@ -111,9 +129,13 @@ def main() -> None:
             identity, connector_id = args.charge_point
             result = client.unplug(identity, connector_id)
             print(f"{identity}:{connector_id}: carState={result.get('carState')}")
-        elif args.action == "connector-status":
+        elif args.action == "set-connector-status":
             identity, connector_id = args.charge_point
             result = client.set_connector_status(identity, connector_id, status=args.status, error=args.error)
+            print(f"{identity}:{connector_id}: status={result.get('status')} errorCode={result.get('errorCode')}")
+        elif args.action == "get-connector-status":
+            identity, connector_id = args.charge_point
+            result = client.get_connector_status(identity, connector_id)
             print(f"{identity}:{connector_id}: status={result.get('status')} errorCode={result.get('errorCode')}")
 
 
