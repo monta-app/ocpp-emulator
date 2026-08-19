@@ -187,17 +187,32 @@ class ControlClient:
         return self.send("connector.getState", identity=identity, connectorId=connector_id)
 
     def authorize(self, identity: str, id_tag: str, connector_id: int = 1) -> dict[str, Any]:
-        """Present an idTag to the CSMS - the GUI's "Authorize" RFID dialog. Starts a
-        transaction on the connector when the CSMS accepts the idTag. Returns a dict with
-        the resulting `status` (OCPP AuthorizationStatus: Accepted/Blocked/Expired/Invalid/
-        ConcurrentTx).
+        """Present an idTag to the CSMS - the GUI's "Authorize" RFID dialog: an
+        Authorize.req/.conf round trip first, and only if accepted, a separate
+        StartTransaction.req/.conf to actually start the transaction. This is the
+        "RFID tap" pattern - authorize *before* physically plugging in. For the
+        plug-in/autocharge pattern (single StartTransaction round trip, no separate
+        Authorize.req), see start_transaction(). Returns a dict with the resulting
+        `status` (OCPP AuthorizationStatus: Accepted/Blocked/Expired/Invalid/ConcurrentTx).
 
-        OCPP 1.6's Authorize/StartTransaction only carry an idTag (max 20 chars) - there is
-        no VIN field in the protocol, so a vehicle can't be identified to the CSMS this way.
-        If you need to correlate a session with a specific car, encode that into the idTag
-        value itself (by convention with your CSMS) rather than relying on protocol support.
+        Both patterns are fully decided by the CSMS's response - this emulator's Local
+        Authorization List only stores what the CSMS pushes down (for reporting back via
+        GetLocalListVersion), it never gates an outgoing request. OCPP 1.6's
+        Authorize/StartTransaction only carry an idTag (max 20 chars) - there is no VIN
+        field in the protocol, so a vehicle can't be identified to the CSMS beyond
+        whatever string you pass as `id_tag`.
         """
         return self.send("connector.authorize", identity=identity, idTag=id_tag, connectorId=connector_id)
+
+    def start_transaction(self, identity: str, id_tag: str, connector_id: int = 1) -> dict[str, Any]:
+        """Send StartTransaction.req directly, without a preceding Authorize.req - the
+        "plug-and-charge"/autocharge pattern: plug in, the Charge Point reads whatever
+        identifier the vehicle provides (there's no separate VIN field - it travels as
+        `id_tag`, same as authorize()), and one round trip to the CSMS both authorizes and
+        starts the transaction. The transaction only actually starts if the CSMS's
+        StartTransaction.conf carries an Accepted idTagInfo status. Returns a dict with the
+        connector's resulting state (`activeTransactionId` is set when accepted)."""
+        return self.send("connector.startTransaction", identity=identity, idTag=id_tag, connectorId=connector_id)
 
     def stop_transaction(
         self,

@@ -379,14 +379,19 @@ function Get-OcppConnectorStatus {
 function Invoke-OcppAuthorize {
     <#
     .SYNOPSIS
-    Presents an idTag to the CSMS - the GUI's "Authorize" RFID dialog. Starts a
-    transaction on the connector when the CSMS accepts the idTag.
+    Presents an idTag to the CSMS - the GUI's "Authorize" RFID dialog: an
+    Authorize.req/.conf round trip first, and only if accepted, a separate
+    StartTransaction.req/.conf to actually start the transaction.
 
     .DESCRIPTION
-    OCPP 1.6's Authorize/StartTransaction only carry an idTag (max 20 chars) - there is
-    no VIN field in the protocol, so a vehicle can't be identified to the CSMS this way.
-    If you need to correlate a session with a specific car, encode that into the idTag
-    value itself (by convention with your CSMS) rather than relying on protocol support.
+    This is the "RFID tap" pattern - authorize *before* physically plugging in. For the
+    plug-in/autocharge pattern (single StartTransaction round trip, no separate
+    Authorize.req), see Start-OcppTransaction. Both patterns are fully decided by the
+    CSMS's response - this emulator's Local Authorization List only stores what the CSMS
+    pushes down (for reporting back via GetLocalListVersion), it never gates an outgoing
+    request. OCPP 1.6's Authorize/StartTransaction only carry an idTag (max 20 chars) -
+    there is no VIN field in the protocol, so a vehicle can't be identified to the CSMS
+    beyond whatever string you pass as -IdTag.
     #>
     [CmdletBinding()]
     param(
@@ -403,6 +408,41 @@ function Invoke-OcppAuthorize {
     )
 
     Send-OcppControlCommand -Client $Client -Command 'connector.authorize' -Params @{
+        identity    = $Identity
+        connectorId = $ConnectorId
+        idTag       = $IdTag
+    }
+}
+
+function Start-OcppTransaction {
+    <#
+    .SYNOPSIS
+    Sends StartTransaction.req directly, without a preceding Authorize.req - the
+    "plug-and-charge"/autocharge pattern.
+
+    .DESCRIPTION
+    Plug in, the Charge Point reads whatever identifier the vehicle provides (there's no
+    separate VIN field - it travels as -IdTag, same as Invoke-OcppAuthorize), and one round
+    trip to the CSMS both authorizes and starts the transaction. The transaction only
+    actually starts if the CSMS's StartTransaction.conf carries an Accepted idTagInfo
+    status. Returns the connector's resulting state (activeTransactionId is set when
+    accepted).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Client,
+
+        [Parameter(Mandatory)]
+        [string]$Identity,
+
+        [int]$ConnectorId = 1,
+
+        [Parameter(Mandatory)]
+        [string]$IdTag
+    )
+
+    Send-OcppControlCommand -Client $Client -Command 'connector.startTransaction' -Params @{
         identity    = $Identity
         connectorId = $ConnectorId
         idTag       = $IdTag
@@ -458,5 +498,6 @@ Export-ModuleMember -Function @(
     'Set-OcppConnectorStatus',
     'Get-OcppConnectorStatus',
     'Invoke-OcppAuthorize',
+    'Start-OcppTransaction',
     'Stop-OcppTransaction'
 )

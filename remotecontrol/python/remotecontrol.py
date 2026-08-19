@@ -33,11 +33,19 @@ Or to read a connector's current status/error code (read-only):
 
     python remotecontrol.py get-connector-status CP001:2
 
-Or to present an idTag and start a transaction (the GUI's "Authorize" RFID dialog).
-Note OCPP 1.6 has no VIN field - only idTag - so a vehicle can't be identified to the
-CSMS this way; encode any vehicle correlation into the idTag by convention if needed:
+Or to present an idTag and start a transaction (the GUI's "Authorize" RFID dialog) -
+Authorize.req/.conf first, then, if accepted, a separate StartTransaction.req/.conf. This
+is the "RFID tap" pattern: authorize *before* physically plugging in. Note OCPP 1.6 has no
+VIN field - only idTag - so a vehicle can't be identified to the CSMS this way; encode any
+vehicle correlation into the idTag by convention if needed:
 
     python remotecontrol.py authorize CP001:2 --id-tag DEADBEEF
+
+Or to start a transaction directly, without a separate Authorize.req - the "plug and
+charge"/autocharge pattern (plug in, Charge Point reads whatever identifier the vehicle
+provides, a single StartTransaction round trip both authorizes and starts):
+
+    python remotecontrol.py start-transaction CP001:2 --id-tag DEADBEEF
 
 Or to stop the connector's active transaction (the GUI's "Stop transaction" button):
 
@@ -128,6 +136,22 @@ def main() -> None:
     )
     authorize_parser.add_argument("--id-tag", required=True, help="RFID idTag to present (max 20 chars)")
 
+    start_transaction_parser = subparsers.add_parser(
+        "start-transaction",
+        help='start a transaction directly, no separate Authorize.req ("plug and charge" pattern)',
+    )
+    start_transaction_parser.add_argument(
+        "charge_point",
+        metavar="CP[:connector]",
+        type=parse_charge_point_connector,
+        help="e.g. CP001 or CP001:2 (connector defaults to 1)",
+    )
+    start_transaction_parser.add_argument(
+        "--id-tag",
+        required=True,
+        help="identifier the vehicle provides (max 20 chars) - stands in for a VIN; OCPP 1.6 has no separate VIN field",
+    )
+
     stop_transaction_parser = subparsers.add_parser(
         "stop-transaction",
         help='stop the connector\'s active transaction (GUI "Stop transaction" button)',
@@ -180,6 +204,10 @@ def main() -> None:
             identity, connector_id = args.charge_point
             result = client.authorize(identity, args.id_tag, connector_id)
             print(f"{identity}:{connector_id}: status={result.get('status')}")
+        elif args.action == "start-transaction":
+            identity, connector_id = args.charge_point
+            result = client.start_transaction(identity, args.id_tag, connector_id)
+            print(f"{identity}:{connector_id}: status={result.get('status')} activeTransactionId={result.get('activeTransactionId')}")
         elif args.action == "stop-transaction":
             identity, connector_id = args.charge_point
             result = client.stop_transaction(

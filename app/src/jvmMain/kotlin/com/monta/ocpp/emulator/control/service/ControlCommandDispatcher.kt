@@ -22,6 +22,7 @@ import com.monta.ocpp.emulator.control.model.StopTransactionParams
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
 import com.monta.ocpp.emulator.ocpp.v16.extension.setConnectorCarState
 import com.monta.ocpp.emulator.ocpp.v16.extension.setStatus
+import com.monta.ocpp.emulator.ocpp.v16.extension.start
 import com.monta.ocpp.emulator.ocpp.v16.extension.stopActiveTransactions
 import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
@@ -84,6 +85,7 @@ class ControlCommandDispatcher(
             "connector.setCarState" -> setCarState(params)
             "connector.setStatus" -> setConnectorStatus(params)
             "connector.authorize" -> authorize(params)
+            "connector.startTransaction" -> startTransaction(params)
             "connector.stopTransaction" -> stopTransaction(params)
             "connector.getState" -> getConnectorState(params)
             else -> throw ControlCommandException("UNKNOWN_COMMAND", "unknown command '$command'")
@@ -195,6 +197,26 @@ class ControlCommandDispatcher(
         val connector = chargePoint.getConnector(params.connectorId)
         val status = chargePointManager.authorize(connector, params.idTag)
         return AuthorizeResult(status)
+    }
+
+    /**
+     * Sends StartTransaction.req directly, without a preceding Authorize.req - the
+     * "plug-and-charge"/autocharge pattern (plug in, Charge Point reads whatever
+     * identifier the vehicle provides, one round trip to the CSMS) as opposed to
+     * [authorize]'s RFID-tap pattern (Authorize.req first, then StartTransaction.req).
+     * Both are fully decided by the CSMS's response - this emulator's Local Authorization
+     * List (see [com.monta.ocpp.emulator.ocpp.v16.profile.LocalAuthHandler]) only stores
+     * what the CSMS pushes down for reporting back via GetLocalListVersion; it never gates
+     * an outgoing request.
+     */
+    private suspend fun startTransaction(
+        paramsNode: JsonNode,
+    ): ConnectorStateResult {
+        val params = bind<AuthorizeParams>(paramsNode)
+        val chargePoint = chargePointService.getByIdentity(params.identity)
+        val connector = chargePoint.getConnector(params.connectorId)
+        connector.start(params.idTag)
+        return connector.toResult()
     }
 
     private suspend fun stopTransaction(

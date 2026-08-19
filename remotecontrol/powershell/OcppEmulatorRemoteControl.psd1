@@ -19,6 +19,7 @@
         'Set-OcppConnectorStatus',
         'Get-OcppConnectorStatus',
         'Invoke-OcppAuthorize',
+        'Start-OcppTransaction',
         'Stop-OcppTransaction'
     )
     CmdletsToExport   = @()

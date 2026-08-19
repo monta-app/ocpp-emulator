@@ -15,6 +15,20 @@ plug/unplug cars, force connector status, start/stop transactions — without to
 GUI. The command catalog in §7 and the open questions in §12 still apply; nothing there
 has been resolved by the MVP beyond what's listed as in-scope.
 
+**Post-MVP addition:** `connector.startTransaction` was added alongside `connector.authorize`
+to cover the second of OCPP 1.6's two ways to begin a transaction (§4.1/§4.8 of the spec):
+`connector.authorize` is the RFID-tap pattern (`ChargePointManager.authorize()` —
+Authorize.req/.conf, then, if accepted, a separate StartTransaction.req — authorize
+*before* plugging in); `connector.startTransaction` is the plug-and-charge/autocharge
+pattern (`ChargePointConnectorDAO.start()` directly — a single StartTransaction.req/.conf
+round trip both authorizes and starts, no separate Authorize.req). The latter reuses the
+same code path `startFreeCharging()` already calls automatically when the `FreeCharging`
+configuration key is enabled, just callable on demand with any idTag. Both are fully
+decided by the CSMS's response; this emulator's Local Authorization List handler
+(`LocalAuthHandler.kt`) only stores what the CSMS pushes down for reporting back via
+`GetLocalListVersion` — it never gates either outgoing request, online or offline. Neither
+command has a VIN parameter, matching §4 below: OCPP 1.6 carries only `idTag`.
+
 ## 1. Goal
 
 The emulator today is GUI-only: every state transition (connect a charge point, plug in
@@ -170,7 +184,8 @@ rest of the session.
 | `chargePoint.getState` | `identity` | `ChargePointService.getByIdentity` → serialize `connected`, `status`, `errorCode`, connector summaries |
 | `connector.setCarState` | `identity`, `connectorId?`, `carState` (`A`\|`B`\|`C`) | `ChargePointConnectorDAO.setConnectorCarState(...)` |
 | `connector.setStatus` | `identity`, `connectorId?`, `status`, `errorCode?`, `vendorId?`, `vendorErrorCode?`, `info?` | `ChargePointConnectorDAO.setStatus(..., forceUpdate = true)` |
-| `connector.authorize` | `identity`, `connectorId?`, `idTag` | `ChargePointManager.authorize(connector, idTag)` |
+| `connector.authorize` | `identity`, `connectorId?`, `idTag` | `ChargePointManager.authorize(connector, idTag)` — RFID-tap pattern |
+| `connector.startTransaction` (post-MVP) | `identity`, `connectorId?`, `idTag` | `ChargePointConnectorDAO.start(idTag)` directly — plug-and-charge pattern |
 | `connector.stopTransaction` | `identity`, `connectorId?`, `reason?`, `endReasonDescription?` | `ChargePointConnectorDAO.stopActiveTransactions(...)` |
 | `connector.getState` | `identity`, `connectorId?` | serialize `status`, `carState`, `activeTransactionId`, `meterWh`, `locked` |
 

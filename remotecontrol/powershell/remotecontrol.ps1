@@ -42,9 +42,19 @@ Reads a connector's current status/error code (read-only).
 .EXAMPLE
 .\remotecontrol.ps1 authorize CP001:2 -IdTag DEADBEEF
 
-Presents an idTag and starts a transaction (GUI "Authorize" RFID dialog). OCPP 1.6 has
-no VIN field - only idTag - so a vehicle can't be identified to the CSMS this way; encode
-any vehicle correlation into the idTag by convention if needed.
+Presents an idTag and, if the CSMS accepts it, starts a transaction (GUI "Authorize" RFID
+dialog) - an Authorize.req/.conf round trip first, then a separate StartTransaction. The
+"RFID tap" pattern: authorize *before* physically plugging in.
+
+.EXAMPLE
+.\remotecontrol.ps1 start-transaction CP001:2 -IdTag DEADBEEF
+
+Starts a transaction directly, without a separate Authorize.req - the "plug and
+charge"/autocharge pattern (plug in, Charge Point reads whatever identifier the vehicle
+provides, a single StartTransaction round trip both authorizes and starts). Both this and
+`authorize` are fully decided by the CSMS's response; OCPP 1.6 has no VIN field - only
+idTag - so a vehicle can't be identified to the CSMS beyond whatever string you pass as
+-IdTag.
 
 .EXAMPLE
 .\remotecontrol.ps1 stop-transaction CP001:2
@@ -57,10 +67,10 @@ defaults to Local when omitted.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory, Position = 0)]
-    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction')]
+    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'start-transaction', 'stop-transaction')]
     [string]$Action,
 
-    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/set-connector-status/get-connector-status/authorize/stop-transaction
+    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/set-connector-status/get-connector-status/authorize/start-transaction/stop-transaction
     [Parameter(Position = 1)]
     [string]$Target,
 
@@ -94,7 +104,7 @@ function Split-ChargePointConnector {
     throw "invalid target '$Value': expected CP or CP:connector, e.g. CP001 or CP001:2"
 }
 
-if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction') -and -not $Target) {
+if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'start-transaction', 'stop-transaction') -and -not $Target) {
     throw "$Action requires a target (identity, or CP[:connector])"
 }
 if ($Action -eq 'set-connector-status' -and -not $Status -and -not $ErrorCode) {
@@ -103,11 +113,14 @@ if ($Action -eq 'set-connector-status' -and -not $Status -and -not $ErrorCode) {
 if ($Action -eq 'authorize' -and -not $IdTag) {
     throw 'authorize requires -IdTag'
 }
+if ($Action -eq 'start-transaction' -and -not $IdTag) {
+    throw 'start-transaction requires -IdTag'
+}
 
 # Parse CP[:connector] targets up front, before opening any connection, so a malformed
 # target fails fast instead of after an unnecessary socket connect.
 $chargePointConnector = $null
-if ($Action -in @('plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction')) {
+if ($Action -in @('plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'start-transaction', 'stop-transaction')) {
     $chargePointConnector = Split-ChargePointConnector -Value $Target
 }
 
@@ -151,6 +164,11 @@ try {
             $cp = $chargePointConnector
             $result = Invoke-OcppAuthorize -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId -IdTag $IdTag
             Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status)"
+        }
+        'start-transaction' {
+            $cp = $chargePointConnector
+            $result = Start-OcppTransaction -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId -IdTag $IdTag
+            Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status) activeTransactionId=$($result.activeTransactionId)"
         }
         'stop-transaction' {
             $cp = $chargePointConnector
