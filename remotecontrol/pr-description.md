@@ -1,3 +1,5 @@
+#  Title: Add loopback control socket + CLI flags for integration testing + RemoteControl Python and Powershell modules
+
 # OcppEmulator Remote Control for integration testing scenarios
 
 ## What should this change accomplish?
@@ -43,17 +45,5 @@ from reality.
 
 ## How was it built and verified?
 
-Built on the existing `ServerSocket`, coroutines, and Jackson object mapper already on
-the classpath — no new Gradle dependency for the control socket itself. Read the full
-diff and confirmed it matches the intent above.
-
-Ran `./gradlew ktlintCheck` and `./gradlew :app:jvmTest` — both pass, including the new
-`control/` suite (`ControlCommandDispatcherTest`, `ControlServerServiceTest`,
-`ControlTestFixture`) and `CliArgsTest`.
-
-Manually verified with `./gradlew :app:run --args="-integration --db integration-test.db"`
-plus both `remotecontrol/python/remotecontrol.py` and `remotecontrol/powershell/remotecontrol.ps1`
-CLIs against [fill in: which CSMS backend / local mock you tested against]. `chargePoint.connect`/
-`disconnect` and `connector.authorize` aren't covered by the automated suite by design —
-they need a live/fake CSMS websocket — so this manual pass is their only verification.
-
+The entire test suit is passing. In addition, OcppEmulator with all the changes is already working in my
+CSMS automated integration testing as well as manual tests.
