@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * A loopback-only TCP control channel for driving a running emulator instance from
- * external test code (see docs/cli/cli-plan.md). Speaks newline-delimited JSON:
+ * external test code (see remotecontrol/README.md). Speaks newline-delimited JSON:
  * one [ControlRequest] per line in, one [ControlResponse] per line out.
  */
 @Singleton
@@ -139,7 +139,7 @@ class ControlServerService(
     ): ControlResponse {
         // Parse to a raw tree first so a caller-supplied `id` can still be echoed back even
         // when the request fails to bind to ControlRequest (e.g. a missing `command` field) -
-        // see docs/cli/cli-plan.md §7: `id` is echoed back unchanged so a client can match
+        // see remotecontrol/README.md: `id` is echoed back unchanged so a client can match
         // responses to pipelined requests, including failure responses.
         val tree = try {
             objectMapper.readTree(line)

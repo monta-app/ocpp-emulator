@@ -62,7 +62,7 @@ fun main(
         val databaseService = DatabaseService(databaseName = cliArgs.databaseName ?: DEFAULT_DATABASE_NAME)
         databaseService.connect()
 
-        // -integration: start the control socket (see docs/cli/cli-plan.md) so external
+        // -integration: start the control socket (see remotecontrol/README.md) so external
         // test suites can drive this instance without the GUI
         if (cliArgs.integrationMode) {
             val controlServerService: ControlServerService by injectAnywhere()

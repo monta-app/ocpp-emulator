@@ -3,7 +3,7 @@
 CLI for the OCPP emulator's control socket.
 
 .DESCRIPTION
-See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design. The client
+See remotecontrol/README.md (in the ocpp-emulator repo) for the protocol design. The client
 library lives in OcppEmulatorRemoteControl.psm1 alongside this script (also usable
 directly, e.g. from a Pester test project: Import-Module .\OcppEmulatorRemoteControl.psd1).
 

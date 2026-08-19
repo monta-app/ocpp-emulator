@@ -30,7 +30,7 @@ under `remotecontrol/`.
 
 Deliberately not included: authentication (loopback-only trust boundary), a headless
 launch mode, and the phase-2 command catalog (firmware status, security events, raw
-message injection, interceptor rule control) — see `remotecontrol-plan.md` §12.
+message injection, interceptor rule control).
 
 ## Why?
 

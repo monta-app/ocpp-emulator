@@ -15,9 +15,9 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * End-to-end test of [ControlServerService]'s NDJSON socket protocol - the "jvmTest coverage
- * ... opens a real socket, sends each MVP command" test docs/cli/cli-plan.md §13 planned but
- * the original PR shipped without. Uses the real [ControlTestFixture.dispatcher] and a real
+ * End-to-end test of [ControlServerService]'s NDJSON socket protocol over a real loopback
+ * [Socket] (not just the dispatcher directly), covering the framing/id-matching behavior
+ * documented in remotecontrol/README.md. Uses the real [ControlTestFixture.dispatcher] and a real
  * loopback [Socket], bound to an OS-assigned ephemeral port (`port = 0`) via
  * [ControlServerService.start] so this doesn't collide with a real running emulator instance
  * (or other test runs) on the default port.
@@ -82,7 +82,7 @@ class ControlServerServiceTest {
     fun `well-formed JSON missing 'command' still echoes the caller's id`() {
         // Regression test: a request that parses as JSON but fails to bind to ControlRequest
         // (e.g. a missing required `command` field) used to lose the caller-supplied `id`,
-        // breaking the id-matching contract documented in docs/cli/cli-plan.md §7 ("id is
+        // breaking the id-matching contract documented in remotecontrol/README.md ("id is
         // caller-supplied and echoed back unchanged, so a test client can pipeline several
         // commands on one connection and match responses to requests").
         val response = send("""{"id":"42","params":{}}""")

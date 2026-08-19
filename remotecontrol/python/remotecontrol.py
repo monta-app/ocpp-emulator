@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI for the OCPP emulator's control socket.
 
-See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design.
+See remotecontrol/README.md (in the ocpp-emulator repo) for the protocol design.
 The client library lives in ocpp_emulator_remote_control/ alongside this
 script (also usable directly, e.g. from a pytest suite: `from
 ocpp_emulator_remote_control import ControlClient`).

@@ -14,10 +14,6 @@ remotecontrol/
   powershell/    importable module + standalone CLI script
 ```
 
-Full design rationale and the open questions still under discussion live in
-[`remotecontrol-plan.md`](remotecontrol-plan.md). This README is the practical "how do I
-use it" companion to that doc.
-
 ## Why a socket, not a second CLI process or an HTTP API
 
 The emulator holds each charge point's live OCPP websocket to the CSMS *in memory*, inside
@@ -34,8 +30,10 @@ newline-delimited JSON (NDJSON)**, bound to `127.0.0.1` only:
   ktor-server (today `:app` only depends on the ktor **client** bundle).
 - JSON avoids inventing an ad-hoc `key=value` escaping scheme for structured/optional
   params (`vendorId`, `info`, `forceUpdate`, ...).
-- Loopback-only because this is a local test-control channel, not a network service — see
-  open question 1 in `remotecontrol-plan.md` if that ever needs to cross a container boundary.
+- Loopback-only because this is a local test-control channel, not a network service. If a
+  future setup needs the control channel to cross a container boundary (test suite and
+  emulator in separate containers), that'll need an explicit bind-address config and/or
+  an auth token — not needed for the co-located case this MVP targets.
 
 Every command is a thin dispatch onto **the exact function the corresponding GUI button
 already calls** (e.g. `connector.setCarState` → `ChargePointConnectorDAO.setConnectorCarState`,
@@ -438,8 +436,7 @@ python remotecontrol/python/remotecontrol.py disconnect CP001
 
 ## Not yet covered
 
-Deliberately out of scope for this MVP (see `remotecontrol-plan.md` §12): authentication (loopback
-trust boundary only), a headless launch mode, and the phase-2 command catalog (firmware
-status, security events, raw message injection, interceptor rule configuration). All are
-cheap to add later — every command is the same shape (thin dispatch onto an existing
-function).
+Deliberately out of scope for this MVP: authentication (loopback trust boundary only), a
+headless launch mode, and the phase-2 command catalog (firmware status, security events,
+raw message injection, interceptor rule configuration). All are cheap to add later —
+every command is the same shape (thin dispatch onto an existing function).

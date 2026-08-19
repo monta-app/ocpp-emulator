@@ -11,7 +11,7 @@ private val HELP_TEXT = """
       (none)              Start normally with the GUI. The control socket used for
                           integration testing is not started (default, unchanged
                           behavior).
-      -integration        Start the control socket (see docs/cli/cli-plan.md) so an
+      -integration        Start the control socket (see remotecontrol/README.md) so an
                           external test suite can drive this instance without the GUI.
       --db <name>         Only valid together with -integration. Connect to the SQLite
                           database file <name> under ~/monta/ instead of the default

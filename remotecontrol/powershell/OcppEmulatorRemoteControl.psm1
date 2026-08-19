@@ -3,7 +3,7 @@
 Client library for the OCPP emulator's control socket.
 
 .DESCRIPTION
-See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design. The
+See remotecontrol/README.md (in the ocpp-emulator repo) for the protocol design. The
 emulator listens on 127.0.0.1:9911 by default (override with the
 OCPP_EMULATOR_CONTROL_PORT env var on the emulator side) and speaks newline-delimited
 JSON: one request object per line in, one response object per line out.
