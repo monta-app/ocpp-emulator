@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """CLI for the OCPP emulator's control socket.
 
-See docs/cli/cli-plan.md (in the ocpp-emulator repo) for the protocol design.
+See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design.
 The client library lives in ocpp_emulator_remote_control/ alongside this
 script (also usable directly, e.g. from a pytest suite: `from
 ocpp_emulator_remote_control import ControlClient`).
@@ -32,6 +32,17 @@ one is omitted keeps its current value:
 Or to read a connector's current status/error code (read-only):
 
     python remotecontrol.py get-connector-status CP001:2
+
+Or to present an idTag and start a transaction (the GUI's "Authorize" RFID dialog).
+Note OCPP 1.6 has no VIN field - only idTag - so a vehicle can't be identified to the
+CSMS this way; encode any vehicle correlation into the idTag by convention if needed:
+
+    python remotecontrol.py authorize CP001:2 --id-tag DEADBEEF
+
+Or to stop the connector's active transaction (the GUI's "Stop transaction" button):
+
+    python remotecontrol.py stop-transaction CP001:2
+    python remotecontrol.py stop-transaction CP001:2 --reason EVDisconnected
 """
 
 from __future__ import annotations
@@ -105,6 +116,34 @@ def main() -> None:
         help="e.g. CP001 or CP001:2 (connector defaults to 1)",
     )
 
+    authorize_parser = subparsers.add_parser(
+        "authorize",
+        help='present an idTag and start a transaction (GUI "Authorize" RFID dialog)',
+    )
+    authorize_parser.add_argument(
+        "charge_point",
+        metavar="CP[:connector]",
+        type=parse_charge_point_connector,
+        help="e.g. CP001 or CP001:2 (connector defaults to 1)",
+    )
+    authorize_parser.add_argument("--id-tag", required=True, help="RFID idTag to present (max 20 chars)")
+
+    stop_transaction_parser = subparsers.add_parser(
+        "stop-transaction",
+        help='stop the connector\'s active transaction (GUI "Stop transaction" button)',
+    )
+    stop_transaction_parser.add_argument(
+        "charge_point",
+        metavar="CP[:connector]",
+        type=parse_charge_point_connector,
+        help="e.g. CP001 or CP001:2 (connector defaults to 1)",
+    )
+    stop_transaction_parser.add_argument(
+        "--reason",
+        help="e.g. Local, Remote, EVDisconnected, ... (see OCPP Reason); defaults to Local",
+    )
+    stop_transaction_parser.add_argument("--end-reason-description", help="free-text description, optional")
+
     args = parser.parse_args()
 
     if args.action == "set-connector-status" and args.status is None and args.error is None:
@@ -137,6 +176,19 @@ def main() -> None:
             identity, connector_id = args.charge_point
             result = client.get_connector_status(identity, connector_id)
             print(f"{identity}:{connector_id}: status={result.get('status')} errorCode={result.get('errorCode')}")
+        elif args.action == "authorize":
+            identity, connector_id = args.charge_point
+            result = client.authorize(identity, args.id_tag, connector_id)
+            print(f"{identity}:{connector_id}: status={result.get('status')}")
+        elif args.action == "stop-transaction":
+            identity, connector_id = args.charge_point
+            result = client.stop_transaction(
+                identity,
+                connector_id,
+                reason=args.reason,
+                end_reason_description=args.end_reason_description,
+            )
+            print(f"{identity}:{connector_id}: status={result.get('status')} activeTransactionId={result.get('activeTransactionId')}")
 
 
 if __name__ == "__main__":

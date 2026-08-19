@@ -3,7 +3,7 @@
 CLI for the OCPP emulator's control socket.
 
 .DESCRIPTION
-See docs/cli/cli-plan.md (in the ocpp-emulator repo) for the protocol design. The client
+See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design. The client
 library lives in OcppEmulatorRemoteControl.psm1 alongside this script (also usable
 directly, e.g. from a Pester test project: Import-Module .\OcppEmulatorRemoteControl.psd1).
 
@@ -38,20 +38,37 @@ whichever one is omitted keeps its current value. Values are matched case-insens
 .\remotecontrol.ps1 get-connector-status CP001:2
 
 Reads a connector's current status/error code (read-only).
+
+.EXAMPLE
+.\remotecontrol.ps1 authorize CP001:2 -IdTag DEADBEEF
+
+Presents an idTag and starts a transaction (GUI "Authorize" RFID dialog). OCPP 1.6 has
+no VIN field - only idTag - so a vehicle can't be identified to the CSMS this way; encode
+any vehicle correlation into the idTag by convention if needed.
+
+.EXAMPLE
+.\remotecontrol.ps1 stop-transaction CP001:2
+.\remotecontrol.ps1 stop-transaction CP001:2 -Reason EVDisconnected
+
+Stops the connector's active transaction (GUI "Stop transaction" button). -Reason
+defaults to Local when omitted.
 #>
 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory, Position = 0)]
-    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status')]
+    [ValidateSet('hello', 'connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction')]
     [string]$Action,
 
-    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/set-connector-status/get-connector-status
+    # identity for connect/disconnect; "CP" or "CP:connector" for plug/unplug/set-connector-status/get-connector-status/authorize/stop-transaction
     [Parameter(Position = 1)]
     [string]$Target,
 
     [string]$Status,
     [string]$ErrorCode,
+    [string]$IdTag,
+    [string]$Reason,
+    [string]$EndReasonDescription,
 
     [string]$ComputerName = '127.0.0.1',
     [int]$Port = 9911
@@ -77,17 +94,20 @@ function Split-ChargePointConnector {
     throw "invalid target '$Value': expected CP or CP:connector, e.g. CP001 or CP001:2"
 }
 
-if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status') -and -not $Target) {
+if ($Action -in @('connect', 'disconnect', 'plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction') -and -not $Target) {
     throw "$Action requires a target (identity, or CP[:connector])"
 }
 if ($Action -eq 'set-connector-status' -and -not $Status -and -not $ErrorCode) {
     throw 'set-connector-status requires at least one of -Status or -ErrorCode'
 }
+if ($Action -eq 'authorize' -and -not $IdTag) {
+    throw 'authorize requires -IdTag'
+}
 
 # Parse CP[:connector] targets up front, before opening any connection, so a malformed
 # target fails fast instead of after an unnecessary socket connect.
 $chargePointConnector = $null
-if ($Action -in @('plug', 'unplug', 'set-connector-status', 'get-connector-status')) {
+if ($Action -in @('plug', 'unplug', 'set-connector-status', 'get-connector-status', 'authorize', 'stop-transaction')) {
     $chargePointConnector = Split-ChargePointConnector -Value $Target
 }
 
@@ -126,6 +146,16 @@ try {
             $cp = $chargePointConnector
             $result = Get-OcppConnectorStatus -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId
             Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status) errorCode=$($result.errorCode)"
+        }
+        'authorize' {
+            $cp = $chargePointConnector
+            $result = Invoke-OcppAuthorize -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId -IdTag $IdTag
+            Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status)"
+        }
+        'stop-transaction' {
+            $cp = $chargePointConnector
+            $result = Stop-OcppTransaction -Client $client -Identity $cp.Identity -ConnectorId $cp.ConnectorId -Reason $Reason -EndReasonDescription $EndReasonDescription
+            Write-Output "$($cp.Identity):$($cp.ConnectorId): status=$($result.status) activeTransactionId=$($result.activeTransactionId)"
         }
     }
 } finally {

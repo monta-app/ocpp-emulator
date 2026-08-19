@@ -3,7 +3,7 @@
 Client library for the OCPP emulator's control socket.
 
 .DESCRIPTION
-See docs/cli/cli-plan.md (in the ocpp-emulator repo) for the protocol design. The
+See remotecontrol/remotecontrol-plan.md (in the ocpp-emulator repo) for the protocol design. The
 emulator listens on 127.0.0.1:9911 by default (override with the
 OCPP_EMULATOR_CONTROL_PORT env var on the emulator side) and speaks newline-delimited
 JSON: one request object per line in, one response object per line out.
@@ -55,6 +55,21 @@ $Script:ChargePointErrorCodeValues = @(
     'ResetFailure',
     'UnderVoltage',
     'WeakSignal'
+)
+
+# Wire values for OCPP 1.6's StopTransaction `Reason` enum.
+$Script:ReasonValues = @(
+    'EmergencyStop',
+    'EVDisconnected',
+    'HardReset',
+    'Local',
+    'Other',
+    'PowerLoss',
+    'Reboot',
+    'Remote',
+    'SoftReset',
+    'UnlockCommand',
+    'DeAuthorized'
 )
 
 function ConvertTo-OcppEnumValue {
@@ -361,6 +376,75 @@ function Get-OcppConnectorStatus {
     }
 }
 
+function Invoke-OcppAuthorize {
+    <#
+    .SYNOPSIS
+    Presents an idTag to the CSMS - the GUI's "Authorize" RFID dialog. Starts a
+    transaction on the connector when the CSMS accepts the idTag.
+
+    .DESCRIPTION
+    OCPP 1.6's Authorize/StartTransaction only carry an idTag (max 20 chars) - there is
+    no VIN field in the protocol, so a vehicle can't be identified to the CSMS this way.
+    If you need to correlate a session with a specific car, encode that into the idTag
+    value itself (by convention with your CSMS) rather than relying on protocol support.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Client,
+
+        [Parameter(Mandatory)]
+        [string]$Identity,
+
+        [int]$ConnectorId = 1,
+
+        [Parameter(Mandatory)]
+        [string]$IdTag
+    )
+
+    Send-OcppControlCommand -Client $Client -Command 'connector.authorize' -Params @{
+        identity    = $Identity
+        connectorId = $ConnectorId
+        idTag       = $IdTag
+    }
+}
+
+function Stop-OcppTransaction {
+    <#
+    .SYNOPSIS
+    Stops the connector's active transaction - the GUI's "Stop transaction" button.
+    -Reason defaults server-side to "Local" (a regular user-initiated stop) when omitted;
+    matched case-insensitively against the OCPP `Reason` enum when given.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [PSCustomObject]$Client,
+
+        [Parameter(Mandatory)]
+        [string]$Identity,
+
+        [int]$ConnectorId = 1,
+
+        [string]$Reason,
+
+        [string]$EndReasonDescription
+    )
+
+    $params = @{
+        identity    = $Identity
+        connectorId = $ConnectorId
+    }
+    if ($Reason) {
+        $params.reason = ConvertTo-OcppEnumValue -Value $Reason -ValidValues $Script:ReasonValues -Label 'reason'
+    }
+    if ($EndReasonDescription) {
+        $params.endReasonDescription = $EndReasonDescription
+    }
+
+    Send-OcppControlCommand -Client $Client -Command 'connector.stopTransaction' -Params $params
+}
+
 Export-ModuleMember -Function @(
     'New-OcppControlClient',
     'Close-OcppControlClient',
@@ -372,5 +456,7 @@ Export-ModuleMember -Function @(
     'Set-OcppConnectorReady',
     'Set-OcppConnectorUnplugged',
     'Set-OcppConnectorStatus',
-    'Get-OcppConnectorStatus'
+    'Get-OcppConnectorStatus',
+    'Invoke-OcppAuthorize',
+    'Stop-OcppTransaction'
 )
