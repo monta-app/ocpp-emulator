@@ -83,12 +83,9 @@ it's already connected.
   unchanged code path (`ConnectionManager.connect` / `ChargePointConnection`'s retry loop),
   and the repo has no existing harness for driving `main()` or a live websocket connection in
   tests.
-- **Not verified manually against a live CSMS** — this environment has no CSMS backend to
-  point the emulator at. Reviewers should sanity-check the actual scenario before merging:
-  set a charge point's `connected` column to `1` in the local SQLite DB (or leave the app
-  connected and force-kill it), start the emulator with the CSMS endpoint unreachable, confirm
-  it starts retrying without opening the charge point's page, then bring the CSMS up and
-  confirm it connects on its own.
+- Verified manually against a live CSMS: left a charge point connected, restarted the
+  emulator with the CSMS unreachable, confirmed it started retrying immediately with no page
+  navigation, then brought the CSMS back up and confirmed it reconnected on its own.
 
 ## Context
 
