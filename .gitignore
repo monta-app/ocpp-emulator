@@ -50,3 +50,6 @@ config.properties
 node_modules
 
 .kotlin
+
+__pycache__/
+*.egg-info/

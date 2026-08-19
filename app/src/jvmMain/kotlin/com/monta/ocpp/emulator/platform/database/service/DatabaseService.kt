@@ -10,13 +10,15 @@ import com.monta.ocpp.emulator.platform.database.service.DatabaseInitiator
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import javax.inject.Singleton
 
-@Singleton
-class DatabaseService {
+const val DEFAULT_DATABASE_NAME = "app.db"
+
+class DatabaseService(
+    databaseName: String = DEFAULT_DATABASE_NAME,
+) {
 
     private val logger = KotlinLogging.logger {}
-    private val database = DatabaseInitiator("app.db").database
+    private val database = DatabaseInitiator(databaseName).database
 
     fun connect() {
         try {

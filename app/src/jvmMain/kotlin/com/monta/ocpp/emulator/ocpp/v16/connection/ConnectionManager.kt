@@ -37,6 +37,10 @@ class ConnectionManager(
             chargePointConnections[chargePointId]?.disconnect()
             chargePointConnections[chargePointId] = null
             chargePointConnections[chargePointId] = ChargePointConnection(chargePointId)
+            // Runs for the life of the websocket session (blocks on the incoming frame
+            // loop) - only returns/throws once the connection ends, so callers that need
+            // to know when the *connect* succeeded should watch ChargePointDAO.connected
+            // rather than awaiting this coroutine.
             chargePointConnections[chargePointId]?.connect()
         }
 
