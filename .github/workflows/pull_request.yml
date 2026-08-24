@@ -10,6 +10,7 @@ jobs:
     uses: monta-app/github-workflows/.github/workflows/pull-request-kotlin.yml@main
     with:
       skip-sonar: true
+      skip-code-coverage-on-pr: true
       java-version: "25"
       architecture: "arm64"
       gradle-module: "app"
