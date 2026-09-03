@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.10"
-compose = "1.11.1"
+compose = "1.12.0"
 androidx-navigation = "2.9.2"
 ktlint = "14.2.0"
 kover = "0.9.9"
@@ -13,12 +13,12 @@ jackson = "2.22.2"
 # in its public API but only declares it runtime-scope, so we need it at compile time.
 # Keep in sync with the jackson-bom version used by monta-app/library-ocpp.
 jackson3 = "3.2.2"
-sentry = "8.53.0"
+sentry = "8.55.0"
 # Koin 4.2+: annotations are processed by the Koin Compiler Plugin (koin-plugin below);
 # koin-annotations ships with the main Koin project and must match the koin version.
 koin = "4.2.2"
 koin-plugin = "1.1.0"
-exposed = "1.4.0"
+exposed = "1.5.0"
 logback = "1.6.3"
 kotlin-logging = "8.0.4"
 qrcodegen = "1.8.0"
