@@ -50,3 +50,7 @@ config.properties
 node_modules
 
 .kotlin
+
+.ocpp-spec/
+OCPP-2.1_all_files/
+/schemas/

@@ -47,7 +47,7 @@ fun ApplicationScope.MainWindow() {
     )
 
     BaseMontaWindow(
-        title = "OCPP Emulator V16",
+        title = "OCPP Emulator (1.6 / 2.0.1 / 2.1)",
         state = windowState,
         windowGainedFocus = {
             navigator.windowHasFocus = true
