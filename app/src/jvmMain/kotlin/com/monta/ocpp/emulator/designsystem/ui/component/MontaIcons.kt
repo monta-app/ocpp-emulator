@@ -1,11 +1,8 @@
 package com.monta.ocpp.emulator.designsystem.ui.component
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.Text
@@ -33,17 +30,14 @@ fun RfidButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Button(
+    PrimaryIconButton(
         onClick = onClick,
         modifier = modifier,
-        contentPadding = PaddingValues(0.dp),
     ) {
         Icon(
             painter = svgPainterResource("icons/rfid.svg"),
             contentDescription = "Authorize",
-            modifier = Modifier
-                .padding(0.dp)
-                .size(16.dp),
+            modifier = Modifier.size(16.dp),
         )
     }
 }

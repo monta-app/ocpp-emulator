@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,9 +17,10 @@ import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
-import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
+import com.monta.ocpp.emulator.designsystem.ui.component.Select
 import com.monta.ocpp.emulator.ocpp.v16.extension.setStatus
 import com.monta.ocpp.emulator.platform.util.launchThread
 
@@ -101,7 +101,7 @@ fun ColumnScope.ConnectorStateView(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Spinner(
+                Select(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Connector Status",
                     value = connectorStatus,
@@ -113,7 +113,7 @@ fun ColumnScope.ConnectorStateView(
                         connectorStatus = newChargePointStatus
                     },
                 )
-                Spinner(
+                Select(
                     modifier = Modifier.fillMaxWidth(),
                     label = "Error Code",
                     value = errorCode,
@@ -125,35 +125,29 @@ fun ColumnScope.ConnectorStateView(
                         errorCode = newChargePointErrorCode
                     },
                 )
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                InputField(
                     value = statusInfo ?: "",
-                    label = {
-                        Text("Info")
-                    },
                     onValueChange = { newStatusInfo ->
                         statusInfo = newStatusInfo
                     },
-                )
-                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    label = "Info",
+                )
+                InputField(
                     value = vendorId ?: "",
-                    label = {
-                        Text("Vendor ID")
-                    },
                     onValueChange = { newVendorId ->
                         vendorId = newVendorId
                     },
-                )
-                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    label = "Vendor ID",
+                )
+                InputField(
                     value = vendorErrorCode ?: "",
-                    label = {
-                        Text("Vendor Error Code")
-                    },
                     onValueChange = { newVendorErrorCode ->
                         vendorErrorCode = newVendorErrorCode
                     },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Vendor Error Code",
                 )
             }
         }

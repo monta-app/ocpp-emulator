@@ -33,7 +33,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PasswordField
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.SegmentedToggle
-import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
+import com.monta.ocpp.emulator.designsystem.ui.component.Select
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import org.jetbrains.exposed.v1.core.eq
@@ -100,7 +100,7 @@ fun ChargePointForm(
                     helperText = viewModel.formErrors.getOrDefault("identity", null)
                         ?: "The identity used for connecting to the OCPP server, cannot be empty or contain spaces, and must be unique",
                 )
-                Spinner(
+                Select(
                     modifier = Modifier.fillMaxWidth(),
                     label = "OCPP Server",
                     value = viewModel.form.urlChoice,
@@ -189,7 +189,7 @@ fun ChargePointForm(
                             )
                         },
                     )
-                    Spinner(
+                    Select(
                         modifier = Modifier.fillMaxWidth(),
                         label = "Max charging rate",
                         value = viewModel.form.maxKw,
@@ -201,7 +201,7 @@ fun ChargePointForm(
                             )
                         },
                     )
-                    Spinner(
+                    Select(
                         modifier = Modifier.fillMaxWidth(),
                         label = "OCPP version",
                         value = viewModel.form.ocppVersion,
@@ -224,7 +224,7 @@ fun ChargePointForm(
                             )
                         },
                     )
-                    Spinner(
+                    Select(
                         modifier = Modifier.fillMaxWidth(),
                         label = "Meter Type",
                         value = viewModel.form.meterType,

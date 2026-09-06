@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,9 +15,10 @@ import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
-import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
+import com.monta.ocpp.emulator.designsystem.ui.component.Select
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -84,7 +84,7 @@ fun ColumnScope.securityEventComponent(
                 }
             },
         ) {
-            Spinner(
+            Select(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Security Event",
                 value = securityEvent,
@@ -92,15 +92,13 @@ fun ColumnScope.securityEventComponent(
                 render = { it.name },
                 onSelectionChanged = { securityEvent = it },
             )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+            InputField(
                 value = techInfo,
-                label = {
-                    Text("Tech Info (Optional)")
-                },
                 onValueChange = { newValue ->
                     techInfo = newValue
                 },
+                modifier = Modifier.fillMaxWidth(),
+                label = "Tech Info (Optional)",
             )
             Text(
                 text = securityEvent.description,

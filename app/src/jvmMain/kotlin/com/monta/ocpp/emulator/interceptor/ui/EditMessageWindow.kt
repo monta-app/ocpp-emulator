@@ -2,17 +2,12 @@ package com.monta.ocpp.emulator.interceptor.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -29,8 +24,10 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
+import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
+import com.monta.ocpp.emulator.designsystem.ui.component.SectionCard
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
-import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -82,31 +79,32 @@ fun ApplicationScope.EditMessageWindow() {
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    Card(
-                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight(),
+                    SectionCard(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Column(
-                            modifier = Modifier.padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        InputField(
+                            value = editMessageWindowViewModel.message,
+                            onValueChange = { newValue -> editMessageWindowViewModel.message = newValue },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = "Message payload",
+                            singleLine = false,
+                            minHeight = 120.dp,
+                            textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                        )
+                        PrimaryButton(
+                            onClick = {
+                                runBlocking {
+                                    editMessageWindowViewModel.channel?.send(editMessageWindowViewModel.message)
+                                    editMessageWindowViewModel.message = ""
+                                    editMessageWindowViewModel.channel = null
+                                }
+                            },
                         ) {
-                            OutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = editMessageWindowViewModel.message,
-                                onValueChange = { newValue -> editMessageWindowViewModel.message = newValue },
-                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                                label = { Text("message payload") },
-                            )
-                            Button(
-                                onClick = {
-                                    runBlocking {
-                                        editMessageWindowViewModel.channel?.send(editMessageWindowViewModel.message)
-                                        editMessageWindowViewModel.message = ""
-                                        editMessageWindowViewModel.channel = null
-                                    }
-                                },
-                            ) {
-                                Text("Confirm")
-                            }
+                            Text("Confirm")
                         }
                     }
                 }

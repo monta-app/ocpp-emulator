@@ -2,14 +2,9 @@ package com.monta.ocpp.emulator.chargepoint.core.ui.detail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ScrollableTabRow
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,10 +23,9 @@ import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointLogComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.pbm.PbmDialog
 import com.monta.ocpp.emulator.chargepoint.core.ui.pbm.pbmButtons
-import com.monta.ocpp.emulator.designsystem.ui.component.CardDivider
 import com.monta.ocpp.emulator.designsystem.ui.component.DualColumView
 import com.monta.ocpp.emulator.designsystem.ui.component.InterceptionToggle
-import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
+import com.monta.ocpp.emulator.designsystem.ui.component.TabBar
 import com.monta.ocpp.emulator.interceptor.ui.InterceptorConfigComponent
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
@@ -92,18 +86,6 @@ private fun innerChargePointPage(
         drawerState = DrawerState(DrawerValue.Closed),
     )
 
-    var selectedTab by remember {
-        mutableStateOf(
-            connectedChargePoints.indexOfFirst { connectedChargePoint ->
-                connectedChargePoint.idValue == chargePoint.idValue
-            },
-        )
-    }
-
-    if (selectedTab == -1) {
-        selectedTab = 0
-    }
-
     PageScaffold(
         title = "Charge Point — ${chargePoint.identity}",
         actions = {
@@ -130,61 +112,30 @@ private fun innerChargePointPage(
         },
     ) {
         Column {
-            ScrollableTabRow(
-                selectedTabIndex = selectedTab,
-                backgroundColor = MaterialTheme.colors.surface,
-                contentColor = MaterialTheme.colors.primary,
-                edgePadding = 12.dp,
-                indicator = { tabPositions ->
-                    TabRowDefaults.Indicator(
-                        modifier = Modifier.tabIndicatorOffset(
-                            tabPositions[selectedTab.coerceIn(0, tabPositions.lastIndex)],
-                        ),
-                        height = 2.dp,
-                        color = MaterialTheme.colors.primary,
-                    )
-                },
-                divider = {
-                    CardDivider()
-                },
-            ) {
-                if (connectedChargePoints.isEmpty()) {
-                    Tab(
-                        text = {
-                            if (chargePoint.name.isBlank()) {
-                                Text(chargePoint.identity)
-                            } else {
-                                Text(chargePoint.name)
-                            }
-                        },
-                        selected = true,
-                        selectedContentColor = MaterialTheme.colors.onSurface,
-                        unselectedContentColor = mutedForegroundColor(),
-                        onClick = {},
-                    )
-                }
-                connectedChargePoints.forEachIndexed { idx, chargePoint ->
-                    Tab(
-                        text = {
-                            if (chargePoint.name.isBlank()) {
-                                Text(chargePoint.identity)
-                            } else {
-                                Text(chargePoint.name)
-                            }
-                        },
-                        selected = idx == selectedTab,
-                        selectedContentColor = MaterialTheme.colors.onSurface,
-                        unselectedContentColor = mutedForegroundColor(),
-                        onClick = {
-                            selectedTab = idx
-                            navigator.switchChargePoint(
-                                Screen.ChargePoint(
-                                    chargePointId = chargePoint.idValue,
-                                ),
-                            )
-                        },
-                    )
-                }
+            // One tab per connected charge point, with the selection derived from
+            // the route so switching tabs is purely a navigation call. A lone tab
+            // has nothing to switch to (and a one-pill strip reads as a weird ring
+            // around the label), so the bar only shows once there's a choice.
+            if (connectedChargePoints.size > 1) {
+                TabBar(
+                    tabs = connectedChargePoints,
+                    selected = connectedChargePoints.firstOrNull { tab ->
+                        tab.idValue == chargePoint.idValue
+                    } ?: connectedChargePoints.first(),
+                    label = { tab -> tab.name.ifBlank { tab.identity } },
+                    modifier = Modifier.padding(
+                        start = 8.dp,
+                        top = 8.dp,
+                        end = 8.dp,
+                    ),
+                    onSelect = { tab ->
+                        navigator.switchChargePoint(
+                            Screen.ChargePoint(
+                                chargePointId = tab.idValue,
+                            ),
+                        )
+                    },
+                )
             }
             DualColumView(
                 firstColumn = {

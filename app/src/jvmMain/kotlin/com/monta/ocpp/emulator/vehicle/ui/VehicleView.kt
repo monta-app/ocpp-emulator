@@ -3,12 +3,7 @@ package com.monta.ocpp.emulator.vehicle.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,10 +15,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.designsystem.ui.component.FormInput
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
 import com.monta.ocpp.emulator.designsystem.ui.component.LabelledCheckBox
 import com.monta.ocpp.emulator.designsystem.ui.component.PasswordField
-import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
-import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
+import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
+import com.monta.ocpp.emulator.designsystem.ui.component.SectionCard
+import com.monta.ocpp.emulator.designsystem.ui.component.Select
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.PrettyYamlFormatter
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -78,16 +75,14 @@ fun VehicleView() {
         mutableStateOf("")
     }
 
-    Card(
-        modifier = getCardStyle().fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+    SectionCard(
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
-                .width(400.dp),
+            modifier = Modifier.width(400.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp),
         ) {
-            Spinner(
+            Select(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Server",
                 value = urlChoice,
@@ -118,25 +113,25 @@ fun VehicleView() {
                     enodeSecretVisibility = newValue
                 },
             )
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+            InputField(
                 value = integrationExternalId,
                 onValueChange = { newValue -> integrationExternalId = newValue },
-                label = { Text("Vehicle integration external id") },
+                modifier = Modifier.fillMaxWidth(),
+                label = "Vehicle integration external id",
             )
 
             if (!advancedMode) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                InputField(
                     value = externalVehicleId,
                     onValueChange = { newValue -> externalVehicleId = newValue },
-                    label = { Text("External vehicle id") },
-                )
-                OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
+                    label = "External vehicle id",
+                )
+                InputField(
                     value = soc.toString(),
                     onValueChange = { newValue: String -> soc = newValue.toDouble() },
-                    label = { Text("Battery percentage") },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Battery percentage",
                 )
             }
             LabelledCheckBox(
@@ -160,15 +155,17 @@ fun VehicleView() {
                 label = "Advanced mode",
             )
             if (advancedMode) {
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                InputField(
                     value = vehicleYaml,
-                    textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                     onValueChange = { newValue -> vehicleYaml = newValue },
-                    label = { Text("Vehicle Payload") },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = "Vehicle Payload",
+                    singleLine = false,
+                    minHeight = 120.dp,
+                    textStyle = TextStyle(fontFamily = FontFamily.Monospace),
                 )
             }
-            Button(
+            PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     vehiclePayload = if (advancedMode) {

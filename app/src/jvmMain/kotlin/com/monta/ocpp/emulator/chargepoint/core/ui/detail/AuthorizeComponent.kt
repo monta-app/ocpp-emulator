@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.RfidButton
@@ -78,15 +78,13 @@ fun BoxScope.authorizeComponent(
                 }
             },
         ) {
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+            InputField(
                 value = idTag,
-                label = {
-                    Text("RFID Card Number")
-                },
                 onValueChange = { newIdTag ->
                     idTag = newIdTag
                 },
+                modifier = Modifier.fillMaxWidth(),
+                label = "RFID Card Number",
             )
         }
     }

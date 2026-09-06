@@ -1,26 +1,20 @@
 package com.monta.ocpp.emulator.interceptor.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,13 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -80,8 +72,12 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
 import com.monta.ocpp.emulator.chargepoint.core.entity.PreviousMessagesDAO
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
 import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
+import com.monta.ocpp.emulator.designsystem.ui.component.DestructiveButton
+import com.monta.ocpp.emulator.designsystem.ui.component.InputField
+import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
+import com.monta.ocpp.emulator.designsystem.ui.component.SectionCard
+import com.monta.ocpp.emulator.designsystem.ui.component.WindowHeader
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
-import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.navigation.service.Navigator
 import com.monta.ocpp.emulator.ocpp.v16.scheduler.MeterValuesGenerator
 import com.monta.ocpp.emulator.platform.database.extension.idValue
@@ -142,104 +138,102 @@ fun ApplicationScope.SendMessageWindow() {
             Scaffold(
                 modifier = Modifier.fillMaxWidth(),
                 topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(text = "Send message: ${sendMessageWindowViewModel.messageType?.name}")
-                        },
+                    WindowHeader(
+                        title = "Send message: ${sendMessageWindowViewModel.messageType?.name}",
                     )
                 },
-            ) {
+            ) { padding ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(padding)
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    Card(
-                        modifier = getCardStyle().align(Alignment.TopCenter).fillMaxWidth().fillMaxHeight(),
+                    SectionCard(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Column(
-                            modifier = Modifier.padding(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            OutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = sendMessageWindowViewModel.messageYaml,
-                                onValueChange = { newValue -> sendMessageWindowViewModel.messageYaml = newValue },
-                                textStyle = TextStyle(fontFamily = FontFamily.Monospace),
-                                label = { Text("message payload") },
-                            )
-                            Button(
-                                onClick = {
-                                    runBlocking {
-                                        previousMessagesService.insertNewMessage(
-                                            messageType = sendMessageWindowViewModel.messageType?.name ?: "",
-                                            message = sendMessageWindowViewModel.messageYaml,
-                                        )
+                        InputField(
+                            value = sendMessageWindowViewModel.messageYaml,
+                            onValueChange = { newValue -> sendMessageWindowViewModel.messageYaml = newValue },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = "Message payload",
+                            singleLine = false,
+                            minHeight = 120.dp,
+                            textStyle = TextStyle(fontFamily = FontFamily.Monospace),
+                        )
+                        PrimaryButton(
+                            onClick = {
+                                runBlocking {
+                                    previousMessagesService.insertNewMessage(
+                                        messageType = sendMessageWindowViewModel.messageType?.name ?: "",
+                                        message = sendMessageWindowViewModel.messageYaml,
+                                    )
 
-                                        val payload = PrettyYamlFormatter.readYaml(
-                                            sendMessageWindowViewModel.messageYaml,
-                                            sendMessageWindowViewModel.messageType!!.requestType,
-                                        )
-                                        val ocppClientV16: OcppClientV16 by injectAnywhere()
-                                        ocppClientV16.sendMessage(
-                                            OcppSession.Info(
-                                                serverId = "",
-                                                identity = chargePoint.identity,
+                                    val payload = PrettyYamlFormatter.readYaml(
+                                        sendMessageWindowViewModel.messageYaml,
+                                        sendMessageWindowViewModel.messageType!!.requestType,
+                                    )
+                                    val ocppClientV16: OcppClientV16 by injectAnywhere()
+                                    ocppClientV16.sendMessage(
+                                        OcppSession.Info(
+                                            serverId = "",
+                                            identity = chargePoint.identity,
+                                        ),
+                                        Message.Request(
+                                            uniqueId = UUID.randomUUID().toString(),
+                                            action = sendMessageWindowViewModel.messageType!!.name,
+                                            payload = MessageSerializer(
+                                                SerializationMode.OCPP_1_6,
+                                                OcppErrorResponderV16,
+                                            ).toPayload(
+                                                value = payload,
                                             ),
-                                            Message.Request(
-                                                uniqueId = UUID.randomUUID().toString(),
-                                                action = sendMessageWindowViewModel.messageType!!.name,
-                                                payload = MessageSerializer(
-                                                    SerializationMode.OCPP_1_6,
-                                                    OcppErrorResponderV16,
-                                                ).toPayload(
-                                                    value = payload,
-                                                ),
-                                            ),
-                                        )
-                                        ChargePointLogger.getLogger(navigator.requireChargePointId()).info(
-                                            0,
-                                            "Sent message: ${sendMessageWindowViewModel.messageType!!.name}",
-                                        )
-                                        sendMessageWindowViewModel.messageType = null
-                                    }
-                                },
+                                        ),
+                                    )
+                                    ChargePointLogger.getLogger(navigator.requireChargePointId()).info(
+                                        0,
+                                        "Sent message: ${sendMessageWindowViewModel.messageType!!.name}",
+                                    )
+                                    sendMessageWindowViewModel.messageType = null
+                                }
+                            },
+                        ) {
+                            Text("Send")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(text = "Previous Messages", fontSize = 1.2.em)
+                        sendMessageWindowViewModel.previousMessages.value.forEach { previousMessage ->
+                            SectionCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(0.dp),
                             ) {
-                                Text("Send")
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Previous Messages", fontSize = 1.2.em)
-                            sendMessageWindowViewModel.previousMessages.value.forEach { previousMessage ->
-                                Card(
-                                    modifier = getCardStyle()
-                                        .fillMaxWidth()
-                                        .fillMaxHeight().padding(2.dp),
-                                    border = BorderStroke(width = Dp.Hairline, color = Color.Gray),
-                                ) {
-                                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(
-                                            text = AnnotatedString(previousMessage.message),
-                                            style = TextStyle(
-                                                color = MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface),
-                                                fontFamily = FontFamily.Monospace,
-                                            ),
-                                            modifier = Modifier.padding(12.dp)
-                                                .pointerHoverIcon(PointerIcon.Hand)
-                                                .clickable {
-                                                    sendMessageWindowViewModel.messageYaml = previousMessage.message
-                                                },
-                                        )
-                                        Button(
-                                            modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
-                                            onClick = {
-                                                previousMessagesService.deleteMessage(previousMessage.id.value)
-                                                sendMessageWindowViewModel.previousMessages.value =
-                                                    sendMessageWindowViewModel.previousMessages.value
-                                                        .filter { it.idValue != previousMessage.idValue }
+                                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(
+                                        text = AnnotatedString(previousMessage.message),
+                                        style = TextStyle(
+                                            color = MaterialTheme.colors.contentColorFor(MaterialTheme.colors.surface),
+                                            fontFamily = FontFamily.Monospace,
+                                        ),
+                                        modifier = Modifier.padding(12.dp)
+                                            .pointerHoverIcon(PointerIcon.Hand)
+                                            .clickable {
+                                                sendMessageWindowViewModel.messageYaml = previousMessage.message
                                             },
-                                        ) {
-                                            Text("Delete")
-                                        }
+                                    )
+                                    DestructiveButton(
+                                        modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
+                                        onClick = {
+                                            previousMessagesService.deleteMessage(previousMessage.id.value)
+                                            sendMessageWindowViewModel.previousMessages.value =
+                                                sendMessageWindowViewModel.previousMessages.value
+                                                    .filter { it.idValue != previousMessage.idValue }
+                                        },
+                                    ) {
+                                        Text("Delete")
                                     }
                                 }
                             }

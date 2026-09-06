@@ -8,7 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Card
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
@@ -16,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.platform.logging.service.VehicleLogger
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.Dispatchers
@@ -63,15 +63,16 @@ fun VehicleLogView() {
         items(
             items = logItems,
             itemContent = { logItem ->
-                Card(
-                    modifier = getCardStyle(),
-                    backgroundColor = when (logItem.level) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = when (logItem.level) {
                         VehicleLogger.Level.Error -> Color(204, 0, 0)
                         VehicleLogger.Level.Warn -> Color(196, 160, 0)
                         VehicleLogger.Level.Info -> Color.LightGray
                         VehicleLogger.Level.Debug -> Color(78, 154, 6)
                         VehicleLogger.Level.Trace -> Color(114, 159, 207)
                     },
+                    elevation = 0.dp,
                 ) {
                     Column(
                         modifier = Modifier.padding(8.dp),

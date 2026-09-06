@@ -1,24 +1,32 @@
 package com.monta.ocpp.emulator.designsystem.ui.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Checkbox
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.ripple
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * shadcn-style checkbox with its label: a 16dp rounded square that fills with
+ * the primary colour when checked, hairline-bordered when not. The whole row is
+ * the click target.
+ */
 @Composable
 fun LabelledCheckBox(
     modifier: Modifier = Modifier,
@@ -27,26 +35,40 @@ fun LabelledCheckBox(
     label: String,
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clip(MaterialTheme.shapes.small)
+            .clip(RoundedCornerShape(8.dp))
             .clickable(
-                indication = ripple(color = MaterialTheme.colors.primary),
-                interactionSource = remember { MutableInteractionSource() },
                 onClick = { onCheckedChange(!checked) },
             )
-            .requiredHeight(ButtonDefaults.MinHeight)
-            .padding(4.dp),
+            .defaultMinSize(minHeight = 36.dp)
+            .padding(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = null,
-        )
-
-        Spacer(Modifier.size(6.dp))
-
+        Box(
+            modifier = Modifier
+                .size(16.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(if (checked) MaterialTheme.colors.primary else Color.Transparent)
+                .border(
+                    width = 1.dp,
+                    color = if (checked) MaterialTheme.colors.primary else cardBorderColor(),
+                    shape = RoundedCornerShape(4.dp),
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colors.onPrimary,
+                )
+            }
+        }
         Text(
             text = label,
+            style = MaterialTheme.typography.body2,
         )
     }
 }

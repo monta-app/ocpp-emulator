@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +27,8 @@ import com.monta.ocpp.emulator.designsystem.ui.component.DetailRow
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.SectionCard
 import com.monta.ocpp.emulator.designsystem.ui.component.SectionLabel
-import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
+import com.monta.ocpp.emulator.designsystem.ui.component.Select
+import com.monta.ocpp.emulator.designsystem.ui.component.Slider
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.toAmpString
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
@@ -133,7 +133,7 @@ fun ConnectorCard(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Spinner(
+            Select(
                 modifier = Modifier.fillMaxWidth(),
                 label = "Vehicle number of phases",
                 value = connector.vehicleNumberPhases,
