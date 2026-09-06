@@ -16,6 +16,7 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.rememberWindowState
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
@@ -76,78 +77,100 @@ fun ApplicationScope.MainWindow(
         ) {
             val navController = rememberNavController()
 
-            // Apply navigation intents emitted from anywhere in the app onto the real back stack.
-            LaunchedEffect(navController) {
-                navigator.commands.collect { command ->
-                    when (command) {
-                        is Navigator.NavCommand.Navigate -> {
-                            navController.navigate(command.route)
-                        }
+            NavigatorEffects(navController, navigator)
+            EmulatorNavHost(navController)
 
-                        is Navigator.NavCommand.NavigateTopLevel -> {
-                            navController.navigate(command.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    inclusive = false
-                                }
-                                launchSingleTop = true
-                            }
-                        }
-
-                        is Navigator.NavCommand.SwitchChargePoint -> {
-                            navController.navigate(command.route) {
-                                popUpTo<Screen.ChargePoints> {
-                                    inclusive = false
-                                }
-                                launchSingleTop = true
-                            }
-                        }
-
-                        Navigator.NavCommand.Back -> {
-                            navController.popBackStack()
-                        }
-                    }
-                }
-            }
-
-            // Track the on-screen charge point so windows outside the NavHost (e.g. SendMessageWindow)
-            // can resolve it, and so the bottom bar can restore the last active charge point.
-            LaunchedEffect(navController) {
-                navController.currentBackStackEntryFlow.collect { entry ->
-                    runCatching { entry.toRoute<Screen.ChargePoint>() }
-                        .getOrNull()
-                        ?.let { route ->
-                            navigator.currentChargePointId = route.chargePointId
-                        }
-                }
-            }
-
-            NavHost(
-                navController = navController,
-                startDestination = Screen.ChargePoints,
-                modifier = Modifier.fillMaxSize()
-                    .background(MaterialTheme.colors.background),
-                // Swap pages instantly, matching the previous when-based navigation. The default
-                // cross-fade briefly revealed the window background as a white flash on switch.
-                enterTransition = { EnterTransition.None },
-                exitTransition = { ExitTransition.None },
-                popEnterTransition = { EnterTransition.None },
-                popExitTransition = { ExitTransition.None },
-            ) {
-                composable<Screen.ChargePoints> {
-                    ChargePointsScreen()
-                }
-                composable<Screen.Vehicles> {
-                    VehicleScreen()
-                }
-                composable<Screen.ChargePoint> { backStackEntry ->
-                    ChargePointPage(backStackEntry.toRoute<Screen.ChargePoint>().chargePointId)
-                }
-                dialog<Screen.CreateChargePoint> { backStackEntry ->
-                    CreateChargePointDialog(backStackEntry.toRoute<Screen.CreateChargePoint>().chargePointId)
-                }
-            }
             // Shows a dialog notifying users an update is available if there is one
             UpdateDialog()
+        }
+    }
+}
+
+/**
+ * Bridges the [Navigator] singleton to the real back stack.
+ *
+ * The [NavHostController] only exists inside the composition, but navigation is triggered from
+ * plain functions and from the separate interceptor windows, so [Navigator] collects those
+ * intents as commands and this applies them here.
+ */
+@Composable
+private fun NavigatorEffects(
+    navController: NavHostController,
+    navigator: Navigator,
+) {
+    LaunchedEffect(navController) {
+        navigator.commands.collect { command ->
+            when (command) {
+                is Navigator.NavCommand.Navigate -> {
+                    navController.navigate(command.route)
+                }
+
+                is Navigator.NavCommand.NavigateTopLevel -> {
+                    navController.navigate(command.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+
+                is Navigator.NavCommand.SwitchChargePoint -> {
+                    navController.navigate(command.route) {
+                        popUpTo<Screen.ChargePoints> {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+
+                Navigator.NavCommand.Back -> {
+                    navController.popBackStack()
+                }
+            }
+        }
+    }
+
+    // Track the on-screen charge point so windows outside the NavHost (e.g. SendMessageWindow)
+    // can resolve it, and so the bottom bar can restore the last active charge point.
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            runCatching { entry.toRoute<Screen.ChargePoint>() }
+                .getOrNull()
+                ?.let { route ->
+                    navigator.currentChargePointId = route.chargePointId
+                }
+        }
+    }
+}
+
+/** The app's navigation graph — every [Screen] route the main window can show. */
+@Composable
+private fun EmulatorNavHost(
+    navController: NavHostController,
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.ChargePoints,
+        modifier = Modifier.fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        // Swap pages instantly, matching the previous when-based navigation. The default
+        // cross-fade briefly revealed the window background as a white flash on switch.
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None },
+    ) {
+        composable<Screen.ChargePoints> {
+            ChargePointsScreen()
+        }
+        composable<Screen.Vehicles> {
+            VehicleScreen()
+        }
+        composable<Screen.ChargePoint> { backStackEntry ->
+            ChargePointPage(backStackEntry.toRoute<Screen.ChargePoint>().chargePointId)
+        }
+        dialog<Screen.CreateChargePoint> { backStackEntry ->
+            CreateChargePointDialog(backStackEntry.toRoute<Screen.CreateChargePoint>().chargePointId)
         }
     }
 }
