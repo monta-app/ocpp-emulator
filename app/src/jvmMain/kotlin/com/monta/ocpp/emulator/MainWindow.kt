@@ -33,9 +33,20 @@ import com.monta.ocpp.emulator.platform.update.ui.UpdateDialog
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.vehicle.ui.VehicleScreen
 
+/**
+ * The emulator's main window.
+ *
+ * [visible] and [onCloseRequest] are owned by `main()` in `App.kt`: closing the window normally
+ * hides it to the system tray rather than quitting, so charge points stay connected. Hiding
+ * keeps this composable in the composition, which preserves the window position, the
+ * navigation back stack and every view model's state until it is shown again.
+ */
 @Preview
 @Composable
-fun ApplicationScope.MainWindow() {
+fun ApplicationScope.MainWindow(
+    visible: Boolean = true,
+    onCloseRequest: () -> Unit = { exitApplication() },
+) {
     val appThemeViewModel: AppThemeViewModel by injectAnywhere()
     val navigator: Navigator by injectAnywhere()
 
@@ -49,6 +60,8 @@ fun ApplicationScope.MainWindow() {
     BaseMontaWindow(
         title = "OCPP Emulator V16",
         state = windowState,
+        visible = visible,
+        onCloseRequest = onCloseRequest,
         windowGainedFocus = {
             navigator.windowHasFocus = true
         },

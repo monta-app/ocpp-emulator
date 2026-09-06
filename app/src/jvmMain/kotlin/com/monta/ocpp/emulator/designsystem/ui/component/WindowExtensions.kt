@@ -23,6 +23,8 @@ private val logger = KotlinLogging.logger {}
 fun ApplicationScope.BaseMontaWindow(
     title: String,
     state: WindowState,
+    visible: Boolean = true,
+    onCloseRequest: () -> Unit = { exitApplication() },
     windowGainedFocus: () -> Unit = {},
     windowLostFocus: () -> Unit = {},
     block: @Composable FrameWindowScope.() -> Unit,
@@ -42,10 +44,9 @@ fun ApplicationScope.BaseMontaWindow(
         Window(
             title = title,
             state = state,
+            visible = visible,
             focusable = true,
-            onCloseRequest = {
-                this.exitApplication()
-            },
+            onCloseRequest = onCloseRequest,
         ) {
             DisposableEffect(Unit) {
                 window.addWindowFocusListener(object : WindowFocusListener {
