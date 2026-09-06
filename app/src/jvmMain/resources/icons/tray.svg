@@ -1,0 +1,25 @@
+<!--
+  Menu-bar / system-tray glyph: a charge point silhouette with the bolt knocked
+  out of it (fill-rule="evenodd" makes the second subpath a hole, not a shape).
+
+  One file serves every platform because the glyph is carried entirely by the
+  alpha channel. macOS is handed this as a template image (see
+  apple.awt.enableTemplateImages in App.kt): it throws the colour away and
+  re-tints the remaining silhouette for a light or dark menu bar, and the bolt
+  survives because it is a hole rather than a lighter fill. Windows and Linux
+  draw it as-is. So the blue below is simply ignored on macOS - keep the detail
+  in the alpha, never in a second fill colour, or macOS gets a solid blob.
+
+  Light Blue rather than the signature Primary Blue: the taskbar may be dark, and
+  #302EE0 reads nearly black against it - the same reason the dark theme leads
+  with Light Blue in MontaColors.
+
+  Solid-with-a-knockout rather than an outline, because at the ~20px the tray
+  actually draws this, thin strokes disappear.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#337DFF">
+  <path
+    fill-rule="evenodd"
+    d="M8 2h8a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Z M13.4 5.35 8.5 13.05H12l-1.4 5.6 4.9-7.7H12Z"
+  />
+</svg>
