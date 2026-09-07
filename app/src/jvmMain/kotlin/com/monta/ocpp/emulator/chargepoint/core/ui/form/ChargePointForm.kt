@@ -317,14 +317,14 @@ class ChargePointFormViewModel {
         } else if (!isUpdating &&
             transaction {
                 ChargePointDAO.count(
-                    ChargePointTable.identity eq form.chargePointIdentity.trim().uppercase(),
+                    ChargePointTable.identity eq ChargePointDAO.normalizeIdentity(form.chargePointIdentity),
                 ) != 0L
             }
         ) {
             formErrors["identity"] = "Identity already in use"
             hasErrors = true
         } else if (form.urlChoice == UrlChoice.Production &&
-            !form.chargePointIdentity.trim().uppercase()
+            !ChargePointDAO.normalizeIdentity(form.chargePointIdentity)
                 .startsWith("MEM_")
         ) {
             formErrors["identity"] = "On production identity must begin with MEM_"

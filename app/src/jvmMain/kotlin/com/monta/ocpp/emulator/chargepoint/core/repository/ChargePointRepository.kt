@@ -24,9 +24,7 @@ class ChargePointRepository {
         maxKw: Double,
         meterType: MeterType,
     ): ChargePointDAO {
-        val chargePoint = ChargePointDAO.find {
-            ChargePointTable.identity eq identity
-        }.firstOrNull()
+        val chargePoint = getByIdentity(identity)
 
         if (chargePoint != null) {
             chargePoint.name = name
@@ -95,8 +93,10 @@ class ChargePointRepository {
     fun getByIdentity(
         identity: String,
     ): ChargePointDAO? {
+        // Rows always hold the normalised identity, so the lookup has to normalise as well —
+        // otherwise a caller passing an un-normalised identity misses the row it is looking for
         return ChargePointDAO.find {
-            ChargePointTable.identity eq identity
+            ChargePointTable.identity eq ChargePointDAO.normalizeIdentity(identity)
         }.firstOrNull()
     }
 
