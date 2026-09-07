@@ -18,8 +18,7 @@ kotlin {
     jvm()
     sourceSets {
         jvmTest.dependencies {
-            implementation(libs.kotlin.test.junit5)
-            implementation(libs.junit.jupiter)
+            implementation(libs.bundles.kotest)
         }
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
