@@ -126,7 +126,10 @@ class ChargePointTransactionDAO(
     }
 
     fun getChargingProfileWatts(): Double? {
-        return ChargingProfileCalculator.getWatts(this)
+        return ChargingProfileCalculator.getWatts(
+            chargingProfile = chargingProfile,
+            transactionStartedAt = createdAt,
+        )
     }
 
     fun clearChargingProfile() {

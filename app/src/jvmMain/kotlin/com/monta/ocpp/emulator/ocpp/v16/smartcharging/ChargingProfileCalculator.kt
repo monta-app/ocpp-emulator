@@ -2,22 +2,37 @@ package com.monta.ocpp.emulator.ocpp.v16.smartcharging
 
 import com.monta.library.ocpp.v16.smartcharge.ChargingProfile
 import com.monta.library.ocpp.v16.smartcharge.ChargingSchedule
-import com.monta.library.ocpp.v16.smartcharge.ChargingSchedulePeriod
-import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
+import java.time.Duration
 import java.time.Instant
 
 object ChargingProfileCalculator {
 
+    /**
+     * Resolves the charging profile down to the wattage that should be drawn at [now].
+     *
+     * Takes values rather than a transaction so the maths stays independent of the database,
+     * and takes [now] explicitly so it can be exercised at a fixed point in time.
+     *
+     * @param transactionStartedAt fallback schedule start, used when the schedule is relative
+     *  (`startSchedule` is null) and is therefore anchored to the transaction.
+     */
     fun getWatts(
-        transaction: ChargePointTransactionDAO,
+        chargingProfile: ChargingProfile?,
+        transactionStartedAt: Instant,
+        now: Instant = Instant.now(),
     ): Double? {
-        val (ampsPerPhase, phases) = getAmps(transaction) ?: return null
+        val (ampsPerPhase, phases) = getAmps(
+            chargingProfile = chargingProfile,
+            transactionStartedAt = transactionStartedAt,
+            now = now,
+        ) ?: return null
         return (ampsPerPhase * 230.0) * phases.toDouble()
     }
 
     private fun getAmps(
-        transaction: ChargePointTransactionDAO,
-        chargingProfile: ChargingProfile? = transaction.chargingProfile,
+        chargingProfile: ChargingProfile?,
+        transactionStartedAt: Instant,
+        now: Instant,
     ): Pair<Double, Int>? {
         if (chargingProfile == null) {
             return null
@@ -29,11 +44,7 @@ object ChargingProfileCalculator {
             return null
         }
 
-        val now = Instant.now()
-        val scheduleStart = chargingSchedule.startSchedule?.toInstant() ?: transaction.createdAt
-        val scheduleEnd: Instant? = chargingSchedule.duration?.let { duration ->
-            scheduleStart.plusSeconds(duration.toLong())
-        }
+        val scheduleStart = chargingSchedule.startSchedule?.toInstant() ?: transactionStartedAt
 
         // Check if our schedule has started yet
         if (now < scheduleStart) {
@@ -41,54 +52,43 @@ object ChargingProfileCalculator {
             return null
         }
 
-        // Ensure our periods are sorted by the start duration
-        val sortedPeriods = chargingSchedule.chargingSchedulePeriod.sortedBy { it.startPeriod }
+        // A schedule that declares a duration stops applying once that duration has elapsed
+        val duration = chargingSchedule.duration
 
-        // Iterate through our periods
-        for (chargingSchedulePeriod in sortedPeriods) {
-            val chargingLimit = chargingSchedulePeriod.checkAndGetLimit(
-                scheduleStart = scheduleStart,
-                minChargingRate = chargingSchedule.minChargingRate,
-                checkDate = now,
-            )
-            if (chargingLimit != null) {
-                return chargingLimit
-            }
+        if (duration != null && now > scheduleStart.plusSeconds(duration.toLong())) {
+            return null
         }
-        // If we don't find a schedule above, we will revert to trying the last period in our schedule
-        // But instead we will use the scheduleEnd as our check date, if it's null we use the last period
-        // As described in the OCPP docs
-        return sortedPeriods.lastOrNull()?.checkAndGetLimit(
-            scheduleStart = scheduleStart,
-            minChargingRate = chargingSchedule.minChargingRate,
-            checkDate = scheduleEnd,
-        )
-    }
 
-    private fun ChargingSchedulePeriod.checkAndGetLimit(
-        scheduleStart: Instant,
-        minChargingRate: Double?,
-        checkDate: Instant?,
-    ): Pair<Double, Int>? {
-        // How many seconds from the schedule start does this period start at?
-        val startPeriod = startPeriod?.toLong()
-        // This should never be null, but we have to check anyway
-        if (startPeriod == null) return null
-        // Create a date so we can compare
-        val periodStart = scheduleStart.plusSeconds(startPeriod)
-        // If our current time is past the start time of this period
-        if (checkDate != null && periodStart < checkDate) return null
-        // If we have a valid period lets return that limit
-        val limit: Double? = limit
+        // v1.6 section 7.8: the period in force is the last one whose startPeriod has already
+        // elapsed. Periods are relative to the schedule start and are not required to be ordered.
+        val elapsedSeconds = Duration.between(scheduleStart, now).seconds
+        val activePeriod = chargingSchedule.chargingSchedulePeriod
+            .sortedBy { chargingSchedulePeriod -> chargingSchedulePeriod.startPeriod }
+            .lastOrNull { chargingSchedulePeriod ->
+                val startPeriod = chargingSchedulePeriod.startPeriod
+                // startPeriod should never be null, but we have to check anyway
+                startPeriod != null && startPeriod <= elapsedSeconds
+            }
+
+        // Nothing has come into force yet, the first period starts later than now
+        if (activePeriod == null) {
+            return null
+        }
+
+        val limit: Double? = activePeriod.limit
+
         // If we don't have a limit return null (again this shouldn't happen)
-        if (limit == null) return null
-        // Otherwise we do our calculation based if we have a min charging rate
+        if (limit == null) {
+            return null
+        }
+
+        val minChargingRate = chargingSchedule.minChargingRate
+
         return if (minChargingRate != null) {
-            // If we do we should never return lower than our minChargingRate
-            maxOf(limit, minChargingRate) to numberPhases
+            // We should never return lower than our minChargingRate
+            maxOf(limit, minChargingRate) to activePeriod.numberPhases
         } else {
-            // Otherwise just return our limit
-            limit to numberPhases
+            limit to activePeriod.numberPhases
         }
     }
 }
