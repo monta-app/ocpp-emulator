@@ -24,7 +24,7 @@ class ChargePointConfiguration : HashMap<String, String?>() {
         this["SendLocalListMaxLength"] = "10"
         this["ClockAlignedDataInterval"] = "0"
         this["MeterValueSampleInterval"] = "180"
-        this["SupportedFeatureProfiles"] = "Core"
+        this["SupportedFeatureProfiles"] = "Core,FirmwareManagement,LocalAuthListManagement,Reservation,SmartCharging,RemoteTrigger"
         this["AuthorizationCacheEnabled"] = "false"
         this["AuthorizeRemoteTxRequests"] = "true"
         this["AllowOfflineTxForUnknownId"] = "false"

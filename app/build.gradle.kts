@@ -36,6 +36,7 @@ kotlin {
             // OCPP Libs
             implementation(libs.ocpp.core)
             implementation(libs.ocpp.v16)
+            implementation(libs.ocpp.v201)
             // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
             implementation(libs.jackson3.databind)
 

@@ -36,6 +36,14 @@ class ChargePointTransactionService(
         }
     }
 
+    fun getByOcppTransactionId(
+        ocppTransactionId: String,
+    ): ChargePointTransactionDAO? {
+        return transaction {
+            chargePointTransactionRepository.getByOcppTransactionId(ocppTransactionId)
+        }
+    }
+
     fun update(
         externalId: Int,
         block: ChargePointTransactionDAO.() -> Unit,

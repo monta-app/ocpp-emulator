@@ -40,7 +40,7 @@ import com.monta.ocpp.emulator.interceptor.ui.InterceptorConfigComponent
 import com.monta.ocpp.emulator.interceptor.ui.NavShape
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.connection.ProtocolConnectionManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.flow.collectLatest
@@ -53,7 +53,7 @@ fun ChargePointPage(
     val chargePointRepository: ChargePointRepository by injectAnywhere()
 
     val coroutineScope = rememberCoroutineScope()
-    val connectionManager: ConnectionManager by injectAnywhere()
+    val connectionManager: ProtocolConnectionManager by injectAnywhere()
 
     var chargePoint: ChargePointDAO? by remember { mutableStateOf(null) }
 

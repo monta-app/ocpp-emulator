@@ -25,6 +25,7 @@ object ChargePointTransaction : LongIdTable("charge_point_transaction") {
 
     var connectorPosition = integer("connector_position")
     var externalId = integer("external_id")
+    var ocppTransactionId = varchar("ocpp_transaction_id", 64).nullable()
     var idTag = varchar("id_tag", 128)
     var statusAt = timestamp("status_at")
     var startMeter = double("start_meter")
@@ -88,6 +89,7 @@ class ChargePointTransactionDAO(
 
     var connectorPosition by ChargePointTransaction.connectorPosition
     var externalId by ChargePointTransaction.externalId
+    var ocppTransactionId by ChargePointTransaction.ocppTransactionId
     var idTag by ChargePointTransaction.idTag
     var statusAt by ChargePointTransaction.statusAt
     var startMeter by ChargePointTransaction.startMeter

@@ -27,13 +27,17 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationFeature
 import com.monta.library.ocpp.v16.firmware.GetDiagnosticsFeature
 import com.monta.library.ocpp.v16.firmware.UpdateFirmwareFeature
 import com.monta.library.ocpp.v16.localauth.GetLocalListVersionFeature
+import com.monta.library.ocpp.v16.localauth.SendLocalAuthListFeature
 import com.monta.library.ocpp.v16.remotetrigger.TriggerMessageFeature
 import com.monta.library.ocpp.v16.smartcharge.ClearChargingProfileFeature
 import com.monta.library.ocpp.v16.smartcharge.GetCompositeScheduleFeature
 import com.monta.library.ocpp.v16.smartcharge.SetChargingProfileFeature
+import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
 import com.monta.ocpp.emulator.interceptor.model.Interception
 import com.monta.ocpp.emulator.interceptor.model.InterceptionConfig
+import com.monta.ocpp.emulator.ocpp.v16.reservation.CancelReservationFeature
+import com.monta.ocpp.emulator.ocpp.v16.reservation.ReserveNowFeature
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.logging.model.Loggable
 import com.monta.ocpp.emulator.platform.logging.service.GlobalLogger
@@ -47,21 +51,20 @@ class MessageInterceptor(
         val serializer = MessageSerializer(SerializationMode.OCPP_1_6, OcppErrorResponderV16)
 
         val centralSystemFeatures = setOf(
-            // CancelReservationFeature, not implemented?
+            CancelReservationFeature,
             ChangeAvailabilityFeature,
             ChangeConfigurationFeature,
             ClearCacheFeature,
             ClearChargingProfileFeature,
-            // DataTransferFeature, this should be included, but it's a headache to synchronize. perhaps a third category (both) would be better
             GetCompositeScheduleFeature,
             GetConfigurationFeature,
             GetDiagnosticsFeature,
             GetLocalListVersionFeature,
             RemoteStartTransactionFeature,
             RemoteStopTransactionFeature,
-            // ReserveNowFeature, not implemented?
+            ReserveNowFeature,
             ResetFeature,
-            // SendLocalListFeature, not implemented?
+            SendLocalAuthListFeature,
             SetChargingProfileFeature,
             TriggerMessageFeature,
             UnlockConnectorFeature,
@@ -80,6 +83,71 @@ class MessageInterceptor(
             StatusNotificationFeature,
             StopTransactionFeature,
         ).associateBy { it.name }
+
+        /** Shared CSMS↔CP action names used by OCPP 2.0.1 / 2.1 intercept defaults. */
+        val ocpp2xActionNames: Set<String> = setOf(
+            "BootNotification",
+            "Heartbeat",
+            "StatusNotification",
+            "Authorize",
+            "TransactionEvent",
+            "MeterValues",
+            "RequestStartTransaction",
+            "RequestStopTransaction",
+            "TriggerMessage",
+            "UnlockConnector",
+            "ChangeAvailability",
+            "Reset",
+            "GetVariables",
+            "SetVariables",
+            "GetBaseReport",
+            "GetReport",
+            "NotifyReport",
+            "ClearCache",
+            "GetLocalListVersion",
+            "SendLocalList",
+            "ReserveNow",
+            "CancelReservation",
+            "SetChargingProfile",
+            "ClearChargingProfile",
+            "GetCompositeSchedule",
+            "GetChargingProfiles",
+            "UpdateFirmware",
+            "PublishFirmware",
+            "UnpublishFirmware",
+            "FirmwareStatusNotification",
+            "InstallCertificate",
+            "DeleteCertificate",
+            "GetInstalledCertificateIds",
+            "CertificateSigned",
+            "GetLog",
+            "LogStatusNotification",
+            "DataTransfer",
+            "CostUpdated",
+            "SetDisplayMessage",
+            "ClearDisplayMessage",
+            "GetDisplayMessages",
+            // 2.1-only
+            "SetDefaultTariff",
+            "GetTariffs",
+            "ClearTariffs",
+            "ChangeTransactionTariff",
+            "SetDERControl",
+            "GetDERControl",
+            "ClearDERControl",
+            "OpenPeriodicEventStream",
+            "ClosePeriodicEventStream",
+            "GetPeriodicEventStream",
+            "AdjustPeriodicEventStream",
+            "UsePriorityCharging",
+            "UpdateDynamicSchedule",
+            "RequestBatterySwap",
+            "AFRRSignal",
+            "NotifySettlement",
+            "NotifyWebPaymentStarted",
+            "VatNumberValidation",
+            "GetCertificateChainStatus",
+        )
     }
 
     // message ids to intercept
@@ -88,46 +156,55 @@ class MessageInterceptor(
     // settings/config
     val messageTypeConfig = mutableMapOf<Long, Map<String, InterceptionConfig>>()
 
-    private fun defaults() = listOf(
-        AuthorizeFeature.name,
-        BootNotificationFeature.name,
-        // CancelReservationFeature.name,
-        ChangeAvailabilityFeature.name,
-        ChangeConfigurationFeature.name,
-        ClearCacheFeature.name,
-        ClearChargingProfileFeature.name,
-        DataTransferFeature.name,
-        DiagnosticsStatusNotificationFeature.name,
-        FirmwareStatusNotificationFeature.name,
-        GetCompositeScheduleFeature.name,
-        GetConfigurationFeature.name,
-        GetDiagnosticsFeature.name,
-        GetLocalListVersionFeature.name,
-        HeartbeatFeature.name,
-        MeterValuesFeature.name,
-        RemoteStartTransactionFeature.name,
-        RemoteStopTransactionFeature.name,
-        // ReserveNowFeature.name,
-        ResetFeature.name,
-        // SendLocalListFeature.name,
-        SetChargingProfileFeature.name,
-        StartTransactionFeature.name,
-        StatusNotificationFeature.name,
-        StopTransactionFeature.name,
-        TriggerMessageFeature.name,
-        UnlockConnectorFeature.name,
-        UpdateFirmwareFeature.name,
-    ).associateWith {
-        InterceptionConfig(
-            mutableStateOf(Interception.NoOp),
-            mutableStateOf(Interception.NoOp),
-        )
-    }.toMap()
+    private fun defaultsFor(
+        version: OcppVersion,
+    ): Map<String, InterceptionConfig> {
+        val names = when (version) {
+            OcppVersion.V16 -> listOf(
+                AuthorizeFeature.name,
+                BootNotificationFeature.name,
+                CancelReservationFeature.name,
+                ChangeAvailabilityFeature.name,
+                ChangeConfigurationFeature.name,
+                ClearCacheFeature.name,
+                ClearChargingProfileFeature.name,
+                DataTransferFeature.name,
+                DiagnosticsStatusNotificationFeature.name,
+                FirmwareStatusNotificationFeature.name,
+                GetCompositeScheduleFeature.name,
+                GetConfigurationFeature.name,
+                GetDiagnosticsFeature.name,
+                GetLocalListVersionFeature.name,
+                HeartbeatFeature.name,
+                MeterValuesFeature.name,
+                RemoteStartTransactionFeature.name,
+                RemoteStopTransactionFeature.name,
+                ReserveNowFeature.name,
+                ResetFeature.name,
+                SendLocalAuthListFeature.name,
+                SetChargingProfileFeature.name,
+                StartTransactionFeature.name,
+                StatusNotificationFeature.name,
+                StopTransactionFeature.name,
+                TriggerMessageFeature.name,
+                UnlockConnectorFeature.name,
+                UpdateFirmwareFeature.name,
+            )
+            OcppVersion.V201, OcppVersion.V21 -> ocpp2xActionNames.toList()
+        }
+        return names.associateWith {
+            InterceptionConfig(
+                mutableStateOf(Interception.NoOp),
+                mutableStateOf(Interception.NoOp),
+            )
+        }
+    }
 
     fun addDefaults(
         id: Long,
     ) {
-        messageTypeConfig[id] = defaults()
+        val version = chargePointService.getById(id).ocppVersion
+        messageTypeConfig[id] = defaultsFor(version)
     }
 
     // intercept send

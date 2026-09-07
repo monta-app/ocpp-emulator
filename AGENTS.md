@@ -8,9 +8,9 @@
 
 Compose for Desktop application that emulates OCPP charge points for testing CSMS backends. Kotlin Multiplatform with a single `jvm()` target; requires JDK 25 (`jvmToolchain(25)`).
 
-There is one Gradle module (settings.gradle.kts): `:app` — the whole emulator, holding both the shared infrastructure/UI and the OCPP 1.6 protocol code. It was previously split into `:common` + `:v16`; those were merged into a single `:app` module since nothing else consumed `:common` and there was never a second protocol module. The README mentions OCPP 2.0.1 / `v201`, but that module does not exist in this repo yet.
+There is one Gradle module (`:app`). OCPP protocol adapters live under `ocpp/v16/`, `ocpp/v201/`, and `ocpp/v21/`. Version-aware connect is routed by `ocpp/connection/ProtocolConnectionManager`. Official JSON schemas are vendored under `app/src/jvmMain/resources/ocpp/schemas/{1.6,2.0.1,2.1}/`.
 
-The `com.monta.ocpp.emulator.v16` **package** (and the `ocpp-v16` library dependency) keep the `v16` name — that's the OCPP 1.6 protocol version, not a module coordinate. Only the module/directory is `app`.
+The `com.monta.ocpp.emulator.ocpp.v16` / `v201` / `v21` packages name the **protocol version**, not Gradle modules. OCPP 2.0.1 uses `library-ocpp` `ocpp-v201`; OCPP 2.1 uses an in-repo client generated from Part 3 schemas.
 
 ## Commands
 
@@ -43,8 +43,14 @@ chargepoint/        the domain aggregate — charge point → connector → tran
   txdefault/        entity/ repository/ service/
 vehicle/            model/ service/ ui/
 interceptor/        the 🤓 message-interception feature — model/ service/ ui/
-ocpp/v16/           the OCPP 1.6 protocol adapter — the only version-specific code
-  service/ profile/ connection/ scheduler/ smartcharging/ extension/
+ocpp/
+  connection/       ProtocolConnectionManager (routes by OcppVersion)
+  v16/              OCPP 1.6 — service/ profile/ connection/ scheduler/ smartcharging/ reservation/ extension/
+  v201/             OCPP 2.0.1 — service/ profile/ connection/ scheduler/ extension/
+  v21/              OCPP 2.1 — protocol/ (client, blocks, messages) + service/ profile/ connection/ scheduler/ store/ extension/
+chargepoint/        domain aggregate (+ certificate/, reservation/, devicemodel/)
+  core/             model/ entity/ repository/ service/ exception/ ui/
+  connector/ transaction/ txdefault/
 designsystem/       ui/component/ (reusable widgets) + ui/theme/ (MontaTheme, MontaColors)
 navigation/         model/ (Screen routes) + service/ (Navigator)
 platform/           app infrastructure, nothing domain-specific — one subpackage per concern,
@@ -69,14 +75,15 @@ Role folders repeat at every level even when they hold a single file — predict
 
 1. App entry point or DI wiring → the root package (`App.kt`, `MainWindow.kt`, `MontaKoinModule.kt`). Nothing else lives there.
 2. Reusable UI with no domain knowledge → `designsystem/ui/component/` or `designsystem/ui/theme/`. Navigation plumbing → `navigation/model|service/`.
-3. OCPP 1.6 protocol behavior → `ocpp/v16/<role>/`.
+3. OCPP protocol behavior → `ocpp/v16|v201|v21/<role>/` (2.1 DTOs/dispatchers under `ocpp/v21/protocol/`).
 4. App infrastructure with no domain knowledge → `platform/<concern>/<role>/`.
 5. Everything else is domain or feature code → `chargepoint/<sub-aggregate>/<role>/` (the charge point itself is `core/`), `vehicle/<role>/`, `interceptor/<role>/`.
 
 **Compose stays out of the domain, the protocol layer and the platform layer.** Verified: nothing outside `ui/` role folders, `App.kt`/`MainWindow.kt` and the `interceptor` feature imports `androidx.compose`. Keep it that way — it's what makes the domain readable without a UI in your head. (`interceptor/` is the deliberate exception: `interceptor/service/MessageInterceptor` and `interceptor/model/` hold Compose state directly, because the interception rules *are* UI state.)
 
-`ocpp/v16/` is the seam to cut along if OCPP 2.0.1 is ever added — it holds the protocol
-handlers, websocket connection, scheduler and smart-charging maths, and nothing else.
+`ocpp/v16|v201|v21/` are the seams for each protocol version — handlers, websocket connection, schedulers, and version-specific maths live there; domain code stays in `chargepoint/`.
+
+Connect/disconnect from the UI goes through `ProtocolConnectionManager`, which selects the per-version `ConnectionManager` from `ChargePointDAO.ocppVersion`.
 
 ### Startup and DI (Koin 4.2 + Koin Compiler Plugin)
 

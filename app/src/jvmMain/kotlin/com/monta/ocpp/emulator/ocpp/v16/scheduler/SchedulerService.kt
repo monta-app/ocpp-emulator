@@ -6,9 +6,9 @@ import com.monta.library.ocpp.v16.core.MeterValue
 import com.monta.library.ocpp.v16.core.MeterValuesRequest
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
+import com.monta.ocpp.emulator.chargepoint.reservation.service.ChargePointReservationService
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
 import com.monta.ocpp.emulator.ocpp.v16.extension.setStatus
-import com.monta.ocpp.emulator.ocpp.v16.scheduler.MeterValuesGenerator
 import com.monta.ocpp.emulator.platform.logging.service.GlobalLogger
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
@@ -29,6 +29,7 @@ class SchedulerService(
     private val logger = KotlinLogging.logger {}
     private val ocppClientV16: OcppClientV16 by injectAnywhere()
     private val chargePointService: ChargePointService by injectAnywhere()
+    private val reservationService: ChargePointReservationService by injectAnywhere()
 
     private val chargePoint: ChargePointDAO
         get() = chargePointService.getById(chargePointId)
@@ -56,6 +57,7 @@ class SchedulerService(
                 }
                 heartbeat()
                 handleActiveTransactions()
+                reservationService.expireDueReservations()
             }
         }
     }

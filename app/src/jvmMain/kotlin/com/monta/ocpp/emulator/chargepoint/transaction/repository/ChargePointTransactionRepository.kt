@@ -14,4 +14,12 @@ class ChargePointTransactionRepository {
             ChargePointTransaction.externalId eq externalId
         }.firstOrNull()
     }
+
+    fun getByOcppTransactionId(
+        ocppTransactionId: String,
+    ): ChargePointTransactionDAO? {
+        return ChargePointTransactionDAO.find {
+            ChargePointTransaction.ocppTransactionId eq ocppTransactionId
+        }.firstOrNull()
+    }
 }
