@@ -9,15 +9,19 @@ class ExtensionsTest : DescribeSpec({
     describe("randomString") {
 
         it("returns a string of the requested length") {
-            randomString(10).length shouldBe 10
+            val length = randomString(10).length
+
+            length shouldBe 10
         }
 
         it("returns only uppercase letters and digits") {
             val result = randomString(100)
 
-            result.all { character ->
+            val isAllUppercaseOrDigits = result.all { character ->
                 character.isLetterOrDigit() && (character.isUpperCase() || character.isDigit())
-            } shouldBe true
+            }
+
+            isAllUppercaseOrDigits shouldBe true
         }
 
         it("returns a different value on each call") {

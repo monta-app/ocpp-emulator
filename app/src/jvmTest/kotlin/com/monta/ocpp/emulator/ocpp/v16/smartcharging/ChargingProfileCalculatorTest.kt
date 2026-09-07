@@ -130,10 +130,12 @@ class ChargingProfileCalculatorTest : DescribeSpec({
                 ResolutionCase("steps up to 32 A the moment the period elapses", 3600, watts(32.0, 3)),
                 ResolutionCase("holds 32 A once the last period is in force", 7200, watts(32.0, 3)),
             ) { resolutionCase ->
-                wattsAt(
+                val actualWatts = wattsAt(
                     profile = steppedSchedule,
                     secondsIntoSchedule = resolutionCase.secondsIntoSchedule,
-                ) shouldBe resolutionCase.expectedWatts
+                )
+
+                actualWatts shouldBe resolutionCase.expectedWatts
             }
         }
 
@@ -182,7 +184,9 @@ class ChargingProfileCalculatorTest : DescribeSpec({
                     ),
                 )
 
-                wattsAt(profile = profile, secondsIntoSchedule = 0) shouldBe phaseCase.expectedWatts
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe phaseCase.expectedWatts
             }
 
             it("never returns less than the minimum charging rate") {

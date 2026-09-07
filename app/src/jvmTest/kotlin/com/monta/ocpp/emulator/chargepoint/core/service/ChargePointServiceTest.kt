@@ -46,8 +46,10 @@ class ChargePointServiceTest : DatabaseSpec({
             val chargePoint = upsert(identity = "MEM_001", connectorCount = 2)
 
             transaction {
+                val connectorPositions = chargePoint.connectors.map { connector -> connector.position }.sorted()
+
                 chargePoint.identity shouldBe "MEM_001"
-                chargePoint.connectors.map { connector -> connector.position }.sorted() shouldBe listOf(1, 2)
+                connectorPositions shouldBe listOf(1, 2)
             }
         }
 
@@ -67,9 +69,11 @@ class ChargePointServiceTest : DatabaseSpec({
             val updated = upsert(identity = "mem_001", connectorCount = 1)
 
             transaction {
+                val storedChargePoints = ChargePointDAO.all()
+
                 updated.id shouldBe created.id
-                ChargePointDAO.all().count() shouldBe 1
-                ChargePointDAO.all().single().identity shouldBe "MEM_001"
+                storedChargePoints.count() shouldBe 1
+                storedChargePoints.single().identity shouldBe "MEM_001"
             }
         }
 
@@ -82,7 +86,9 @@ class ChargePointServiceTest : DatabaseSpec({
                 upsert(identity = "MEM_001", connectorCount = 3)
 
                 transaction {
-                    chargePoint.connectors.map { connector -> connector.position }.sorted() shouldBe listOf(1, 2, 3)
+                    val connectorPositions = chargePoint.connectors.map { connector -> connector.position }.sorted()
+
+                    connectorPositions shouldBe listOf(1, 2, 3)
                     ChargePointConnectorDAO.findById(originalConnectorId).shouldNotBeNull()
                 }
             }
@@ -103,7 +109,9 @@ class ChargePointServiceTest : DatabaseSpec({
                 upsert(identity = "MEM_001", connectorCount = 1)
 
                 transaction {
-                    chargePoint.connectors.map { connector -> connector.position } shouldBe listOf(1)
+                    val connectorPositions = chargePoint.connectors.map { connector -> connector.position }
+
+                    connectorPositions shouldBe listOf(1)
                     ChargePointTransactionDAO.all().count() shouldBe 0
                 }
             }
@@ -136,7 +144,9 @@ class ChargePointServiceTest : DatabaseSpec({
             val created = upsert(identity = "MEM_001", connectorCount = 1)
 
             transaction {
-                service.getByIdentity("mem_001").id shouldBe created.id
+                val found = service.getByIdentity("mem_001")
+
+                found.id shouldBe created.id
             }
         }
     }
