@@ -1,7 +1,7 @@
 package com.monta.ocpp.emulator.testsupport
 
 import com.monta.ocpp.emulator.platform.database.service.DatabaseService
-import io.kotest.core.spec.Spec
+import io.kotest.core.spec.style.DescribeSpec
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -12,7 +12,7 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.deleteIfExists
 
 /**
- * Gives every leaf test in this spec its own empty SQLite database.
+ * A [DescribeSpec] whose every leaf test gets its own empty SQLite database.
  *
  * The schema is built from [DatabaseService.tables] so it cannot drift from the one the app creates
  * on startup. Nothing is mocked: the service, the repository, the Exposed mapping and the SQLite
@@ -22,15 +22,16 @@ import kotlin.io.path.deleteIfExists
  * SQLite rather than H2 on purpose. The app ships a pinned SQLite driver and the failures worth
  * catching here are dialect- and mapping-level; H2 would hide exactly those.
  *
- * Call it once at the top of the spec body:
  * ```
- * class ExampleTest : DescribeSpec({
- *     useThrowawayDatabase()
+ * class ExampleTest : DatabaseSpec({
  *     describe("something") { ... }
  * })
  * ```
  */
-fun Spec.useThrowawayDatabase() {
+abstract class DatabaseSpec(
+    body: DescribeSpec.() -> Unit,
+) : DescribeSpec({
+
     var databaseFile: Path? = null
     var database: Database? = null
 
@@ -52,4 +53,6 @@ fun Spec.useThrowawayDatabase() {
         database = null
         databaseFile = null
     }
-}
+
+    body()
+})

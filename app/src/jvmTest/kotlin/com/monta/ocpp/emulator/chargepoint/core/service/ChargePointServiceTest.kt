@@ -5,8 +5,7 @@ import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
-import com.monta.ocpp.emulator.testsupport.useThrowawayDatabase
-import io.kotest.core.spec.style.DescribeSpec
+import com.monta.ocpp.emulator.testsupport.DatabaseSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -19,9 +18,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * The case that earns this harness is connector reconciliation on [ChargePointService.upsert]:
  * lowering the connector count deletes rows, and deletions are worth a test that can actually fail.
  */
-class ChargePointServiceTest : DescribeSpec({
-
-    useThrowawayDatabase()
+class ChargePointServiceTest : DatabaseSpec({
 
     val service = ChargePointService(ChargePointRepository())
 
