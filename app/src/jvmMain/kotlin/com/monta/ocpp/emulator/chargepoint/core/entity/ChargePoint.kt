@@ -96,6 +96,17 @@ class ChargePointDAO(
 ) : LongEntity(id), Loggable {
 
     companion object : LongEntityClass<ChargePointDAO>(ChargePointTable) {
+
+        /**
+         * The stored form of an identity. Persisted rows always hold the normalised form, so any
+         * query filtering on identity has to normalise its argument the same way.
+         */
+        fun normalizeIdentity(
+            identity: String,
+        ): String {
+            return identity.trim().uppercase()
+        }
+
         fun newInstance(
             name: String,
             identity: String,
@@ -108,7 +119,7 @@ class ChargePointDAO(
         ): ChargePointDAO {
             return ChargePointDAO.new {
                 this.name = name
-                this.identity = identity.trim().uppercase()
+                this.identity = normalizeIdentity(identity)
                 //
                 this.operationMode = ChargePointMode.Manual
                 this.ocppVersion = OcppVersion.V16

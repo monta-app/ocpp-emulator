@@ -15,20 +15,27 @@ import javax.inject.Singleton
 @Singleton
 class DatabaseService {
 
+    companion object {
+        /**
+         * Every table the app persists. Register new tables here — the schema is created from this
+         * list on startup, and the test harness builds its throwaway database from the same list.
+         */
+        val tables = arrayOf(
+            AppConfigTable,
+            ChargePointTable,
+            ChargePointConnectorTable,
+            ChargePointTransaction,
+            TxDefault,
+            PreviousMessagesTable,
+        )
+    }
+
     private val logger = KotlinLogging.logger {}
     private val database = DatabaseInitiator("app.db").database
 
     fun connect() {
         try {
             transaction {
-                val tables = arrayOf(
-                    AppConfigTable,
-                    ChargePointTable,
-                    ChargePointConnectorTable,
-                    ChargePointTransaction,
-                    TxDefault,
-                    PreviousMessagesTable,
-                )
                 SchemaUtils.create(*tables)
                 SchemaUtils.addMissingColumnsStatements(*tables).forEach { statement ->
                     exec(statement)
