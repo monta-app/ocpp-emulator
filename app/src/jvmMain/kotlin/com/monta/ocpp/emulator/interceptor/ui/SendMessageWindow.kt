@@ -285,8 +285,10 @@ fun defaultPayload(
                         meterValuesSampledData = chargePoint.meterValuesSampledData,
                         startTime = transaction?.startTime,
                         endMeter = transaction?.endMeter ?: 0.0,
-                        watts = chargePoint.connectors
-                            .first { it.position == (transaction?.connectorPosition ?: 1) }.kw * 1000,
+                        watts = (
+                            chargePoint.connectors
+                                .firstOrNull { it.position == (transaction?.connectorPosition ?: 1) }?.kw ?: 0.0
+                            ) * 1000,
                         meterType = chargePoint.meterType,
                     ),
                 ),
@@ -308,8 +310,10 @@ fun defaultPayload(
 
         StopTransactionFeature -> StopTransactionRequest(
             idTag = transaction?.idTag,
-            meterStop = chargePoint.connectors
-                .first { it.position == (transaction?.connectorPosition ?: 1) }.meterWh.toInt(),
+            meterStop = (
+                chargePoint.connectors
+                    .firstOrNull { it.position == (transaction?.connectorPosition ?: 1) }?.meterWh ?: 0.0
+                ).toInt(),
             timestamp = ZonedDateTime.now(),
             transactionId = transaction?.id?.toInt() ?: 0,
             transactionData = listOf(
