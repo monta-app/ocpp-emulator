@@ -25,7 +25,10 @@ class ExtensionsTest : DescribeSpec({
         }
 
         it("returns a different value on each call") {
-            randomString(20) shouldNotBe randomString(20)
+            val first = randomString(20)
+            val second = randomString(20)
+
+            first shouldNotBe second
         }
     }
 })

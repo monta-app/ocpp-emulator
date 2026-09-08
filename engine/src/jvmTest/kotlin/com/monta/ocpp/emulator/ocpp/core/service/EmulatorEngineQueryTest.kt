@@ -76,6 +76,9 @@ class EmulatorEngineQueryTest : DatabaseSpec({
 
             val chargePoint = engine.getChargePoint(seeded.idValue)
 
+            val connectorPositions = chargePoint.connectors.map { connector -> connector.position }
+            val firstConnector = chargePoint.connectors.first()
+
             chargePoint.id shouldBe seeded.idValue
             chargePoint.identity shouldBe "MEM_001"
             chargePoint.firmware shouldBe "1.2.3"
@@ -83,8 +86,8 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             chargePoint.meterType shouldBe MeterType.OCPP
             chargePoint.ocppVersion shouldBe OcppVersion.V16
             chargePoint.connectorCount shouldBe 2
-            chargePoint.connectors.map { connector -> connector.position } shouldContainExactly listOf(1, 2)
-            chargePoint.connectors.first().status shouldBe ChargePointStatus.Available
+            connectorPositions shouldContainExactly listOf(1, 2)
+            firstConnector.status shouldBe ChargePointStatus.Available
         }
 
         it("throws when the charge point cannot be resolved") {
@@ -97,13 +100,18 @@ class EmulatorEngineQueryTest : DatabaseSpec({
     describe("findChargePoint") {
 
         it("returns the DTO when the charge point exists") {
-            val chargePoint = seedChargePoint()
+            val seeded = seedChargePoint()
 
-            engine.findChargePoint(chargePoint.idValue).shouldNotBeNull().identity shouldBe "MEM_001"
+            val chargePoint = engine.findChargePoint(seeded.idValue)
+
+            chargePoint.shouldNotBeNull()
+            chargePoint.identity shouldBe "MEM_001"
         }
 
         it("returns null instead of throwing when it does not") {
-            engine.findChargePoint(999_999).shouldBeNull()
+            val chargePoint = engine.findChargePoint(999_999)
+
+            chargePoint.shouldBeNull()
         }
     }
 
@@ -125,19 +133,22 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             }
 
             val connectorDto = engine.getChargePoint(chargePoint.idValue).connectors.single()
+            val activeTransactionDto = connectorDto.activeTransaction
 
             connectorDto.hasActiveTransaction shouldBe true
-            connectorDto.activeTransaction.shouldNotBeNull().externalId shouldBe 4242
-            connectorDto.activeTransaction.shouldNotBeNull().idTag shouldBe "TAG-1"
             connectorDto.meterWh shouldBe 1500.0
+            activeTransactionDto.shouldNotBeNull()
+            activeTransactionDto.externalId shouldBe 4242
+            activeTransactionDto.idTag shouldBe "TAG-1"
         }
 
         it("leaves the active transaction null when the connector is idle") {
             val chargePoint = seedChargePoint(connectorCount = 1)
 
             val connectorDto = engine.getChargePoint(chargePoint.idValue).connectors.single()
+            val activeTransactionDto = connectorDto.activeTransaction
 
-            connectorDto.activeTransaction.shouldBeNull()
+            activeTransactionDto.shouldBeNull()
             connectorDto.hasActiveTransaction shouldBe false
         }
     }
@@ -149,8 +160,9 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             seedChargePoint(identity = "MEM_002", connectorCount = 1)
 
             val chargePoints = engine.observeChargePoints().first()
+            val identities = chargePoints.map { chargePoint -> chargePoint.identity }.sorted()
 
-            chargePoints.map { chargePoint -> chargePoint.identity }.sorted() shouldContainExactly listOf("MEM_001", "MEM_002")
+            identities shouldContainExactly listOf("MEM_001", "MEM_002")
         }
     }
 
@@ -173,24 +185,39 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             engine.deleteChargePoint(chargePointId)
 
             transaction {
-                ChargePointDAO.findById(chargePointId).shouldBeNull()
-                ChargePointTransactionDAO.all().count() shouldBe 0
+                val deletedChargePoint = ChargePointDAO.findById(chargePointId)
+                val remainingTransactionCount = ChargePointTransactionDAO.all().count()
+
+                deletedChargePoint.shouldBeNull()
+                remainingTransactionCount shouldBe 0
             }
         }
     }
 
     describe("previous messages") {
 
-        it("round-trips templates newest-first and deletes by id") {
+        it("returns the saved templates newest-first") {
             engine.savePreviousMessage(messageType = "Heartbeat", message = "first")
             engine.savePreviousMessage(messageType = "Heartbeat", message = "second")
 
             val stored = engine.getPreviousMessages("Heartbeat")
-            stored.map { previousMessage -> previousMessage.message } shouldContainExactly listOf("second", "first")
+            val storedMessages = stored.map { previousMessage -> previousMessage.message }
 
-            engine.deletePreviousMessage(stored.first { previousMessage -> previousMessage.message == "second" }.id)
+            storedMessages shouldContainExactly listOf("second", "first")
+        }
 
-            engine.getPreviousMessages("Heartbeat").map { previousMessage -> previousMessage.message } shouldContainExactly listOf("first")
+        it("deletes only the template with the given id") {
+            engine.savePreviousMessage(messageType = "Heartbeat", message = "first")
+            engine.savePreviousMessage(messageType = "Heartbeat", message = "second")
+            val stored = engine.getPreviousMessages("Heartbeat")
+            val secondMessageId = stored.first { previousMessage -> previousMessage.message == "second" }.id
+
+            engine.deletePreviousMessage(secondMessageId)
+
+            val remaining = engine.getPreviousMessages("Heartbeat")
+            val remainingMessages = remaining.map { previousMessage -> previousMessage.message }
+
+            remainingMessages shouldContainExactly listOf("first")
         }
     }
 })

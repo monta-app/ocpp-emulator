@@ -93,13 +93,19 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
             )
 
             transaction {
-                val stopped = ChargePointTransactionDAO.findById(transactionId).shouldNotBeNull()
+                val stopped = ChargePointTransactionDAO.findById(transactionId)
+
+                stopped.shouldNotBeNull()
+
+                val endReason = stopped.endReason
+                val endReasonDescription = stopped.endReasonDescription
+                val endTime = stopped.endTime
 
                 // The reviewer's bug hardcoded Reason.Local and dropped the description; assert the
                 // caller's values survived instead of a hardcoded default.
-                stopped.endReason shouldBe Reason.EVDisconnected
-                stopped.endReasonDescription shouldBe "Stopped by user"
-                stopped.endTime.shouldNotBeNull()
+                endReason shouldBe Reason.EVDisconnected
+                endReasonDescription shouldBe "Stopped by user"
+                endTime.shouldNotBeNull()
             }
         }
     }
