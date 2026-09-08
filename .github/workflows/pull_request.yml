@@ -13,8 +13,8 @@ jobs:
       skip-code-coverage-on-pr: true
       java-version: "25"
       architecture: "arm64"
-      gradle-module: "app"
-      kover-report-path: "app/build/reports/kover/report.xml"
+      gradle-module: "engine"
+      kover-report-path: "engine/build/reports/kover/report.xml"
     secrets:
       GHL_USERNAME: ${{ secrets.GHL_USERNAME }}
       GHL_PASSWORD: ${{ secrets.GHL_PASSWORD }}

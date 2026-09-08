@@ -1,6 +1,5 @@
 package com.monta.ocpp.emulator.interceptor.service
 
-import androidx.compose.runtime.mutableStateOf
 import com.monta.library.ocpp.common.serialization.Message
 import com.monta.library.ocpp.common.serialization.MessageSerializer
 import com.monta.library.ocpp.common.serialization.ParsingResult
@@ -37,6 +36,7 @@ import com.monta.ocpp.emulator.interceptor.model.InterceptionConfig
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.logging.model.Loggable
 import com.monta.ocpp.emulator.platform.logging.service.GlobalLogger
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Singleton
 
 @Singleton
@@ -119,8 +119,8 @@ class MessageInterceptor(
         UpdateFirmwareFeature.name,
     ).associateWith {
         InterceptionConfig(
-            mutableStateOf(Interception.NoOp),
-            mutableStateOf(Interception.NoOp),
+            MutableStateFlow(Interception.NoOp),
+            MutableStateFlow(Interception.NoOp),
         )
     }.toMap()
 

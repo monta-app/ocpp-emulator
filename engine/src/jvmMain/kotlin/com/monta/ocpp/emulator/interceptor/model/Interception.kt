@@ -2,14 +2,9 @@ package com.monta.ocpp.emulator.interceptor.model
 
 import com.monta.library.ocpp.common.serialization.Message
 import com.monta.ocpp.emulator.interceptor.service.MessageInterceptor
-import com.monta.ocpp.emulator.interceptor.ui.EditMessageWindowViewModel
 import com.monta.ocpp.emulator.platform.logging.service.ChargePointLogger
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration.Companion.seconds
 
 sealed class Interception {
     data object NoOp : Interception() {
@@ -53,24 +48,15 @@ sealed class Interception {
     class Edit(
         private val timeoutSeconds: Int,
     ) : Interception() {
-        private val channel = Channel<String>()
-
         override suspend fun intercept(
             message: Message,
         ): String {
-            val editMessageWindowViewModel: EditMessageWindowViewModel by injectAnywhere()
+            val messageEditPrompt: MessageEditPrompt by injectAnywhere()
             val original = message.toJsonString(MessageInterceptor.serializer)
-            editMessageWindowViewModel.channel = channel
-            editMessageWindowViewModel.message = original
-            return try {
-                withTimeout(timeoutSeconds.seconds) {
-                    channel.receive()
-                }
-            } catch (e: TimeoutCancellationException) {
-                editMessageWindowViewModel.channel = null
-                editMessageWindowViewModel.message = ""
-                original
-            }
+            return messageEditPrompt.edit(
+                message = original,
+                timeoutSeconds = timeoutSeconds,
+            )
         }
     }
 

@@ -16,9 +16,15 @@ import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
+/**
+ * Koin module for the headless emulation engine. Its component scan only sees engine sources (KSP
+ * runs per module), so it registers the engine's `@Single`/`@Singleton` services and repositories.
+ * The app contributes its own [com.monta.ocpp.emulator.AppKoinModule] for the Compose UI side, and
+ * `App.kt` loads both.
+ */
 @Module
 @ComponentScan("com.monta.ocpp.emulator")
-class MontaKoinModule {
+class EngineKoinModule {
 
     @Single
     fun ocppSessionRepository(): OcppSessionRepository {

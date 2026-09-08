@@ -24,7 +24,7 @@ private const val APP_TITLE = "OCPP Emulator"
 
 private val logger = KotlinLogging.logger {}
 
-@KoinApplication(modules = [MontaKoinModule::class])
+@KoinApplication(modules = [EngineKoinModule::class, AppKoinModule::class])
 object EmulatorApp
 
 fun main() {
