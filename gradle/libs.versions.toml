@@ -7,6 +7,9 @@ kover = "0.9.9"
 kotest = "6.2.4"
 
 kotlinx-coroutines = "1.11.0"
+# kotlinx.serialization runtime. The Gradle plugin version is pinned to the Kotlin version
+# (kotlin-serialization plugin below, version.ref = "kotlin"); this is the matching runtime library.
+kotlinx-serialization = "1.11.0"
 ktor = "3.5.2"
 jackson = "2.22.2"
 # Jackson 3 (tools.jackson): ocpp-library v3 exposes tools.jackson.databind.JsonNode
@@ -34,6 +37,9 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j" }
 kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive" }
+
+# Serialization (runtime for the @Serializable engine DTOs)
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 
 # Ktor
 ktor-bom = { module = "io.ktor:ktor-bom", version.ref = "ktor" }

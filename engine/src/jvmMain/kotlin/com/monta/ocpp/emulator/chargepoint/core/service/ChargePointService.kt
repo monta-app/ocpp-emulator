@@ -28,6 +28,18 @@ class ChargePointService(
         return@transaction chargePoint
     }
 
+    /** Whether a charge point already exists with the given identity (compared in normalised form). */
+    fun isIdentityInUse(
+        identity: String,
+    ): Boolean = transaction {
+        chargePointRepository.getByIdentity(identity) != null
+    }
+
+    /** The stored (trimmed, upper-cased) form of an identity, for callers that need to match it. */
+    fun normalizeIdentity(
+        identity: String,
+    ): String = ChargePointDAO.normalizeIdentity(identity)
+
     fun upsert(
         name: String,
         identity: String,
@@ -73,6 +85,25 @@ class ChargePointService(
         return transaction {
             block(chargePoint)
             chargePoint
+        }
+    }
+
+    /**
+     * Permanently removes a charge point together with its connectors and their transactions.
+     * Children are deleted before the parent so a foreign-key constraint can never be left dangling.
+     */
+    fun delete(
+        id: Long,
+    ) {
+        transaction {
+            val chargePoint = chargePointRepository.getById(id) ?: throw ChargePointNotFoundException()
+            chargePoint.connectors.forEach { connector ->
+                connector.transactions.forEach { transaction ->
+                    transaction.delete()
+                }
+                connector.delete()
+            }
+            chargePoint.delete()
         }
     }
 }

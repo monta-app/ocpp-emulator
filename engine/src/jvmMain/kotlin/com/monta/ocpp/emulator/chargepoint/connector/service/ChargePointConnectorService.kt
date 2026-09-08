@@ -26,11 +26,9 @@ class ChargePointConnectorService(
     }
 
     fun getByIdFlow(
-        coroutineScope: CoroutineScope,
         id: Long,
     ): Flow<ChargePointConnectorDAO> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointConnectorDAO,
             id = id,
         ) {
@@ -39,6 +37,16 @@ class ChargePointConnectorService(
             }
         }
     }
+
+    /**
+     * Source-compatibility shim for the Compose UI, which still passes its own [CoroutineScope];
+     * the scope is no longer needed, so this delegates to the no-arg [getByIdFlow].
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun getByIdFlow(
+        coroutineScope: CoroutineScope,
+        id: Long,
+    ): Flow<ChargePointConnectorDAO> = getByIdFlow(id)
 
     fun update(
         connector: ChargePointConnectorDAO,

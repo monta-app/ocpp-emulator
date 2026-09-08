@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.kover)
@@ -25,6 +26,9 @@ kotlin {
             // Coroutines
             implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
             implementation(libs.bundles.coroutines)
+
+            // Serialization (runtime for the @Serializable engine DTOs exposed by EmulatorEngine)
+            implementation(libs.kotlinx.serialization.core)
 
             // Websocket Client
             implementation(project.dependencies.platform(libs.ktor.bom))

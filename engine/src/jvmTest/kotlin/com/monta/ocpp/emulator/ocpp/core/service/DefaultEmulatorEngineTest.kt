@@ -8,9 +8,11 @@ import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
+import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
 import com.monta.ocpp.emulator.interceptor.service.MessageInterceptor
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.testsupport.DatabaseSpec
 import io.kotest.assertions.throwables.shouldThrow
@@ -37,7 +39,11 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
             messageInterceptor = MessageInterceptor(chargePointService),
             chargePointRepository = chargePointRepository,
         ),
+        chargePointService = chargePointService,
         chargePointConnectorService = ChargePointConnectorService(ChargePointConnectorRepository()),
+        chargePointRepository = chargePointRepository,
+        chargePointManager = ChargePointManager(),
+        previousMessagesService = PreviousMessagesService(),
     )
 
     fun seedChargePoint(

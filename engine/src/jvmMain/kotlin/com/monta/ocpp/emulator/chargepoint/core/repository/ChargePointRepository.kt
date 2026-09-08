@@ -49,11 +49,8 @@ class ChargePointRepository {
         )
     }
 
-    fun getAllFlow(
-        coroutineScope: CoroutineScope,
-    ): Flow<List<ChargePointDAO>> {
+    fun getAllFlow(): Flow<List<ChargePointDAO>> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
         ) {
             transaction {
@@ -61,6 +58,16 @@ class ChargePointRepository {
             }
         }
     }
+
+    /**
+     * Source-compatibility shim for the Compose UI, which still passes its own [CoroutineScope].
+     * The scope is no longer needed — [createDatabaseListener] launches re-emits on its own producer
+     * scope — so this simply delegates to the no-arg [getAllFlow].
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun getAllFlow(
+        coroutineScope: CoroutineScope,
+    ): Flow<List<ChargePointDAO>> = getAllFlow()
 
     fun getAll(): List<ChargePointDAO> {
         return ChargePointDAO.all()
@@ -76,11 +83,9 @@ class ChargePointRepository {
     }
 
     fun getByIdFlow(
-        coroutineScope: CoroutineScope,
         id: Long,
     ): Flow<ChargePointDAO> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
             id = id,
         ) {
@@ -89,6 +94,13 @@ class ChargePointRepository {
             }
         }
     }
+
+    /** Source-compatibility shim for the Compose UI — see [getAllFlow]. */
+    @Suppress("UNUSED_PARAMETER")
+    fun getByIdFlow(
+        coroutineScope: CoroutineScope,
+        id: Long,
+    ): Flow<ChargePointDAO> = getByIdFlow(id)
 
     fun getByIdentity(
         identity: String,

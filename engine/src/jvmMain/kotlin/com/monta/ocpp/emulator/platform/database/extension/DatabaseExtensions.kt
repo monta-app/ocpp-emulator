@@ -1,7 +1,6 @@
 package com.monta.ocpp.emulator.platform.database.extension
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -16,8 +15,15 @@ private val logger = KotlinLogging.logger {}
 val LongEntity.idValue: Long
     get() = id.value
 
+/**
+ * Cold [Flow] that emits [triggerUpdate]'s result once up front and again whenever an Exposed entity
+ * of [entityClass] (optionally narrowed to a single [id]) changes.
+ *
+ * The re-emit `send`s are launched on the [channelFlow] builder's own `ProducerScope`, so their
+ * lifetime is tied to the flow collector — no external [kotlinx.coroutines.CoroutineScope] has to be
+ * threaded in, and the launched coroutines are cancelled when the collector goes away.
+ */
 fun <T> createDatabaseListener(
-    coroutineScope: CoroutineScope,
     entityClass: LongEntityClass<*>,
     id: Long? = null,
     triggerUpdate: () -> T?,
@@ -27,20 +33,10 @@ fun <T> createDatabaseListener(
     }
 
     val listener: (EntityChange) -> Unit = { entityChange ->
-        if (entityChange.entityClass == entityClass) {
-            if (id != null) {
-                if (entityChange.entityId.value == id) {
-                    coroutineScope.launch {
-                        triggerUpdate()?.let { value ->
-                            send(value)
-                        }
-                    }
-                }
-            } else {
-                coroutineScope.launch {
-                    triggerUpdate()?.let { value ->
-                        send(value)
-                    }
+        if (entityChange.entityClass == entityClass && (id == null || entityChange.entityId.value == id)) {
+            launch {
+                triggerUpdate()?.let { value ->
+                    send(value)
                 }
             }
         }

@@ -1,16 +1,74 @@
 package com.monta.ocpp.emulator.ocpp.core.service
 
+import com.monta.library.ocpp.common.serialization.Message
+import com.monta.library.ocpp.v16.core.ChargePointErrorCode
+import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.library.ocpp.v16.core.Reason
+import com.monta.ocpp.emulator.chargepoint.connector.model.CarState
+import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
+import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
+import kotlinx.coroutines.flow.Flow
 
 /**
- * Headless entry point for driving the emulator's connection lifecycle.
+ * Headless entry point for driving the emulator.
  *
- * This is a thin command facade over the engine's connection/transaction components so callers
- * (the Compose UI today, tests and any future headless driver) address charge points by their
- * numeric id without reaching into [com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager]
- * or the DAO extensions directly. It holds no logic of its own — every method delegates.
+ * This is the module boundary for `:engine`: every read the UI needs is a [Flow] of `@Serializable`
+ * DTO ([ChargePointSummary], [ChargePointConnectorSummary], …) and every mutation is a command that
+ * addresses charge points by their numeric id. No Exposed DAO and no OCPP-protocol machinery
+ * (`ConnectionManager`, the DAO extensions) crosses this interface — callers (the Compose UI today,
+ * tests, any future headless driver) never touch the persistence or protocol layers directly.
+ *
+ * The facade holds no logic of its own: every member delegates to an existing engine
+ * service/repository or maps a DAO to its DTO.
+ *
+ * The one deliberate OCPP-library leak is [sendRawMessage], whose [Message] argument is the raw
+ * protocol envelope the Send Message window builds by hand — that window bypasses the emulator state
+ * machine on purpose, so there is no higher-level command to model it with.
  */
 interface EmulatorEngine {
+
+    // region Queries — observable, DTO-projected reads
+
+    /** Cold flow of every charge point, re-emitted whenever any charge point row changes. */
+    fun observeChargePoints(): Flow<List<ChargePointSummary>>
+
+    /** Cold flow of a single charge point (and its connectors), re-emitted on any change to it. */
+    fun observeChargePoint(
+        chargePointId: Long,
+    ): Flow<ChargePointSummary>
+
+    /** Cold flow of a single connector, re-emitted whenever that connector row changes. */
+    fun observeConnector(
+        chargePointId: Long,
+        connectorPosition: Int,
+    ): Flow<ChargePointConnectorSummary>
+
+    /** Point-in-time snapshot of a charge point. Throws if it cannot be resolved. */
+    fun getChargePoint(
+        chargePointId: Long,
+    ): ChargePointSummary
+
+    /** The stored raw-message templates for a given OCPP action, newest first. */
+    fun getPreviousMessages(
+        messageType: String,
+    ): List<PreviousMessageSummary>
+
+    /** Whether a charge point already exists with the given (normalised) identity. */
+    fun isChargePointIdentityInUse(
+        identity: String,
+    ): Boolean
+
+    /** Normalises an identity to its stored form (trimmed, upper-cased). */
+    fun normalizeChargePointIdentity(
+        identity: String,
+    ): String
+
+    // endregion
+
+    // region Connection lifecycle
 
     /** Opens (or re-opens) the websocket connection for the given charge point. */
     fun connect(
@@ -25,10 +83,59 @@ interface EmulatorEngine {
     /** Tears down every currently-tracked connection and waits for them to finish. */
     suspend fun disconnectAll()
 
+    // endregion
+
+    // region Charge-point commands
+
+    /**
+     * Creates a charge point or updates the existing one matching [identity], reconciling its
+     * connector rows to [connectorCount]. Returns the charge point's id.
+     */
+    fun upsertChargePoint(
+        name: String,
+        identity: String,
+        password: String?,
+        ocppUrl: String,
+        apiUrl: String,
+        firmware: String,
+        maxKw: Double,
+        connectorCount: Int,
+        meterType: MeterType,
+    ): Long
+
+    /** Disconnects then permanently removes a charge point with its connectors and transactions. */
+    fun deleteChargePoint(
+        chargePointId: Long,
+    )
+
+    /** Sets the charge point's own status (connector 0) and pushes a StatusNotification. */
+    suspend fun setChargePointStatus(
+        chargePointId: Long,
+        status: ChargePointStatus,
+    )
+
+    /** Presents an RFID id tag on a connector, starting a transaction if the CSMS accepts it. */
+    suspend fun authorize(
+        chargePointId: Long,
+        connectorPosition: Int,
+        idTag: String,
+    )
+
+    /** Sends a SecurityEventNotification for the charge point. */
+    suspend fun sendSecurityEvent(
+        chargePointId: Long,
+        securityEvent: SecurityEvent,
+        techInfo: String?,
+    )
+
+    // endregion
+
+    // region Connector commands
+
     /**
      * Stops every active transaction on the given connector, forwarding [reason] and
-     * [endReasonDescription] verbatim to the stop so the CSMS and the persisted transaction
-     * record the caller's intent rather than a hardcoded default.
+     * [endReasonDescription] verbatim so the CSMS and the persisted transaction record the caller's
+     * intent rather than a hardcoded default.
      */
     suspend fun stopTransaction(
         chargePointId: Long,
@@ -36,4 +143,64 @@ interface EmulatorEngine {
         reason: Reason = Reason.Local,
         endReasonDescription: String? = null,
     )
+
+    /** Sets the connector's car state (A/B/C) and recalculates the resulting connector status. */
+    suspend fun setConnectorCarState(
+        chargePointId: Long,
+        connectorPosition: Int,
+        carState: CarState,
+    )
+
+    /** Pushes an explicit StatusNotification for a connector. */
+    suspend fun setConnectorStatus(
+        chargePointId: Long,
+        connectorPosition: Int,
+        status: ChargePointStatus,
+        errorCode: ChargePointErrorCode = ChargePointErrorCode.NoError,
+        vendorId: String? = null,
+        vendorErrorCode: String? = null,
+        info: String? = null,
+        forceUpdate: Boolean = false,
+    )
+
+    /** Sets the connector's simulated vehicle max amps per phase and recalculates status. */
+    suspend fun setConnectorMaxVehicleRate(
+        chargePointId: Long,
+        connectorPosition: Int,
+        amps: Double,
+    )
+
+    /** Sets the connector's simulated vehicle phase count. */
+    suspend fun setConnectorNumberPhases(
+        chargePointId: Long,
+        connectorPosition: Int,
+        numberPhases: Int,
+    )
+
+    // endregion
+
+    // region Raw messaging
+
+    /**
+     * Sends a pre-built raw OCPP [Message] on the charge point's session, bypassing the emulator
+     * state machine. Used by the Send Message window; the [Message] type is the one OCPP-library
+     * type this facade intentionally exposes (see the type KDoc).
+     */
+    suspend fun sendRawMessage(
+        chargePointId: Long,
+        message: Message,
+    )
+
+    /** Persists a raw-message template so the Send Message window can replay it later. */
+    fun savePreviousMessage(
+        messageType: String,
+        message: String,
+    )
+
+    /** Deletes a stored raw-message template by id. */
+    fun deletePreviousMessage(
+        id: Long,
+    )
+
+    // endregion
 }
