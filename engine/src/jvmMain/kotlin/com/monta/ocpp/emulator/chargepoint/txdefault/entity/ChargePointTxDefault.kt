@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.core.dao.id.LongIdTable
 import org.jetbrains.exposed.v1.dao.LongEntity
 import org.jetbrains.exposed.v1.dao.LongEntityClass
 
-object TxDefault : LongIdTable("charge_point_default_profile") {
+object TxDefaultTable : LongIdTable("charge_point_default_profile") {
     val chargePointId = reference("charge_point_id", ChargePointTable)
     val connectorId = reference("connector_id", ChargePointConnectorTable)
 
@@ -28,7 +28,7 @@ object TxDefault : LongIdTable("charge_point_default_profile") {
 class TxDefaultDAO(
     id: EntityID<Long>,
 ) : LongEntity(id) {
-    companion object : LongEntityClass<TxDefaultDAO>(TxDefault) {
+    companion object : LongEntityClass<TxDefaultDAO>(TxDefaultTable) {
         fun newInstance(
             chargePoint: ChargePointDAO,
             chargePointConnector: ChargePointConnectorDAO,
@@ -44,9 +44,9 @@ class TxDefaultDAO(
         }
     }
 
-    var chargePoint by ChargePointDAO referencedOn TxDefault.chargePointId
-    var connector by ChargePointConnectorDAO referencedOn TxDefault.connectorId
-    var chargingProfileId by TxDefault.chargingProfileId
-    var stackLevel by TxDefault.stackLeveL
-    var txDefaultProfile by TxDefault.txDefaultProfile
+    var chargePoint by ChargePointDAO referencedOn TxDefaultTable.chargePointId
+    var connector by ChargePointConnectorDAO referencedOn TxDefaultTable.connectorId
+    var chargingProfileId by TxDefaultTable.chargingProfileId
+    var stackLevel by TxDefaultTable.stackLeveL
+    var txDefaultProfile by TxDefaultTable.txDefaultProfile
 }

@@ -3,8 +3,8 @@ package com.monta.ocpp.emulator.platform.database.service
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorTable
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointTable
 import com.monta.ocpp.emulator.chargepoint.core.entity.PreviousMessagesTable
-import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransaction
-import com.monta.ocpp.emulator.chargepoint.txdefault.entity.TxDefault
+import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionTable
+import com.monta.ocpp.emulator.chargepoint.txdefault.entity.TxDefaultTable
 import com.monta.ocpp.emulator.platform.config.entity.AppConfigTable
 import com.monta.ocpp.emulator.platform.database.service.DatabaseInitiator
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -24,8 +24,8 @@ class DatabaseService {
             AppConfigTable,
             ChargePointTable,
             ChargePointConnectorTable,
-            ChargePointTransaction,
-            TxDefault,
+            ChargePointTransactionTable,
+            TxDefaultTable,
             PreviousMessagesTable,
         )
     }

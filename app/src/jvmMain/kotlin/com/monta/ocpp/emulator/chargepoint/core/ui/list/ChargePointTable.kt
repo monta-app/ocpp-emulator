@@ -26,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.ChargePointMode
 import com.monta.ocpp.emulator.chargepoint.core.ui.component.ChargePointConnectionButton
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
@@ -41,12 +40,11 @@ import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
-import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 private val ocppColumnWidth: Dp = 56.dp
 private val maxKwColumnWidth: Dp = 64.dp
@@ -59,8 +57,8 @@ private val actionsColumnWidth: Dp = 132.dp
  */
 @Composable
 fun ChargePointTable(
-    chargePoints: List<ChargePointDAO>,
-    onRowClick: (ChargePointDAO) -> Unit,
+    chargePoints: List<ChargePointListItemDto>,
+    onRowClick: (ChargePointListItemDto) -> Unit,
 ) {
     SectionCard(
         modifier = Modifier.fillMaxWidth()
@@ -73,7 +71,7 @@ fun ChargePointTable(
         LazyColumn {
             items(
                 items = chargePoints,
-                key = { chargePoint -> chargePoint.idValue },
+                key = { chargePoint -> chargePoint.id },
             ) { chargePoint ->
                 TableRow(
                     chargePoint = chargePoint,
@@ -150,7 +148,7 @@ private fun HeaderCell(
 
 @Composable
 private fun TableRow(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointListItemDto,
     onClick: () -> Unit,
 ) {
     Row(
@@ -238,7 +236,10 @@ private fun TableRow(
             modifier = Modifier.width(actionsColumnWidth),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ChargePointConnectionButton(chargePoint)
+            ChargePointConnectionButton(
+                chargePointId = chargePoint.id,
+                connected = chargePoint.connected,
+            )
             ChargePointEditButton(chargePoint)
             ChargePointDeleteButton(chargePoint)
         }
@@ -247,12 +248,12 @@ private fun TableRow(
 
 @Composable
 private fun ChargePointEditButton(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointListItemDto,
 ) {
     val navigator: Navigator by injectAnywhere()
     IconButton(
         onClick = {
-            navigator.navigate(Screen.CreateChargePoint(chargePoint.idValue))
+            navigator.navigate(Screen.CreateChargePoint(chargePoint.id))
         },
     ) {
         MontaIcon(
@@ -265,8 +266,10 @@ private fun ChargePointEditButton(
 
 @Composable
 private fun ChargePointDeleteButton(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointListItemDto,
 ) {
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
+
     var alertVisible by remember {
         mutableStateOf(false)
     }
@@ -306,17 +309,7 @@ private fun ChargePointDeleteButton(
             DestructiveButton(
                 onClick = {
                     launchThread {
-                        val emulatorEngine: EmulatorEngine by injectAnywhere()
-                        emulatorEngine.disconnect(chargePoint.idValue)
-                        transaction {
-                            chargePoint.delete()
-                            chargePoint.connectors.forEach { connector ->
-                                connector.transactions.forEach { transaction ->
-                                    transaction.delete()
-                                }
-                                connector.delete()
-                            }
-                        }
+                        emulatorEngine.deleteChargePoint(chargePoint.id)
                         alertVisible = false
                     }
                 },

@@ -1,14 +1,13 @@
 package com.monta.ocpp.emulator.chargepoint.connector.ui
 
 import androidx.compose.runtime.Composable
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 
 @Composable
 fun ConnectorList(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointDto,
 ) {
-    chargePoint.getConnectors()
-        .sortedBy { it.position }
+    chargePoint.connectors
         .forEach { connector ->
             ConnectorCard(
                 initConnector = connector,

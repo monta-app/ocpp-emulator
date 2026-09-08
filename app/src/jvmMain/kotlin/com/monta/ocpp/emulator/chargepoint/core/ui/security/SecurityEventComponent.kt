@@ -13,21 +13,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
-import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 
 @Composable
 fun ColumnScope.securityEventComponent(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointDto,
 ) {
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
+
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -61,9 +63,8 @@ fun ColumnScope.securityEventComponent(
                 PrimaryButton(
                     onClick = {
                         launchThread {
-                            val chargePointManager: ChargePointManager by injectAnywhere()
-                            chargePointManager.securityEvent(
-                                chargePoint = chargePoint,
+                            emulatorEngine.sendSecurityEvent(
+                                chargePointId = chargePoint.id,
                                 securityEvent = securityEvent,
                                 techInfo = techInfo,
                             )

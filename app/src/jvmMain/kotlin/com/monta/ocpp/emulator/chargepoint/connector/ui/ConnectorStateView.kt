@@ -16,18 +16,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
-import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
-import com.monta.ocpp.emulator.ocpp.v16.extension.setStatus
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
+import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 
 @Composable
 fun ColumnScope.ConnectorStateView(
-    connector: ChargePointConnectorDAO,
+    connector: ChargePointConnectorDto,
 ) {
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
+
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -73,7 +76,8 @@ fun ColumnScope.ConnectorStateView(
                 PrimaryButton(
                     onClick = {
                         launchThread {
-                            connector.setStatus(
+                            emulatorEngine.setConnectorStatus(
+                                connectorId = connector.id,
                                 status = connectorStatus,
                                 errorCode = errorCode,
                                 vendorId = if (vendorId.isNullOrBlank()) null else vendorId,

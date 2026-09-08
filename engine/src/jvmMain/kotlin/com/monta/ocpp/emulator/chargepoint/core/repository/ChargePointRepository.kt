@@ -4,7 +4,6 @@ import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointTable
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.platform.database.extension.createDatabaseListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -49,11 +48,8 @@ class ChargePointRepository {
         )
     }
 
-    fun getAllFlow(
-        coroutineScope: CoroutineScope,
-    ): Flow<List<ChargePointDAO>> {
+    fun getAllFlow(): Flow<List<ChargePointDAO>> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
         ) {
             transaction {
@@ -76,11 +72,9 @@ class ChargePointRepository {
     }
 
     fun getByIdFlow(
-        coroutineScope: CoroutineScope,
         id: Long,
     ): Flow<ChargePointDAO> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointDAO,
             id = id,
         ) {
@@ -113,8 +107,8 @@ class ChargePointRepository {
         chargePointId: Long,
     ) {
         transaction {
-            ChargePointTable.update({ ChargePointTable.id eq chargePointId }) {
-                it[bootedAt] = null
+            ChargePointTable.update({ ChargePointTable.id eq chargePointId }) { statement ->
+                statement[bootedAt] = null
             }
         }
     }

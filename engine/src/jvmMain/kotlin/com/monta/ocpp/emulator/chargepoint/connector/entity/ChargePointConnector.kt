@@ -6,8 +6,8 @@ import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.connector.model.CarState
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointTable
-import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransaction
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
+import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionTable
 import com.monta.ocpp.emulator.platform.logging.model.Loggable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -26,7 +26,7 @@ object ChargePointConnectorTable : LongIdTable("charge_point_connector") {
     val chargePointId = reference("charge_point_id", ChargePointTable)
     val position = integer("position")
     val chargePointIdentity = varchar("charge_point_identity", 512)
-    val activeTransactionId = optReference("active_transaction_id", ChargePointTransaction)
+    val activeTransactionId = optReference("active_transaction_id", ChargePointTransactionTable)
     val status = enumerationByName("status", 128, ChargePointStatus::class)
     val statusAt = timestamp("status_at")
     val meterAt = timestamp("meter_at").nullable().default(null)
@@ -96,8 +96,8 @@ class ChargePointConnectorDAO(
     val transactions: List<ChargePointTransactionDAO> by lazy {
         transaction {
             ChargePointTransactionDAO.find {
-                (ChargePointTransaction.chargePointId eq chargePointId) and
-                    (ChargePointTransaction.connectorId eq this@ChargePointConnectorDAO.id)
+                (ChargePointTransactionTable.chargePointId eq chargePointId) and
+                    (ChargePointTransactionTable.connectorId eq this@ChargePointConnectorDAO.id)
             }.toList()
         }
     }
@@ -105,9 +105,9 @@ class ChargePointConnectorDAO(
     val activeTransactions: List<ChargePointTransactionDAO> by lazy {
         transaction {
             ChargePointTransactionDAO.find {
-                (ChargePointTransaction.chargePointId eq chargePointId) and
-                    (ChargePointTransaction.connectorId eq this@ChargePointConnectorDAO.id) and
-                    (ChargePointTransaction.endTime eq null)
+                (ChargePointTransactionTable.chargePointId eq chargePointId) and
+                    (ChargePointTransactionTable.connectorId eq this@ChargePointConnectorDAO.id) and
+                    (ChargePointTransactionTable.endTime eq null)
             }.toList()
         }
     }
@@ -117,10 +117,17 @@ class ChargePointConnectorDAO(
     }
 
     val meterWh: Double
-        get() = transactions.sumOf { it.endMeter }
+        get() = transactions.sumOf { transaction -> transaction.endMeter }
     val wattHoursPerSecond: Double
         get() = (kw / 60.0 / 60.0) * 1000.0
-    val hasActiveTransaction: Boolean
+
+    /**
+     * Whether this connector has any *open* transaction rows (`endTime == null`) — a query over the
+     * transaction table. Distinct from `ChargePointConnectorDto.hasActiveTransaction`, which
+     * reports whether the connector's `activeTransaction` foreign key is set; the two can disagree,
+     * so they are deliberately named apart.
+     */
+    val hasOpenTransactions: Boolean
         get() = activeTransactions.isNotEmpty()
 
     override fun chargePointId(): Long {
@@ -140,13 +147,21 @@ class ChargePointConnectorDAO(
             CarState.B -> if (transaction { activeTransaction } != null) {
                 getSuspendedState() ?: ChargePointStatus.SuspendedEV
             } else {
-                if (justStopped) ChargePointStatus.Finishing else ChargePointStatus.Preparing
+                if (justStopped) {
+                    ChargePointStatus.Finishing
+                } else {
+                    ChargePointStatus.Preparing
+                }
             }
 
             CarState.C -> if (transaction { activeTransaction } != null) {
                 getSuspendedState() ?: ChargePointStatus.Charging
             } else {
-                if (justStopped) ChargePointStatus.Finishing else ChargePointStatus.Preparing
+                if (justStopped) {
+                    ChargePointStatus.Finishing
+                } else {
+                    ChargePointStatus.Preparing
+                }
             }
         }
     }

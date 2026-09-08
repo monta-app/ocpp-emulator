@@ -8,9 +8,11 @@ import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
+import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
 import com.monta.ocpp.emulator.interceptor.service.MessageInterceptor
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.testsupport.DatabaseSpec
 import io.kotest.assertions.throwables.shouldThrow
@@ -37,7 +39,11 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
             messageInterceptor = MessageInterceptor(chargePointService),
             chargePointRepository = chargePointRepository,
         ),
+        chargePointService = chargePointService,
         chargePointConnectorService = ChargePointConnectorService(ChargePointConnectorRepository()),
+        chargePointRepository = chargePointRepository,
+        chargePointManager = ChargePointManager(),
+        previousMessagesService = PreviousMessagesService(),
     )
 
     fun seedChargePoint(
@@ -59,31 +65,17 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
 
     describe("stopTransaction") {
 
-        it("throws the connector-not-found exception when the charge point cannot be resolved") {
+        it("throws the connector-not-found exception when the connector cannot be resolved") {
             shouldThrow<ChargePointConnectorNotFoundException> {
-                engine.stopTransaction(
-                    chargePointId = 999_999,
-                    connectorPosition = 1,
-                )
-            }
-        }
-
-        it("throws the connector-not-found exception when the connector position cannot be resolved") {
-            val chargePoint = seedChargePoint(connectorCount = 1)
-
-            shouldThrow<ChargePointConnectorNotFoundException> {
-                engine.stopTransaction(
-                    chargePointId = chargePoint.idValue,
-                    connectorPosition = 7,
-                )
+                engine.stopTransaction(connectorId = 999_999)
             }
         }
 
         it("forwards the given reason and description through to the stopped transaction") {
             val chargePoint = seedChargePoint(connectorCount = 1)
 
-            val transactionId = transaction {
-                val connector = chargePoint.connectors.first { it.position == 1 }
+            val (connectorId, transactionId) = transaction {
+                val connector = chargePoint.connectors.first { connector -> connector.position == 1 }
                 val activeTransaction = ChargePointTransactionDAO.newInstance(
                     chargePoint = chargePoint,
                     chargePointConnector = connector,
@@ -91,24 +83,29 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
                     idTag = "TAG",
                 )
                 connector.activeTransaction = activeTransaction
-                activeTransaction.idValue
+                connector.idValue to activeTransaction.idValue
             }
 
             engine.stopTransaction(
-                chargePointId = chargePoint.idValue,
-                connectorPosition = 1,
+                connectorId = connectorId,
                 reason = Reason.EVDisconnected,
                 endReasonDescription = "Stopped by user",
             )
 
             transaction {
-                val stopped = ChargePointTransactionDAO.findById(transactionId).shouldNotBeNull()
+                val stopped = ChargePointTransactionDAO.findById(transactionId)
+
+                stopped.shouldNotBeNull()
+
+                val endReason = stopped.endReason
+                val endReasonDescription = stopped.endReasonDescription
+                val endTime = stopped.endTime
 
                 // The reviewer's bug hardcoded Reason.Local and dropped the description; assert the
                 // caller's values survived instead of a hardcoded default.
-                stopped.endReason shouldBe Reason.EVDisconnected
-                stopped.endReasonDescription shouldBe "Stopped by user"
-                stopped.endTime.shouldNotBeNull()
+                endReason shouldBe Reason.EVDisconnected
+                endReasonDescription shouldBe "Stopped by user"
+                endTime.shouldNotBeNull()
             }
         }
     }

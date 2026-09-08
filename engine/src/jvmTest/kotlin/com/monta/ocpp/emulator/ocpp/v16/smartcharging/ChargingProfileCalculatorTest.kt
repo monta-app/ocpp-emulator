@@ -89,25 +89,33 @@ class ChargingProfileCalculatorTest : DescribeSpec({
         describe("when there is nothing to resolve") {
 
             it("returns null without a charging profile") {
-                wattsAt(profile = null, secondsIntoSchedule = 0) shouldBe null
+                val actualWatts = wattsAt(profile = null, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe null
             }
 
             it("returns null when the profile carries no schedule") {
                 val profile = ChargingProfile(chargingProfileId = 1, chargingSchedule = null)
 
-                wattsAt(profile = profile, secondsIntoSchedule = 0) shouldBe null
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe null
             }
 
             it("returns null before the schedule starts") {
                 val profile = profileOf(periods = listOf(period(startPeriod = 0, limit = 16.0)))
 
-                wattsAt(profile = profile, secondsIntoSchedule = -1) shouldBe null
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = -1)
+
+                actualWatts shouldBe null
             }
 
             it("returns null while the first period is still in the future") {
                 val profile = profileOf(periods = listOf(period(startPeriod = 300, limit = 16.0)))
 
-                wattsAt(profile = profile, secondsIntoSchedule = 60) shouldBe null
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = 60)
+
+                actualWatts shouldBe null
             }
         }
 
@@ -147,17 +155,23 @@ class ChargingProfileCalculatorTest : DescribeSpec({
             )
 
             it("still applies part way through a schedule that declares a duration") {
-                wattsAt(profile = boundedSchedule, secondsIntoSchedule = 600) shouldBe watts(16.0, 3)
+                val actualWatts = wattsAt(profile = boundedSchedule, secondsIntoSchedule = 600)
+
+                actualWatts shouldBe watts(16.0, 3)
             }
 
             it("stops applying once the duration has elapsed") {
-                wattsAt(profile = boundedSchedule, secondsIntoSchedule = 3601) shouldBe null
+                val actualWatts = wattsAt(profile = boundedSchedule, secondsIntoSchedule = 3601)
+
+                actualWatts shouldBe null
             }
 
             it("holds the last period open when no duration is declared") {
                 val unboundedSchedule = profileOf(periods = listOf(period(startPeriod = 0, limit = 16.0)))
 
-                wattsAt(profile = unboundedSchedule, secondsIntoSchedule = 60 * 60 * 24) shouldBe watts(16.0, 3)
+                val actualWatts = wattsAt(profile = unboundedSchedule, secondsIntoSchedule = 60 * 60 * 24)
+
+                actualWatts shouldBe watts(16.0, 3)
             }
 
             it("anchors a relative schedule to the transaction start") {
@@ -166,7 +180,9 @@ class ChargingProfileCalculatorTest : DescribeSpec({
                     startSchedule = null,
                 )
 
-                wattsAt(profile = relativeSchedule, secondsIntoSchedule = 0) shouldBe watts(16.0, 3)
+                val actualWatts = wattsAt(profile = relativeSchedule, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe watts(16.0, 3)
             }
         }
 
@@ -195,7 +211,9 @@ class ChargingProfileCalculatorTest : DescribeSpec({
                     minChargingRate = 10.0,
                 )
 
-                wattsAt(profile = profile, secondsIntoSchedule = 0) shouldBe watts(10.0, 3)
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe watts(10.0, 3)
             }
 
             it("leaves a limit above the minimum charging rate untouched") {
@@ -204,7 +222,9 @@ class ChargingProfileCalculatorTest : DescribeSpec({
                     minChargingRate = 10.0,
                 )
 
-                wattsAt(profile = profile, secondsIntoSchedule = 0) shouldBe watts(16.0, 3)
+                val actualWatts = wattsAt(profile = profile, secondsIntoSchedule = 0)
+
+                actualWatts shouldBe watts(16.0, 3)
             }
         }
     }

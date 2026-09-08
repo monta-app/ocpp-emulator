@@ -17,7 +17,8 @@ class DatabaseSpecTest : DatabaseSpec({
 
         it("has the schema applied and starts empty") {
             transaction {
-                ChargePointDAO.all().count() shouldBe 0
+                val countBeforeInsert = ChargePointDAO.all().count()
+
                 ChargePointDAO.newInstance(
                     name = "Emulator",
                     identity = "MEM_ISOLATION",
@@ -27,13 +28,19 @@ class DatabaseSpecTest : DatabaseSpec({
                     firmware = "1.0.0",
                     maxKw = 22.0,
                 )
-                ChargePointDAO.all().count() shouldBe 1
+
+                val countAfterInsert = ChargePointDAO.all().count()
+
+                countBeforeInsert shouldBe 0
+                countAfterInsert shouldBe 1
             }
         }
 
         it("does not carry rows over from the previous test") {
             transaction {
-                ChargePointDAO.all().count() shouldBe 0
+                val storedChargePointCount = ChargePointDAO.all().count()
+
+                storedChargePointCount shouldBe 0
             }
         }
     }

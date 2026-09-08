@@ -29,7 +29,6 @@ import androidx.compose.ui.window.rememberWindowState
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun ApplicationScope.EditMessageWindow() {
@@ -42,7 +41,7 @@ fun ApplicationScope.EditMessageWindow() {
         ),
     )
 
-    if (editMessageWindowViewModel.channel == null) {
+    if (!editMessageWindowViewModel.isEditing) {
         return
     }
 
@@ -52,12 +51,7 @@ fun ApplicationScope.EditMessageWindow() {
         title = "Edit Message",
         state = windowState,
         onCloseRequest = {
-            // TODO: proper way is probably not with runBlocking?
-            runBlocking {
-                editMessageWindowViewModel.channel?.send(editMessageWindowViewModel.message)
-                editMessageWindowViewModel.message = ""
-                editMessageWindowViewModel.channel = null
-            }
+            editMessageWindowViewModel.submit()
         },
     ) {
         MaterialTheme(
@@ -87,11 +81,7 @@ fun ApplicationScope.EditMessageWindow() {
                             )
                             Button(
                                 onClick = {
-                                    runBlocking {
-                                        editMessageWindowViewModel.channel?.send(editMessageWindowViewModel.message)
-                                        editMessageWindowViewModel.message = ""
-                                        editMessageWindowViewModel.channel = null
-                                    }
+                                    editMessageWindowViewModel.submit()
                                 },
                             ) {
                                 Text("Confirm")

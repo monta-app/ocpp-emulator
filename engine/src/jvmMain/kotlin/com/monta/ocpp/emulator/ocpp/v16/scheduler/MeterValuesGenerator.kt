@@ -121,7 +121,7 @@ object MeterValuesGenerator {
         context = "Sample.Periodic",
         format = ValueFormat.Raw.name,
         measurand = "Power.Active.Import",
-        phase = phase?.let { "L$it" },
+        phase = phase?.let { phaseNumber -> "L$phaseNumber" },
         unit = "W",
     )
 }

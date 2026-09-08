@@ -14,19 +14,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.RfidButton
-import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 
 @Composable
 fun BoxScope.authorizeComponent(
-    connector: ChargePointConnectorDAO,
+    connector: ChargePointConnectorDto,
 ) {
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
+
     var expanded by remember {
         mutableStateOf(false)
     }
@@ -54,9 +56,8 @@ fun BoxScope.authorizeComponent(
                 PrimaryButton(
                     onClick = {
                         launchThread {
-                            val chargePointManager: ChargePointManager by injectAnywhere()
-                            chargePointManager.authorize(
-                                connector = connector,
+                            emulatorEngine.authorize(
+                                connectorId = connector.id,
                                 idTag = idTag,
                             )
                             idTag = ""

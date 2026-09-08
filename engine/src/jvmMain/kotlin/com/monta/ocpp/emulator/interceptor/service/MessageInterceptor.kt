@@ -66,7 +66,7 @@ class MessageInterceptor(
             TriggerMessageFeature,
             UnlockConnectorFeature,
             UpdateFirmwareFeature,
-        ).associateBy { it.name }
+        ).associateBy { feature -> feature.name }
 
         val chargePointFeatures = setOf(
             AuthorizeFeature,
@@ -79,7 +79,7 @@ class MessageInterceptor(
             StartTransactionFeature,
             StatusNotificationFeature,
             StopTransactionFeature,
-        ).associateBy { it.name }
+        ).associateBy { feature -> feature.name }
     }
 
     // message ids to intercept

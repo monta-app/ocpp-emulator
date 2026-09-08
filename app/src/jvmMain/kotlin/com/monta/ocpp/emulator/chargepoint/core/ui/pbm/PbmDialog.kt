@@ -14,14 +14,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 import kotlinx.coroutines.launch
 
 @Composable
 fun PbmDialog(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointDto,
 ) {
     val coroutineScope = rememberCoroutineScope()
 

@@ -13,8 +13,8 @@ import com.monta.ocpp.emulator.chargepoint.core.model.ChargePointMode
 import com.monta.ocpp.emulator.chargepoint.core.model.LocalAuthList
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
-import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransaction
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
+import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionTable
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.logging.model.Loggable
 import com.monta.ocpp.emulator.platform.util.MontaSerialization
@@ -212,8 +212,8 @@ class ChargePointDAO(
     fun getActiveTransactions(): List<ChargePointTransactionDAO> {
         return transaction {
             ChargePointTransactionDAO.find {
-                (ChargePointTransaction.chargePointId eq this@ChargePointDAO.id) and
-                    (ChargePointTransaction.endTime eq null)
+                (ChargePointTransactionTable.chargePointId eq this@ChargePointDAO.id) and
+                    (ChargePointTransactionTable.endTime eq null)
             }.toList()
         }
     }
@@ -228,8 +228,10 @@ class ChargePointDAO(
         connectorId: Int,
     ): ChargePointConnectorDAO {
         return transaction {
-            val connector = connectors.firstOrNull { it.position == connectorId }
-            if (connector != null) return@transaction connector
+            val connector = connectors.firstOrNull { connector -> connector.position == connectorId }
+            if (connector != null) {
+                return@transaction connector
+            }
             return@transaction ChargePointConnectorDAO.newInstance(
                 chargePointId = this@ChargePointDAO.idValue,
                 chargePointIdentity = this@ChargePointDAO.identity,

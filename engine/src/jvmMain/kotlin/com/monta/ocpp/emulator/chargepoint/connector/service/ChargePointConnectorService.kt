@@ -3,7 +3,6 @@ package com.monta.ocpp.emulator.chargepoint.connector.service
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepoint.connector.repository.ChargePointConnectorRepository
 import com.monta.ocpp.emulator.platform.database.extension.createDatabaseListener
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
@@ -25,12 +24,18 @@ class ChargePointConnectorService(
         }
     }
 
+    fun getById(
+        id: Long,
+    ): ChargePointConnectorDAO? {
+        return transaction {
+            chargePointConnectorRepository.getById(id)
+        }
+    }
+
     fun getByIdFlow(
-        coroutineScope: CoroutineScope,
         id: Long,
     ): Flow<ChargePointConnectorDAO> {
         return createDatabaseListener(
-            coroutineScope = coroutineScope,
             entityClass = ChargePointConnectorDAO,
             id = id,
         ) {

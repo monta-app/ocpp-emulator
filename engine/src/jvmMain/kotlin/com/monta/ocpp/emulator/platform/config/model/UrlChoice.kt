@@ -37,13 +37,13 @@ enum class UrlChoice(
         fun fromUrl(
             url: String?,
         ): UrlChoice {
-            return entries.find { it.ocppUrl == url } ?: Other
+            return entries.find { choice -> choice.ocppUrl == url } ?: Other
         }
 
         fun fromVehicleServiceUrl(
             vehicleServiceUrl: String?,
         ): UrlChoice {
-            return entries.find { it.vehicleServiceUrl == vehicleServiceUrl } ?: Other
+            return entries.find { choice -> choice.vehicleServiceUrl == vehicleServiceUrl } ?: Other
         }
     }
 }

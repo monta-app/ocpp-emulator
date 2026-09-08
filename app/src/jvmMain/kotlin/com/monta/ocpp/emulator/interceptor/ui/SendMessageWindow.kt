@@ -46,11 +46,9 @@ import com.monta.library.ocpp.common.profile.Feature
 import com.monta.library.ocpp.common.serialization.Message
 import com.monta.library.ocpp.common.serialization.MessageSerializer
 import com.monta.library.ocpp.common.serialization.SerializationMode
-import com.monta.library.ocpp.common.session.OcppSession
 import com.monta.library.ocpp.v16.Context
 import com.monta.library.ocpp.v16.SampledValue
 import com.monta.library.ocpp.v16.ValueFormat
-import com.monta.library.ocpp.v16.client.OcppClientV16
 import com.monta.library.ocpp.v16.core.AuthorizeFeature
 import com.monta.library.ocpp.v16.core.AuthorizeRequest
 import com.monta.library.ocpp.v16.core.BootNotificationFeature
@@ -77,19 +75,18 @@ import com.monta.library.ocpp.v16.firmware.DiagnosticsStatusNotificationStatus
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationFeature
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationRequest
 import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
-import com.monta.ocpp.emulator.chargepoint.core.entity.PreviousMessagesDAO
-import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
-import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageDto
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.ocpp.v16.scheduler.MeterValuesGenerator
-import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.logging.service.ChargePointLogger
 import com.monta.ocpp.emulator.platform.util.PrettyYamlFormatter
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -99,7 +96,7 @@ import javax.inject.Singleton
 class SendMessageWindowViewModel {
     var messageType by mutableStateOf<Feature?>(null)
     var messageYaml by mutableStateOf("")
-    var previousMessages = mutableStateOf<List<PreviousMessagesDAO>>(listOf())
+    var previousMessages = mutableStateOf<List<PreviousMessageDto>>(listOf())
 }
 
 @Composable
@@ -119,13 +116,12 @@ fun ApplicationScope.SendMessageWindow() {
 
     val appThemeViewModel: AppThemeViewModel by injectAnywhere()
     val navigator: Navigator by injectAnywhere()
-    val chargePointService: ChargePointService by injectAnywhere()
-    val previousMessagesService: PreviousMessagesService by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    val chargePoint = chargePointService.getById(
+    val chargePoint = emulatorEngine.getChargePoint(
         navigator.requireChargePointId(),
     )
-    sendMessageWindowViewModel.previousMessages.value = previousMessagesService.getAllOfMessageType(
+    sendMessageWindowViewModel.previousMessages.value = emulatorEngine.getPreviousMessages(
         sendMessageWindowViewModel.messageType?.name ?: "",
     )
 
@@ -171,7 +167,7 @@ fun ApplicationScope.SendMessageWindow() {
                             Button(
                                 onClick = {
                                     runBlocking {
-                                        previousMessagesService.insertNewMessage(
+                                        emulatorEngine.savePreviousMessage(
                                             messageType = sendMessageWindowViewModel.messageType?.name ?: "",
                                             message = sendMessageWindowViewModel.messageYaml,
                                         )
@@ -180,13 +176,9 @@ fun ApplicationScope.SendMessageWindow() {
                                             sendMessageWindowViewModel.messageYaml,
                                             sendMessageWindowViewModel.messageType!!.requestType,
                                         )
-                                        val ocppClientV16: OcppClientV16 by injectAnywhere()
-                                        ocppClientV16.sendMessage(
-                                            OcppSession.Info(
-                                                serverId = "",
-                                                identity = chargePoint.identity,
-                                            ),
-                                            Message.Request(
+                                        emulatorEngine.sendRawMessage(
+                                            chargePointId = chargePoint.id,
+                                            message = Message.Request(
                                                 uniqueId = UUID.randomUUID().toString(),
                                                 action = sendMessageWindowViewModel.messageType!!.name,
                                                 payload = MessageSerializer(
@@ -232,10 +224,10 @@ fun ApplicationScope.SendMessageWindow() {
                                         Button(
                                             modifier = Modifier.padding(12.dp).pointerHoverIcon(PointerIcon.Hand),
                                             onClick = {
-                                                previousMessagesService.deleteMessage(previousMessage.id.value)
+                                                emulatorEngine.deletePreviousMessage(previousMessage.id)
                                                 sendMessageWindowViewModel.previousMessages.value =
                                                     sendMessageWindowViewModel.previousMessages.value
-                                                        .filter { it.idValue != previousMessage.idValue }
+                                                        .filter { it.id != previousMessage.id }
                                             },
                                         ) {
                                             Text("Delete")
@@ -251,19 +243,32 @@ fun ApplicationScope.SendMessageWindow() {
     }
 }
 
+/**
+ * The connector a hand-built preview payload should describe: the one currently charging, falling
+ * back to connector 1 when nothing is. Null only if the charge point has no connectors at all.
+ */
+private fun ChargePointDto.previewConnector(): ChargePointConnectorDto? {
+    val charging = connectors.firstOrNull { connector -> connector.hasActiveTransaction }
+    if (charging != null) {
+        return charging
+    }
+    return connectors.firstOrNull { connector -> connector.position == 1 }
+}
+
 fun defaultPayload(
     messageType: Feature,
 ): String {
     val navigator: Navigator by injectAnywhere()
-    val chargePointService: ChargePointService by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    val chargePoint = chargePointService.getById(
+    val chargePoint = emulatorEngine.getChargePoint(
         navigator.requireChargePointId(),
     )
 
-    val transaction = transaction {
-        chargePoint.getActiveTransactions().firstOrNull()
-    }
+    // Resolved once and reused below, so the payload fields read from the connector we already have
+    // rather than looking it up again by position for each field.
+    val connector = chargePoint.previewConnector()
+    val transaction = connector?.activeTransaction
 
     val request = when (messageType) {
         AuthorizeFeature -> AuthorizeRequest("")
@@ -292,10 +297,10 @@ fun defaultPayload(
                 MeterValue(
                     timestamp = ZonedDateTime.now(),
                     sampledValue = MeterValuesGenerator.generate(
-                        meterValuesSampledData = chargePoint.configuration.meterValuesSampledData,
+                        meterValuesSampledData = chargePoint.meterValuesSampledData,
                         startTime = transaction?.startTime,
                         endMeter = transaction?.endMeter ?: 0.0,
-                        watts = chargePoint.getConnector(transaction?.connectorPosition ?: 1).kw * 1000,
+                        watts = (connector?.kw ?: 0.0) * 1000,
                         meterType = chargePoint.meterType,
                     ),
                 ),
@@ -317,9 +322,9 @@ fun defaultPayload(
 
         StopTransactionFeature -> StopTransactionRequest(
             idTag = transaction?.idTag,
-            meterStop = chargePoint.getConnector(transaction?.connectorPosition ?: 1).meterWh.toInt(),
+            meterStop = (connector?.meterWh ?: 0.0).toInt(),
             timestamp = ZonedDateTime.now(),
-            transactionId = transaction?.id?.value?.toInt() ?: 0,
+            transactionId = transaction?.id?.toInt() ?: 0,
             transactionData = listOf(
                 MeterValue(
                     timestamp = transaction?.startTime?.atZone(ZoneOffset.UTC),

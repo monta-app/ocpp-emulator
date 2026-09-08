@@ -23,8 +23,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.monta.ocpp.emulator.chargepoint.connector.ui.ConnectorList
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
-import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.detail.chargePointLogComponent
 import com.monta.ocpp.emulator.chargepoint.core.ui.pbm.PbmDialog
@@ -40,8 +38,9 @@ import com.monta.ocpp.emulator.interceptor.ui.InterceptorConfigComponent
 import com.monta.ocpp.emulator.interceptor.ui.NavShape
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
-import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -50,27 +49,23 @@ import kotlinx.coroutines.launch
 fun ChargePointPage(
     chargePointId: Long,
 ) {
-    val chargePointRepository: ChargePointRepository by injectAnywhere()
-
     val coroutineScope = rememberCoroutineScope()
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    var chargePoint: ChargePointDAO? by remember { mutableStateOf(null) }
+    var chargePoint: ChargePointDto? by remember { mutableStateOf(null) }
 
     LaunchedEffect(chargePointId) {
         coroutineScope.launch {
-            chargePointRepository.getByIdFlow(
-                coroutineScope = coroutineScope,
-                id = chargePointId,
-            ).collectLatest {
-                chargePoint = it
-            }
+            emulatorEngine.observeChargePoint(chargePointId)
+                .collectLatest {
+                    chargePoint = it
+                }
         }
         emulatorEngine.connect(chargePointId)
     }
 
-    val chargePoints by produceState(listOf<ChargePointDAO>()) {
-        chargePointRepository.getAllFlow(coroutineScope)
+    val chargePoints by produceState(listOf<ChargePointListItemDto>()) {
+        emulatorEngine.observeChargePoints()
             .collectLatest { newList ->
                 value = newList
             }
@@ -78,15 +73,15 @@ fun ChargePointPage(
     chargePoint?.let {
         innerChargePointPage(
             it,
-            chargePoints.filter { check -> check.connected || check.idValue == chargePointId },
+            chargePoints.filter { check -> check.connected || check.id == chargePointId },
         )
     }
 }
 
 @Composable
 private fun innerChargePointPage(
-    chargePoint: ChargePointDAO,
-    connectedChargePoints: List<ChargePointDAO>,
+    chargePoint: ChargePointDto,
+    connectedChargePoints: List<ChargePointListItemDto>,
 ) {
     val navigator: Navigator by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()
@@ -98,7 +93,7 @@ private fun innerChargePointPage(
     var selectedTab by remember {
         mutableStateOf(
             connectedChargePoints.indexOfFirst { connectedChargePoint ->
-                connectedChargePoint.idValue == chargePoint.idValue
+                connectedChargePoint.id == chargePoint.id
             },
         )
     }
@@ -143,7 +138,7 @@ private fun innerChargePointPage(
             )
         },
         drawer = {
-            InterceptorConfigComponent(chargePoint.idValue)
+            InterceptorConfigComponent(chargePoint.id)
         },
     ) {
         Column {
@@ -196,7 +191,7 @@ private fun innerChargePointPage(
                             selectedTab = idx
                             navigator.switchChargePoint(
                                 Screen.ChargePoint(
-                                    chargePointId = chargePoint.idValue,
+                                    chargePointId = chargePoint.id,
                                 ),
                             )
                         },
@@ -211,7 +206,7 @@ private fun innerChargePointPage(
                 secondColumn = {
                     pbmButtons()
                     chargePointLogComponent(
-                        chargePointId = chargePoint.idValue,
+                        chargePointId = chargePoint.id,
                         modifier = Modifier.weight(1F)
                             .fillMaxWidth(),
                     )

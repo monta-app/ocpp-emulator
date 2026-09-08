@@ -68,7 +68,7 @@ suspend fun ChargePointConnectorDAO.setStatus(
 
 suspend fun ChargePointConnectorDAO.startFreeCharging() {
     // Already charging don't try
-    if (hasActiveTransaction) {
+    if (hasOpenTransactions) {
         return
     }
 

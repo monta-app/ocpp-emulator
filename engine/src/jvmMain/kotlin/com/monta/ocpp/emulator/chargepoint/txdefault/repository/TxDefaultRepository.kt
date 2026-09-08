@@ -5,8 +5,8 @@ import com.monta.library.ocpp.v16.smartcharge.ChargingProfilePurposeType
 import com.monta.library.ocpp.v16.smartcharge.ClearChargingProfileRequest
 import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
-import com.monta.ocpp.emulator.chargepoint.txdefault.entity.TxDefault
 import com.monta.ocpp.emulator.chargepoint.txdefault.entity.TxDefaultDAO
+import com.monta.ocpp.emulator.chargepoint.txdefault.entity.TxDefaultTable
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -54,14 +54,14 @@ class TxDefaultRepository {
          The ClearChargingProfileRequest does not contain stack level.
          */
 
-        val onChargePoint = TxDefault.chargePointId eq chargePointDAO.chargePointId()
-        val onConnector = connectorDAO?.let { connector -> TxDefault.connectorId eq connector.id } ?: Op.TRUE
+        val onChargePoint = TxDefaultTable.chargePointId eq chargePointDAO.chargePointId()
+        val onConnector = connectorDAO?.let { connector -> TxDefaultTable.connectorId eq connector.id } ?: Op.TRUE
         val condition = when {
-            request.id != null -> onChargePoint and (TxDefault.chargingProfileId eq request.id)
+            request.id != null -> onChargePoint and (TxDefaultTable.chargingProfileId eq request.id)
             else -> onChargePoint and onConnector
         }
 
-        TxDefault.deleteWhere { condition }
+        TxDefaultTable.deleteWhere { condition }
     }
 
     private fun findById(
@@ -69,9 +69,9 @@ class TxDefaultRepository {
         connectorDAO: ChargePointConnectorDAO,
         chargingProfileId: Int,
     ): TxDefaultDAO? {
-        val equalsProfileId = TxDefault.chargingProfileId eq chargingProfileId
-        val onChargePoint = TxDefault.chargePointId eq chargePointDAO.chargePointId()
-        val onConnector = TxDefault.connectorId eq connectorDAO.id
+        val equalsProfileId = TxDefaultTable.chargingProfileId eq chargingProfileId
+        val onChargePoint = TxDefaultTable.chargePointId eq chargePointDAO.chargePointId()
+        val onConnector = TxDefaultTable.connectorId eq connectorDAO.id
         return TxDefaultDAO.find { onChargePoint and onConnector and equalsProfileId }.firstOrNull()
     }
 }

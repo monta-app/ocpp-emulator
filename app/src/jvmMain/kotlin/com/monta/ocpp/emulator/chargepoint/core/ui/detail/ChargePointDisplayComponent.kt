@@ -12,15 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.designsystem.ui.component.SectionLabel
 import com.monta.ocpp.emulator.designsystem.ui.component.cardBorderColor
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedSurfaceColor
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 
 @Composable
 fun chargePointDisplayComponent(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointDto,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),

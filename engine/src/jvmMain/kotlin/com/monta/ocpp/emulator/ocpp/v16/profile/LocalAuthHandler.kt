@@ -49,7 +49,7 @@ class LocalAuthHandler : LocalListClientProfile.Listener {
                 SendLocalListRequest.UpdateType.Full -> {
                     chargePoint.localAuthList.tokens.clear()
                     request.localAuthorizationList?.let { tokenList ->
-                        chargePoint.localAuthList.tokens.addAll(tokenList.map { it.idTag })
+                        chargePoint.localAuthList.tokens.addAll(tokenList.map { token -> token.idTag })
                     }
                 }
             }

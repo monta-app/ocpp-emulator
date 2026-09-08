@@ -32,10 +32,6 @@ kotlin {
             // Navigation (type-safe routes are @Serializable, hence the serialization plugin above)
             implementation(libs.androidx.navigation.compose)
 
-            // OCPP Libs — the UI still constructs and sends OCPP messages directly (SendMessageWindow,
-            // the connection button, etc.), so it depends on the OCPP libraries alongside :engine.
-            implementation(libs.ocpp.core)
-            implementation(libs.ocpp.v16)
             // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
             implementation(libs.jackson3.databind)
 
@@ -67,11 +63,6 @@ kotlin {
             // Dependency Injection
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.bundles.koin)
-
-            // SQL Database — the UI still opens Exposed `transaction {}` blocks and reads DAOs
-            // directly, so it depends on Exposed alongside :engine.
-            implementation(project.dependencies.platform(libs.exposed.bom))
-            implementation(libs.bundles.exposed)
         }
     }
 }
