@@ -36,7 +36,7 @@ import com.monta.ocpp.emulator.interceptor.ui.BasePage
 import com.monta.ocpp.emulator.interceptor.ui.BottomNavDestination
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.flow.collectLatest
@@ -132,7 +132,7 @@ private fun ChargePointsListView(
     val navigator: Navigator by injectAnywhere()
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    val chargePoints by produceState(initialValue = listOf<ChargePointListItem>()) {
+    val chargePoints by produceState(initialValue = listOf<ChargePointListItemDto>()) {
         emulatorEngine.observeChargePoints()
             .collectLatest { newList ->
                 value = newList
@@ -157,7 +157,7 @@ private fun ChargePointsListView(
 }
 
 // Helper extension function to filter charge points based on the search query
-private fun ChargePointListItem.matchesSearchQuery(
+private fun ChargePointListItemDto.matchesSearchQuery(
     query: String,
 ): Boolean {
     if (query.isEmpty()) {

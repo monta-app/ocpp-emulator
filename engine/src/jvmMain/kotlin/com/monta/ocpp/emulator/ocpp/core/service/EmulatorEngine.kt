@@ -7,17 +7,17 @@ import com.monta.library.ocpp.v16.core.Reason
 import com.monta.ocpp.emulator.chargepoint.connector.model.CarState
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
-import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageDto
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Headless entry point for driving the emulator.
  *
  * This is the module boundary for `:engine`: every read the UI needs is a [Flow] of a plain DTO
- * ([ChargePointSummary], [ChargePointConnectorSummary], …) and every mutation is a command
+ * ([ChargePointDto], [ChargePointConnectorDto], …) and every mutation is a command
  * addressing rows by their numeric id. No Exposed DAO and no OCPP-protocol machinery
  * (`ConnectionManager`, the DAO extensions) crosses this interface — callers (the Compose UI today,
  * tests, any future headless driver) never touch the persistence or protocol layers directly.
@@ -38,36 +38,36 @@ interface EmulatorEngine {
     // region Queries — observable, DTO-projected reads
 
     /**
-     * Cold flow of every charge point as a lightweight [ChargePointListItem], re-emitted whenever any
+     * Cold flow of every charge point as a lightweight [ChargePointListItemDto], re-emitted whenever any
      * charge point row changes. Carries no connectors — use [observeChargePoint] when those are
      * needed, so listing never pays for the connector and transaction traversal.
      */
-    fun observeChargePoints(): Flow<List<ChargePointListItem>>
+    fun observeChargePoints(): Flow<List<ChargePointListItemDto>>
 
     /** Cold flow of a single charge point (and its connectors), re-emitted on any change to it. */
     fun observeChargePoint(
         chargePointId: Long,
-    ): Flow<ChargePointSummary>
+    ): Flow<ChargePointDto>
 
     /** Cold flow of a single connector, re-emitted whenever that connector row changes. */
     fun observeConnector(
         connectorId: Long,
-    ): Flow<ChargePointConnectorSummary>
+    ): Flow<ChargePointConnectorDto>
 
     /** Point-in-time snapshot of a charge point. Throws if it cannot be resolved. */
     fun getChargePoint(
         chargePointId: Long,
-    ): ChargePointSummary
+    ): ChargePointDto
 
     /** Point-in-time snapshot of a charge point, or `null` if no such charge point exists. */
     fun findChargePoint(
         chargePointId: Long,
-    ): ChargePointSummary?
+    ): ChargePointDto?
 
     /** The stored raw-message templates for a given OCPP action, newest first. */
     fun getPreviousMessages(
         messageType: String,
-    ): List<PreviousMessageSummary>
+    ): List<PreviousMessageDto>
 
     /** The ids of every charge point currently connected. */
     fun getConnectedChargePointIds(): List<Long>

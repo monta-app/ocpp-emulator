@@ -72,19 +72,19 @@ class EmulatorEngineQueryTest : DatabaseSpec({
     describe("getChargePoint") {
 
         it("projects the charge point and its connectors into a DTO") {
-            val chargePoint = seedChargePoint(connectorCount = 2)
+            val seeded = seedChargePoint(connectorCount = 2)
 
-            val summary = engine.getChargePoint(chargePoint.idValue)
+            val chargePoint = engine.getChargePoint(seeded.idValue)
 
-            summary.id shouldBe chargePoint.idValue
-            summary.identity shouldBe "MEM_001"
-            summary.firmware shouldBe "1.2.3"
-            summary.maxKw shouldBe 22.0
-            summary.meterType shouldBe MeterType.OCPP
-            summary.ocppVersion shouldBe OcppVersion.V16
-            summary.connectorCount shouldBe 2
-            summary.connectors.map { connector -> connector.position } shouldContainExactly listOf(1, 2)
-            summary.connectors.first().status shouldBe ChargePointStatus.Available
+            chargePoint.id shouldBe seeded.idValue
+            chargePoint.identity shouldBe "MEM_001"
+            chargePoint.firmware shouldBe "1.2.3"
+            chargePoint.maxKw shouldBe 22.0
+            chargePoint.meterType shouldBe MeterType.OCPP
+            chargePoint.ocppVersion shouldBe OcppVersion.V16
+            chargePoint.connectorCount shouldBe 2
+            chargePoint.connectors.map { connector -> connector.position } shouldContainExactly listOf(1, 2)
+            chargePoint.connectors.first().status shouldBe ChargePointStatus.Available
         }
 
         it("throws when the charge point cannot be resolved") {
@@ -96,7 +96,7 @@ class EmulatorEngineQueryTest : DatabaseSpec({
 
     describe("findChargePoint") {
 
-        it("returns the summary when the charge point exists") {
+        it("returns the DTO when the charge point exists") {
             val chargePoint = seedChargePoint()
 
             engine.findChargePoint(chargePoint.idValue).shouldNotBeNull().identity shouldBe "MEM_001"
@@ -124,21 +124,21 @@ class EmulatorEngineQueryTest : DatabaseSpec({
                 connector.activeTransaction = activeTransaction
             }
 
-            val connectorSummary = engine.getChargePoint(chargePoint.idValue).connectors.single()
+            val connectorDto = engine.getChargePoint(chargePoint.idValue).connectors.single()
 
-            connectorSummary.hasActiveTransaction shouldBe true
-            connectorSummary.activeTransaction.shouldNotBeNull().externalId shouldBe 4242
-            connectorSummary.activeTransaction.shouldNotBeNull().idTag shouldBe "TAG-1"
-            connectorSummary.meterWh shouldBe 1500.0
+            connectorDto.hasActiveTransaction shouldBe true
+            connectorDto.activeTransaction.shouldNotBeNull().externalId shouldBe 4242
+            connectorDto.activeTransaction.shouldNotBeNull().idTag shouldBe "TAG-1"
+            connectorDto.meterWh shouldBe 1500.0
         }
 
         it("leaves the active transaction null when the connector is idle") {
             val chargePoint = seedChargePoint(connectorCount = 1)
 
-            val connectorSummary = engine.getChargePoint(chargePoint.idValue).connectors.single()
+            val connectorDto = engine.getChargePoint(chargePoint.idValue).connectors.single()
 
-            connectorSummary.activeTransaction.shouldBeNull()
-            connectorSummary.hasActiveTransaction shouldBe false
+            connectorDto.activeTransaction.shouldBeNull()
+            connectorDto.hasActiveTransaction shouldBe false
         }
     }
 
@@ -148,9 +148,9 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             seedChargePoint(identity = "MEM_001", connectorCount = 1)
             seedChargePoint(identity = "MEM_002", connectorCount = 1)
 
-            val summaries = engine.observeChargePoints().first()
+            val chargePoints = engine.observeChargePoints().first()
 
-            summaries.map { summary -> summary.identity }.sorted() shouldContainExactly listOf("MEM_001", "MEM_002")
+            chargePoints.map { chargePoint -> chargePoint.identity }.sorted() shouldContainExactly listOf("MEM_001", "MEM_002")
         }
     }
 

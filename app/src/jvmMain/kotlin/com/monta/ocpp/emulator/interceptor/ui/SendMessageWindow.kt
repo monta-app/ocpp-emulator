@@ -78,9 +78,9 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
-import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.ocpp.v16.scheduler.MeterValuesGenerator
 import com.monta.ocpp.emulator.platform.logging.service.ChargePointLogger
@@ -96,7 +96,7 @@ import javax.inject.Singleton
 class SendMessageWindowViewModel {
     var messageType by mutableStateOf<Feature?>(null)
     var messageYaml by mutableStateOf("")
-    var previousMessages = mutableStateOf<List<PreviousMessageSummary>>(listOf())
+    var previousMessages = mutableStateOf<List<PreviousMessageDto>>(listOf())
 }
 
 @Composable
@@ -247,7 +247,7 @@ fun ApplicationScope.SendMessageWindow() {
  * The connector a hand-built preview payload should describe: the one currently charging, falling
  * back to connector 1 when nothing is. Null only if the charge point has no connectors at all.
  */
-private fun ChargePointSummary.previewConnector(): ChargePointConnectorSummary? {
+private fun ChargePointDto.previewConnector(): ChargePointConnectorDto? {
     val charging = connectors.firstOrNull { connector -> connector.hasActiveTransaction }
     if (charging != null) {
         return charging

@@ -2,7 +2,7 @@ package com.monta.ocpp.emulator.chargepoint.core.ui.pbm
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 import io.nayuki.qrcodegen.QrCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.awt.image.BufferedImage
@@ -12,7 +12,7 @@ object PbmViewModel {
     var showSerialQR = MutableStateFlow(false)
 
     fun createQrCode(
-        chargePoint: ChargePointSummary,
+        chargePoint: ChargePointDto,
         showUrlQR: Boolean,
     ): ImageBitmap {
         return generateQrCode(
@@ -33,7 +33,7 @@ object PbmViewModel {
     }
 
     private fun getPbmUrl(
-        chargePoint: ChargePointSummary,
+        chargePoint: ChargePointDto,
     ): String {
         var apiUrl = chargePoint.apiUrl
 

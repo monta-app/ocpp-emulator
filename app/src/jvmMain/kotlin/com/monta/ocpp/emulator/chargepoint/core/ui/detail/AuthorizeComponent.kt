@@ -18,14 +18,14 @@ import com.monta.ocpp.emulator.designsystem.ui.component.AppDialog
 import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.RfidButton
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 
 @Composable
 fun BoxScope.authorizeComponent(
-    connector: ChargePointConnectorSummary,
+    connector: ChargePointConnectorDto,
 ) {
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 

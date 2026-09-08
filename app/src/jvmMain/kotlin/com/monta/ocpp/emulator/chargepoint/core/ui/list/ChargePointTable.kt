@@ -40,7 +40,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -57,8 +57,8 @@ private val actionsColumnWidth: Dp = 132.dp
  */
 @Composable
 fun ChargePointTable(
-    chargePoints: List<ChargePointListItem>,
-    onRowClick: (ChargePointListItem) -> Unit,
+    chargePoints: List<ChargePointListItemDto>,
+    onRowClick: (ChargePointListItemDto) -> Unit,
 ) {
     SectionCard(
         modifier = Modifier.fillMaxWidth()
@@ -148,7 +148,7 @@ private fun HeaderCell(
 
 @Composable
 private fun TableRow(
-    chargePoint: ChargePointListItem,
+    chargePoint: ChargePointListItemDto,
     onClick: () -> Unit,
 ) {
     Row(
@@ -248,7 +248,7 @@ private fun TableRow(
 
 @Composable
 private fun ChargePointEditButton(
-    chargePoint: ChargePointListItem,
+    chargePoint: ChargePointListItemDto,
 ) {
     val navigator: Navigator by injectAnywhere()
     IconButton(
@@ -266,7 +266,7 @@ private fun ChargePointEditButton(
 
 @Composable
 private fun ChargePointDeleteButton(
-    chargePoint: ChargePointListItem,
+    chargePoint: ChargePointListItemDto,
 ) {
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 

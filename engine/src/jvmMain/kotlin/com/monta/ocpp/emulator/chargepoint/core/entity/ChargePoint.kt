@@ -13,8 +13,8 @@ import com.monta.ocpp.emulator.chargepoint.core.model.ChargePointMode
 import com.monta.ocpp.emulator.chargepoint.core.model.LocalAuthList
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
-import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransaction
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
+import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionTable
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.logging.model.Loggable
 import com.monta.ocpp.emulator.platform.util.MontaSerialization
@@ -212,8 +212,8 @@ class ChargePointDAO(
     fun getActiveTransactions(): List<ChargePointTransactionDAO> {
         return transaction {
             ChargePointTransactionDAO.find {
-                (ChargePointTransaction.chargePointId eq this@ChargePointDAO.id) and
-                    (ChargePointTransaction.endTime eq null)
+                (ChargePointTransactionTable.chargePointId eq this@ChargePointDAO.id) and
+                    (ChargePointTransactionTable.endTime eq null)
             }.toList()
         }
     }

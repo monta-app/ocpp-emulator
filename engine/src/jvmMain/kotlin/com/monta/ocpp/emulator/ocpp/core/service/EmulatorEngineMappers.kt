@@ -4,11 +4,11 @@ import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnector
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.entity.PreviousMessagesDAO
 import com.monta.ocpp.emulator.chargepoint.transaction.entity.ChargePointTransactionDAO
-import com.monta.ocpp.emulator.ocpp.core.model.ActiveTransactionSummary
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
-import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ActiveTransactionDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageDto
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -19,12 +19,12 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * `activeTransaction`, the `transactions` sum behind `meterWh`). Kept here in the facade's service
  * package rather than in `model/` so the plain DTOs never import an Exposed entity.
  *
- * [toListItem] is the cheap counterpart to [toSummary]: scalar columns only, no connector traversal.
+ * [toListItemDto] is the cheap counterpart to [toDto]: scalar columns only, no connector traversal.
  */
 
-internal fun ChargePointDAO.toListItem(): ChargePointListItem {
+internal fun ChargePointDAO.toListItemDto(): ChargePointListItemDto {
     return transaction {
-        ChargePointListItem(
+        ChargePointListItemDto(
             id = idValue,
             name = name,
             identity = identity,
@@ -37,9 +37,9 @@ internal fun ChargePointDAO.toListItem(): ChargePointListItem {
     }
 }
 
-internal fun ChargePointDAO.toSummary(): ChargePointSummary {
+internal fun ChargePointDAO.toDto(): ChargePointDto {
     return transaction {
-        ChargePointSummary(
+        ChargePointDto(
             id = idValue,
             name = name,
             identity = identity,
@@ -66,14 +66,14 @@ internal fun ChargePointDAO.toSummary(): ChargePointSummary {
             meterValuesSampledData = configuration.meterValuesSampledData,
             connectors = getConnectors()
                 .sortedBy { connector -> connector.position }
-                .map { connector -> connector.toSummary() },
+                .map { connector -> connector.toDto() },
         )
     }
 }
 
-internal fun ChargePointConnectorDAO.toSummary(): ChargePointConnectorSummary {
+internal fun ChargePointConnectorDAO.toDto(): ChargePointConnectorDto {
     return transaction {
-        ChargePointConnectorSummary(
+        ChargePointConnectorDto(
             id = idValue,
             chargePointId = chargePointId.value,
             position = position,
@@ -90,14 +90,14 @@ internal fun ChargePointConnectorDAO.toSummary(): ChargePointConnectorSummary {
             vehicleMaxAmpsPerPhase = vehicleMaxAmpsPerPhase,
             vehicleNumberPhases = vehicleNumberPhases,
             meterWh = meterWh,
-            activeTransaction = activeTransaction?.toSummary(),
+            activeTransaction = activeTransaction?.toDto(),
         )
     }
 }
 
-internal fun ChargePointTransactionDAO.toSummary(): ActiveTransactionSummary {
+internal fun ChargePointTransactionDAO.toDto(): ActiveTransactionDto {
     return transaction {
-        ActiveTransactionSummary(
+        ActiveTransactionDto(
             id = idValue,
             externalId = externalId,
             idTag = idTag,
@@ -109,8 +109,8 @@ internal fun ChargePointTransactionDAO.toSummary(): ActiveTransactionSummary {
     }
 }
 
-internal fun PreviousMessagesDAO.toSummary(): PreviousMessageSummary {
-    return PreviousMessageSummary(
+internal fun PreviousMessagesDAO.toDto(): PreviousMessageDto {
+    return PreviousMessageDto(
         id = idValue,
         messageType = messageType,
         message = message,

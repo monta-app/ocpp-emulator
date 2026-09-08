@@ -16,9 +16,9 @@ import java.time.Instant
  *
  * Everything the charge-point detail, form, display, PBM and send-message screens read is here,
  * including the full connector list. The charge-point *list* screens take the lighter
- * [ChargePointListItem] instead, so listing never pays for the connector/transaction traversal.
+ * [ChargePointListItemDto] instead, so listing never pays for the connector/transaction traversal.
  */
-data class ChargePointSummary(
+data class ChargePointDto(
     val id: Long,
     val name: String,
     val identity: String,
@@ -45,7 +45,7 @@ data class ChargePointSummary(
     // Flattened from ChargePointConfiguration — the only config value any of the 17 screens read
     // (SendMessageWindow's MeterValues default payload).
     val meterValuesSampledData: List<String>,
-    val connectors: List<ChargePointConnectorSummary>,
+    val connectors: List<ChargePointConnectorDto>,
 ) {
     val connectorCount: Int
         get() = connectors.size

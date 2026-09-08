@@ -16,11 +16,11 @@ import com.monta.ocpp.emulator.designsystem.ui.component.SectionLabel
 import com.monta.ocpp.emulator.designsystem.ui.component.cardBorderColor
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedSurfaceColor
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 
 @Composable
 fun chargePointDisplayComponent(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointDto,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),

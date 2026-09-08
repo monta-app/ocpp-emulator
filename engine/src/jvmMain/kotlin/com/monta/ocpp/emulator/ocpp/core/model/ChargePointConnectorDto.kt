@@ -10,7 +10,7 @@ import java.time.Instant
  * plus the computed values the connector UI reads (`meterWh`, the active transaction). Plain, typed
  * and DAO-free — the field types stay the real OCPP enums, so nothing is stringly-typed.
  */
-data class ChargePointConnectorSummary(
+data class ChargePointConnectorDto(
     val id: Long,
     val chargePointId: Long,
     val position: Int,
@@ -27,7 +27,7 @@ data class ChargePointConnectorSummary(
     val vehicleMaxAmpsPerPhase: Double,
     val vehicleNumberPhases: Int,
     val meterWh: Double,
-    val activeTransaction: ActiveTransactionSummary?,
+    val activeTransaction: ActiveTransactionDto?,
 ) {
     val hasActiveTransaction: Boolean
         get() = activeTransaction != null

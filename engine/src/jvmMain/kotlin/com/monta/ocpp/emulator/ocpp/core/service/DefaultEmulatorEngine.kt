@@ -15,10 +15,10 @@ import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
 import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
-import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItemDto
+import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageDto
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
 import com.monta.ocpp.emulator.ocpp.v16.extension.setConnectorCarState
 import com.monta.ocpp.emulator.ocpp.v16.extension.setMaxVehicleRate
@@ -57,45 +57,45 @@ class DefaultEmulatorEngine(
 
     // region Queries
 
-    override fun observeChargePoints(): Flow<List<ChargePointListItem>> {
+    override fun observeChargePoints(): Flow<List<ChargePointListItemDto>> {
         return chargePointRepository.getAllFlow().map { chargePoints ->
-            chargePoints.map { chargePoint -> chargePoint.toListItem() }
+            chargePoints.map { chargePoint -> chargePoint.toListItemDto() }
         }
     }
 
     override fun observeChargePoint(
         chargePointId: Long,
-    ): Flow<ChargePointSummary> {
+    ): Flow<ChargePointDto> {
         return chargePointRepository.getByIdFlow(chargePointId).map { chargePoint ->
-            chargePoint.toSummary()
+            chargePoint.toDto()
         }
     }
 
     override fun observeConnector(
         connectorId: Long,
-    ): Flow<ChargePointConnectorSummary> {
+    ): Flow<ChargePointConnectorDto> {
         return chargePointConnectorService.getByIdFlow(connectorId).map { connector ->
-            connector.toSummary()
+            connector.toDto()
         }
     }
 
     override fun getChargePoint(
         chargePointId: Long,
-    ): ChargePointSummary {
-        return chargePointService.getById(chargePointId).toSummary()
+    ): ChargePointDto {
+        return chargePointService.getById(chargePointId).toDto()
     }
 
     override fun findChargePoint(
         chargePointId: Long,
-    ): ChargePointSummary? {
-        return chargePointService.findById(chargePointId)?.toSummary()
+    ): ChargePointDto? {
+        return chargePointService.findById(chargePointId)?.toDto()
     }
 
     override fun getPreviousMessages(
         messageType: String,
-    ): List<PreviousMessageSummary> {
+    ): List<PreviousMessageDto> {
         return previousMessagesService.getAllOfMessageType(messageType)
-            .map { previousMessage -> previousMessage.toSummary() }
+            .map { previousMessage -> previousMessage.toDto() }
     }
 
     override fun getConnectedChargePointIds(): List<Long> {

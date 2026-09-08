@@ -25,7 +25,30 @@ The `com.monta.ocpp.emulator.v16` **package** (and the `ocpp-v16` library depend
 
 CI (`.github/workflows/pull_request.yml`) runs `:engine:test` (an alias for `jvmTest`) with Kover coverage, plus detekt via `monta-app/detekt-action`. All tests currently live in `:engine`; `:app` has no test sources of its own. Tests use JUnit 5 / kotlin-test.
 
-Code style is enforced by ktlint (`intellij_idea` style, trailing commas required on both call and declaration sites — see `.editorconfig`). IntelliJ run configs live in `.run/`.
+## Code style
+
+ktlint (`intellij_idea` style, trailing commas required on both call and declaration sites — see `.editorconfig`) covers formatting. IntelliJ run configs live in `.run/`.
+
+Beyond what ktlint checks, this codebase prefers **explicit over terse**. A reader scanning a call site should never have to infer a receiver's type, an implicit parameter's meaning, or where a branch ends. These four rules are **not machine-enforced** (see below) — they are review rules, so check them yourself before you call a change done:
+
+1. **Block bodies, not expression bodies.** Always `fun f(): T { return x }`, never `fun f() = x`. Applies to functions and to DAO→DTO mappers alike.
+2. **Braces on every `if`.** Never a braceless single-line body, not even for a bare `return` or `throw`. This extends to `if`/`else` used as an *expression* — brace both branches instead of `if (x) A else B`.
+3. **Name every lambda parameter; never use `it`.** `.map { connector -> connector.position }`, not `.map { it.position }`. Kotest's `it("describes a case")` is the spec DSL, not a lambda parameter — leave those alone.
+4. **No chained elvis fallbacks.** A single `?:` supplying a default on a nullable is fine (`connector?.kw ?: 0.0`); chaining `?:` as a lookup cascade is not. Prefer a named helper with an early `return`, or `requireNotNull`/`checkNotNull` with a message, over `a ?: b ?: error(...)`.
+
+Related: fix compiler warnings at the site that causes them, not with a project-wide `freeCompilerArgs` flag.
+
+**Why these are not lint rules** (checked 2026-09-08 against ktlint engine 1.5.0, via the `org.jlleitschuh.gradle.ktlint` 14.2.0 plugin): ktlint's `function-expression-body` and detekt's `ExpressionBodySyntax` both push the *opposite* way and are not invertible — the ktlint rule is switched off at `.editorconfig:23`, and the shared detekt config sets `ExpressionBodySyntax: active: false`. No rule in either tool targets `it`. For braces, neither the `intellij_idea` ruleset nor `ktlint_standard_if-else-wrapping = enabled` flags `if (value == null) throw ...` — that rule governs wrapping when braces already exist, and both were confirmed clean against a probe file. detekt's `MandatoryBracesIfStatements` is the rule that would catch it, but detekt is not in the local Gradle build (it runs in CI only, through the shared `monta-app/detekt-action`), so enabling it means a change in that shared repo — unverified from here.
+
+**Checking a change before you finish** — plain `git diff` hides *staged* changes and `git diff main...HEAD` hides uncommitted ones, so use `git diff HEAD`:
+
+```shell
+git diff HEAD -U0 -- '*.kt' | grep -E "^\+" | grep -E "\{ it\.|\{ it |\?:"           # rules 3, 4
+git diff HEAD -U0 -- '*.kt' | grep -E '^\+ *(internal |private )?fun .*\) *:? ?[A-Za-z<>?, ]* = '  # rule 1
+grep -rn --include='*.kt' -E "^\s*(\} )?if \(.*\)\s*[^{[:space:]].*$" engine/src app/src \
+  | grep -vE "\{\s*$|//"                                                                    # rule 2
+```
+
 
 ## Architecture
 

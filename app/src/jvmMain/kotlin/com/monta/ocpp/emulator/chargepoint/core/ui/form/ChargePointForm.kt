@@ -31,7 +31,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.PasswordField
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.SegmentedToggle
 import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -40,7 +40,7 @@ import org.koin.core.annotation.Factory
 @Composable
 fun ChargePointForm(
     viewModel: ChargePointFormViewModel,
-    chargePoint: ChargePointSummary?,
+    chargePoint: ChargePointDto?,
     onClose: () -> Unit,
 ) {
     chargePoint?.let {
@@ -344,19 +344,19 @@ class ChargePointFormViewModel(
         var meterType: MeterType = MeterType.OCPP,
     ) {
         fun updateFrom(
-            summary: ChargePointSummary,
+            chargePoint: ChargePointDto,
         ) {
-            this.chargePointName = summary.name
-            this.chargePointIdentity = summary.identity
-            this.password = summary.basicAuthPassword ?: this.password
-            this.urlChoice = UrlChoice.fromUrl(summary.ocppUrl)
-            this.ocppUrl = summary.ocppUrl
-            this.apiUrl = summary.apiUrl
-            this.connectorCount = summary.connectorCount
-            this.firmware = summary.firmware
-            this.maxKw = summary.maxKw
-            this.ocppVersion = summary.ocppVersion
-            this.meterType = summary.meterType
+            this.chargePointName = chargePoint.name
+            this.chargePointIdentity = chargePoint.identity
+            this.password = chargePoint.basicAuthPassword ?: this.password
+            this.urlChoice = UrlChoice.fromUrl(chargePoint.ocppUrl)
+            this.ocppUrl = chargePoint.ocppUrl
+            this.apiUrl = chargePoint.apiUrl
+            this.connectorCount = chargePoint.connectorCount
+            this.firmware = chargePoint.firmware
+            this.maxKw = chargePoint.maxKw
+            this.ocppVersion = chargePoint.ocppVersion
+            this.meterType = chargePoint.meterType
         }
     }
 

@@ -34,7 +34,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.svgPainterResource
 import com.monta.ocpp.emulator.designsystem.ui.component.toReadable
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.launch
@@ -43,7 +43,7 @@ import java.awt.datatransfer.StringSelection
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun chargePointComponent(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointDto,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current

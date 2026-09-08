@@ -19,7 +19,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Instant
 
 // Table Definition
-object ChargePointTransaction : LongIdTable("charge_point_transaction") {
+object ChargePointTransactionTable : LongIdTable("charge_point_transaction") {
     val chargePointId = reference("charge_point_id", ChargePointTable)
     val connectorId = reference("connector_id", ChargePointConnectorTable)
 
@@ -46,7 +46,7 @@ object ChargePointTransaction : LongIdTable("charge_point_transaction") {
 class ChargePointTransactionDAO(
     id: EntityID<Long>,
 ) : LongEntity(id), Loggable {
-    companion object : LongEntityClass<ChargePointTransactionDAO>(ChargePointTransaction) {
+    companion object : LongEntityClass<ChargePointTransactionDAO>(ChargePointTransactionTable) {
         fun newInstance(
             chargePoint: ChargePointDAO,
             chargePointConnector: ChargePointConnectorDAO,
@@ -82,24 +82,24 @@ class ChargePointTransactionDAO(
         }
     }
 
-    var chargePointId by ChargePointTransaction.chargePointId
-    var chargePoint by ChargePointDAO referencedOn ChargePointTransaction.chargePointId
-    var chargePointConnector by ChargePointConnectorDAO referencedOn ChargePointTransaction.connectorId
+    var chargePointId by ChargePointTransactionTable.chargePointId
+    var chargePoint by ChargePointDAO referencedOn ChargePointTransactionTable.chargePointId
+    var chargePointConnector by ChargePointConnectorDAO referencedOn ChargePointTransactionTable.connectorId
 
-    var connectorPosition by ChargePointTransaction.connectorPosition
-    var externalId by ChargePointTransaction.externalId
-    var idTag by ChargePointTransaction.idTag
-    var statusAt by ChargePointTransaction.statusAt
-    var startMeter by ChargePointTransaction.startMeter
-    var startTime by ChargePointTransaction.startTime
-    var meterValuesAt by ChargePointTransaction.meterValuesAt
-    var endMeter by ChargePointTransaction.endMeter
-    var endMeterAt by ChargePointTransaction.endMeterAt
-    var endTime by ChargePointTransaction.endTime
-    var endReason by ChargePointTransaction.endReason
-    var endReasonDescription by ChargePointTransaction.endReasonDescription
-    var chargingProfile by ChargePointTransaction.chargingProfile
-    var createdAt by ChargePointTransaction.createdAt
+    var connectorPosition by ChargePointTransactionTable.connectorPosition
+    var externalId by ChargePointTransactionTable.externalId
+    var idTag by ChargePointTransactionTable.idTag
+    var statusAt by ChargePointTransactionTable.statusAt
+    var startMeter by ChargePointTransactionTable.startMeter
+    var startTime by ChargePointTransactionTable.startTime
+    var meterValuesAt by ChargePointTransactionTable.meterValuesAt
+    var endMeter by ChargePointTransactionTable.endMeter
+    var endMeterAt by ChargePointTransactionTable.endMeterAt
+    var endTime by ChargePointTransactionTable.endTime
+    var endReason by ChargePointTransactionTable.endReason
+    var endReasonDescription by ChargePointTransactionTable.endReasonDescription
+    var chargingProfile by ChargePointTransactionTable.chargingProfile
+    var createdAt by ChargePointTransactionTable.createdAt
 
     fun isOwner(
         connector: ChargePointConnectorDAO,

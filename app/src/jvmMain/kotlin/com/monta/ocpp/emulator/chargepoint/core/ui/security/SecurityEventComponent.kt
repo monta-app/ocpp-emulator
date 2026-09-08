@@ -19,14 +19,14 @@ import com.monta.ocpp.emulator.designsystem.ui.component.OutlineButton
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 
 @Composable
 fun ColumnScope.securityEventComponent(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointDto,
 ) {
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 

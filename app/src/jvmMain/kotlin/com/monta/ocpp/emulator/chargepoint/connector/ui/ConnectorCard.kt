@@ -31,7 +31,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.toAmpString
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.designsystem.ui.component.toReadable
 import com.monta.ocpp.emulator.designsystem.ui.component.wattToKilowattString
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorDto
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
@@ -41,11 +41,11 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ConnectorCard(
-    initConnector: ChargePointConnectorSummary,
+    initConnector: ChargePointConnectorDto,
 ) {
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    var connector: ChargePointConnectorSummary by remember(initConnector.id) {
+    var connector: ChargePointConnectorDto by remember(initConnector.id) {
         mutableStateOf(initConnector)
     }
 

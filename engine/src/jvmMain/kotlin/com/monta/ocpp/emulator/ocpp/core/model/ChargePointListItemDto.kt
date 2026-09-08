@@ -8,13 +8,13 @@ import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
  * only the scalar columns the charge-point *list* views read — the table on the charge points screen
  * and the connected-charge-point tab strip on the detail page.
  *
- * Deliberately carries no connectors. [ChargePointSummary] traverses the connector rows, each
+ * Deliberately carries no connectors. [ChargePointDto] traverses the connector rows, each
  * connector's active transaction and a `sumOf` over its transaction history; the list views read
  * none of that, and their flow re-emits on every charge-point row change (which includes the
  * `messageCount` and `averageLatencyMillis` columns that tick on every OCPP message). Projecting the
  * whole graph to render a name and a status badge is why this type exists.
  */
-data class ChargePointListItem(
+data class ChargePointListItemDto(
     val id: Long,
     val name: String,
     val identity: String,
