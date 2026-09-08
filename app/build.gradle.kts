@@ -32,9 +32,6 @@ kotlin {
             // Navigation (type-safe routes are @Serializable, hence the serialization plugin above)
             implementation(libs.androidx.navigation.compose)
 
-            // OCPP libraries are consumed transitively via :engine's `api()` scope — the UI still
-            // constructs and sends OCPP messages directly (SendMessageWindow, the connection button),
-            // but no longer declares the dependency itself.
             // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
             implementation(libs.jackson3.databind)
 
