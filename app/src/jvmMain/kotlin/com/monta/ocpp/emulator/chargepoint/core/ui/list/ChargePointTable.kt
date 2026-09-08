@@ -40,7 +40,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -57,8 +57,8 @@ private val actionsColumnWidth: Dp = 132.dp
  */
 @Composable
 fun ChargePointTable(
-    chargePoints: List<ChargePointSummary>,
-    onRowClick: (ChargePointSummary) -> Unit,
+    chargePoints: List<ChargePointListItem>,
+    onRowClick: (ChargePointListItem) -> Unit,
 ) {
     SectionCard(
         modifier = Modifier.fillMaxWidth()
@@ -148,7 +148,7 @@ private fun HeaderCell(
 
 @Composable
 private fun TableRow(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointListItem,
     onClick: () -> Unit,
 ) {
     Row(
@@ -236,7 +236,10 @@ private fun TableRow(
             modifier = Modifier.width(actionsColumnWidth),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ChargePointConnectionButton(chargePoint)
+            ChargePointConnectionButton(
+                chargePointId = chargePoint.id,
+                connected = chargePoint.connected,
+            )
             ChargePointEditButton(chargePoint)
             ChargePointDeleteButton(chargePoint)
         }
@@ -245,7 +248,7 @@ private fun TableRow(
 
 @Composable
 private fun ChargePointEditButton(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointListItem,
 ) {
     val navigator: Navigator by injectAnywhere()
     IconButton(
@@ -263,8 +266,10 @@ private fun ChargePointEditButton(
 
 @Composable
 private fun ChargePointDeleteButton(
-    chargePoint: ChargePointSummary,
+    chargePoint: ChargePointListItem,
 ) {
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
+
     var alertVisible by remember {
         mutableStateOf(false)
     }
@@ -304,7 +309,6 @@ private fun ChargePointDeleteButton(
             DestructiveButton(
                 onClick = {
                     launchThread {
-                        val emulatorEngine: EmulatorEngine by injectAnywhere()
                         emulatorEngine.deleteChargePoint(chargePoint.id)
                         alertVisible = false
                     }

@@ -77,8 +77,7 @@ fun ColumnScope.ConnectorStateView(
                     onClick = {
                         launchThread {
                             emulatorEngine.setConnectorStatus(
-                                chargePointId = connector.chargePointId,
-                                connectorPosition = connector.position,
+                                connectorId = connector.id,
                                 status = connectorStatus,
                                 errorCode = errorCode,
                                 vendorId = if (vendorId.isNullOrBlank()) null else vendorId,

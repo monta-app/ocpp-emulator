@@ -57,8 +57,7 @@ fun BoxScope.authorizeComponent(
                     onClick = {
                         launchThread {
                             emulatorEngine.authorize(
-                                chargePointId = connector.chargePointId,
-                                connectorPosition = connector.position,
+                                connectorId = connector.id,
                                 idTag = idTag,
                             )
                             idTag = ""

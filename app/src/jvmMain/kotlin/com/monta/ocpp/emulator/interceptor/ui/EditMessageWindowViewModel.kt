@@ -14,37 +14,41 @@ import kotlin.time.Duration.Companion.seconds
 class EditMessageWindowViewModel : MessageEditPrompt {
     // Capacity-1 so `trySend` from the composable never suspends or drops while the channel is empty
     // (there is at most one pending edit at a time).
-    private var channel by mutableStateOf<Channel<String>?>(null)
+    private var pending by mutableStateOf<Channel<String>?>(null)
+
+    /** The payload being edited, bound two-way to the window's text field. */
     var message by mutableStateOf("")
 
     /** Whether an edit prompt is currently open — drives whether the window renders. */
     val isEditing: Boolean
-        get() = channel != null
+        get() = pending != null
 
+    /**
+     * [edit] owns the prompt's whole lifecycle: it opens the prompt, and its `finally` closes it on
+     * every exit path (confirmed, timed out, or cancelled). [submit] only delivers a value, so there
+     * is exactly one place that clears the state.
+     */
     override suspend fun edit(
         message: String,
         timeoutSeconds: Int,
     ): String {
         val channel = Channel<String>(capacity = 1)
-        this.channel = channel
+        pending = channel
         this.message = message
         return try {
             withTimeout(timeoutSeconds.seconds) {
                 channel.receive()
             }
         } catch (exception: TimeoutCancellationException) {
-            this.channel = null
-            this.message = ""
             message
+        } finally {
+            pending = null
+            this.message = ""
         }
     }
 
-    /** Completes the open edit prompt with [edited] and resets the window state. */
-    fun submit(
-        edited: String,
-    ) {
-        channel?.trySend(edited)
-        message = ""
-        channel = null
+    /** Completes the open edit prompt with whatever is currently in [message]. */
+    fun submit() {
+        pending?.trySend(message)
     }
 }

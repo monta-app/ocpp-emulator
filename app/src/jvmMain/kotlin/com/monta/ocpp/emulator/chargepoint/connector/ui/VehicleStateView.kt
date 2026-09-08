@@ -23,8 +23,7 @@ fun VehicleStateView(
         onSelect = { carState ->
             launchThread {
                 emulatorEngine.setConnectorCarState(
-                    chargePointId = connector.chargePointId,
-                    connectorPosition = connector.position,
+                    connectorId = connector.id,
                     carState = carState,
                 )
             }

@@ -289,7 +289,9 @@ private fun connect(
 }
 
 @Factory
-class ChargePointFormViewModel {
+class ChargePointFormViewModel(
+    private val emulatorEngine: EmulatorEngine,
+) {
 
     var form by mutableStateOf(Form())
     var initialized by mutableStateOf(false)
@@ -298,7 +300,6 @@ class ChargePointFormViewModel {
     val formErrors = mutableStateMapOf<String, String>()
 
     fun validateForm(): Boolean {
-        val emulatorEngine: EmulatorEngine by injectAnywhere()
         var hasErrors = false
 
         if (form.ocppUrl.isBlank()) {
@@ -309,16 +310,15 @@ class ChargePointFormViewModel {
             hasErrors = true
         }
 
+        val normalizedIdentity = emulatorEngine.normalizeChargePointIdentity(form.chargePointIdentity)
+
         if (form.chargePointIdentity.isBlank()) {
             formErrors["identity"] = "Cannot be blank or empty"
             hasErrors = true
         } else if (!isUpdating && emulatorEngine.isChargePointIdentityInUse(form.chargePointIdentity)) {
             formErrors["identity"] = "Identity already in use"
             hasErrors = true
-        } else if (form.urlChoice == UrlChoice.Production &&
-            !emulatorEngine.normalizeChargePointIdentity(form.chargePointIdentity)
-                .startsWith("MEM_")
-        ) {
+        } else if (form.urlChoice == UrlChoice.Production && !normalizedIdentity.startsWith("MEM_")) {
             formErrors["identity"] = "On production identity must begin with MEM_"
             hasErrors = true
         } else {

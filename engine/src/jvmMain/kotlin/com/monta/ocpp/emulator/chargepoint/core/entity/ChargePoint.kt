@@ -228,8 +228,10 @@ class ChargePointDAO(
         connectorId: Int,
     ): ChargePointConnectorDAO {
         return transaction {
-            val connector = connectors.firstOrNull { it.position == connectorId }
-            if (connector != null) return@transaction connector
+            val connector = connectors.firstOrNull { connector -> connector.position == connectorId }
+            if (connector != null) {
+                return@transaction connector
+            }
             return@transaction ChargePointConnectorDAO.newInstance(
                 chargePointId = this@ChargePointDAO.idValue,
                 chargePointIdentity = this@ChargePointDAO.identity,

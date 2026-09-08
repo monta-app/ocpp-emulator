@@ -102,7 +102,8 @@ fun chargePointComponent(
                     status = chargePoint.status,
                 )
                 ChargePointConnectionButton(
-                    chargePoint = chargePoint,
+                    chargePointId = chargePoint.id,
+                    connected = chargePoint.connected,
                 )
             }
         }

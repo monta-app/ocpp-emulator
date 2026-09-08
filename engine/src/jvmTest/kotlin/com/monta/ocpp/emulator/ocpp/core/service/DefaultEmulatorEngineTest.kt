@@ -65,31 +65,17 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
 
     describe("stopTransaction") {
 
-        it("throws the connector-not-found exception when the charge point cannot be resolved") {
+        it("throws the connector-not-found exception when the connector cannot be resolved") {
             shouldThrow<ChargePointConnectorNotFoundException> {
-                engine.stopTransaction(
-                    chargePointId = 999_999,
-                    connectorPosition = 1,
-                )
-            }
-        }
-
-        it("throws the connector-not-found exception when the connector position cannot be resolved") {
-            val chargePoint = seedChargePoint(connectorCount = 1)
-
-            shouldThrow<ChargePointConnectorNotFoundException> {
-                engine.stopTransaction(
-                    chargePointId = chargePoint.idValue,
-                    connectorPosition = 7,
-                )
+                engine.stopTransaction(connectorId = 999_999)
             }
         }
 
         it("forwards the given reason and description through to the stopped transaction") {
             val chargePoint = seedChargePoint(connectorCount = 1)
 
-            val transactionId = transaction {
-                val connector = chargePoint.connectors.first { it.position == 1 }
+            val (connectorId, transactionId) = transaction {
+                val connector = chargePoint.connectors.first { connector -> connector.position == 1 }
                 val activeTransaction = ChargePointTransactionDAO.newInstance(
                     chargePoint = chargePoint,
                     chargePointConnector = connector,
@@ -97,12 +83,11 @@ class DefaultEmulatorEngineTest : DatabaseSpec({
                     idTag = "TAG",
                 )
                 connector.activeTransaction = activeTransaction
-                activeTransaction.idValue
+                connector.idValue to activeTransaction.idValue
             }
 
             engine.stopTransaction(
-                chargePointId = chargePoint.idValue,
-                connectorPosition = 1,
+                connectorId = connectorId,
                 reason = Reason.EVDisconnected,
                 endReasonDescription = "Stopped by user",
             )

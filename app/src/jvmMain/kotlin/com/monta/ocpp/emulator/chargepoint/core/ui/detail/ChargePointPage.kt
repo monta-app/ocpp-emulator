@@ -38,6 +38,7 @@ import com.monta.ocpp.emulator.interceptor.ui.InterceptorConfigComponent
 import com.monta.ocpp.emulator.interceptor.ui.NavShape
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
 import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -63,7 +64,7 @@ fun ChargePointPage(
         emulatorEngine.connect(chargePointId)
     }
 
-    val chargePoints by produceState(listOf<ChargePointSummary>()) {
+    val chargePoints by produceState(listOf<ChargePointListItem>()) {
         emulatorEngine.observeChargePoints()
             .collectLatest { newList ->
                 value = newList
@@ -80,7 +81,7 @@ fun ChargePointPage(
 @Composable
 private fun innerChargePointPage(
     chargePoint: ChargePointSummary,
-    connectedChargePoints: List<ChargePointSummary>,
+    connectedChargePoints: List<ChargePointListItem>,
 ) {
     val navigator: Navigator by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()

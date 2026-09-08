@@ -16,6 +16,7 @@ import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
 import com.monta.ocpp.emulator.chargepoint.core.service.PreviousMessagesService
 import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
 import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
 import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
 import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
@@ -56,9 +57,9 @@ class DefaultEmulatorEngine(
 
     // region Queries
 
-    override fun observeChargePoints(): Flow<List<ChargePointSummary>> {
+    override fun observeChargePoints(): Flow<List<ChargePointListItem>> {
         return chargePointRepository.getAllFlow().map { chargePoints ->
-            chargePoints.map { chargePoint -> chargePoint.toSummary() }
+            chargePoints.map { chargePoint -> chargePoint.toListItem() }
         }
     }
 
@@ -71,10 +72,8 @@ class DefaultEmulatorEngine(
     }
 
     override fun observeConnector(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
     ): Flow<ChargePointConnectorSummary> {
-        val connectorId = requireConnector(chargePointId, connectorPosition).idValue
         return chargePointConnectorService.getByIdFlow(connectorId).map { connector ->
             connector.toSummary()
         }
@@ -84,6 +83,12 @@ class DefaultEmulatorEngine(
         chargePointId: Long,
     ): ChargePointSummary {
         return chargePointService.getById(chargePointId).toSummary()
+    }
+
+    override fun findChargePoint(
+        chargePointId: Long,
+    ): ChargePointSummary? {
+        return chargePointService.findById(chargePointId)?.toSummary()
     }
 
     override fun getPreviousMessages(
@@ -173,17 +178,6 @@ class DefaultEmulatorEngine(
         )
     }
 
-    override suspend fun authorize(
-        chargePointId: Long,
-        connectorPosition: Int,
-        idTag: String,
-    ) {
-        chargePointManager.authorize(
-            connector = requireConnector(chargePointId, connectorPosition),
-            idTag = idTag,
-        )
-    }
-
     override suspend fun sendSecurityEvent(
         chargePointId: Long,
         securityEvent: SecurityEvent,
@@ -200,31 +194,38 @@ class DefaultEmulatorEngine(
 
     // region Connector commands
 
+    override suspend fun authorize(
+        connectorId: Long,
+        idTag: String,
+    ) {
+        chargePointManager.authorize(
+            connector = requireConnector(connectorId),
+            idTag = idTag,
+        )
+    }
+
     override suspend fun stopTransaction(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         reason: Reason,
         endReasonDescription: String?,
     ) {
-        requireConnector(chargePointId, connectorPosition).stopActiveTransactions(
+        requireConnector(connectorId).stopActiveTransactions(
             reason = reason,
             endReasonDescription = endReasonDescription,
         )
     }
 
     override suspend fun setConnectorCarState(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         carState: CarState,
     ) {
-        requireConnector(chargePointId, connectorPosition).setConnectorCarState(
+        requireConnector(connectorId).setConnectorCarState(
             carState = carState,
         )
     }
 
     override suspend fun setConnectorStatus(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         status: ChargePointStatus,
         errorCode: ChargePointErrorCode,
         vendorId: String?,
@@ -232,7 +233,7 @@ class DefaultEmulatorEngine(
         info: String?,
         forceUpdate: Boolean,
     ) {
-        requireConnector(chargePointId, connectorPosition).setStatus(
+        requireConnector(connectorId).setStatus(
             status = status,
             errorCode = errorCode,
             vendorId = vendorId,
@@ -243,21 +244,19 @@ class DefaultEmulatorEngine(
     }
 
     override suspend fun setConnectorMaxVehicleRate(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         amps: Double,
     ) {
-        requireConnector(chargePointId, connectorPosition).setMaxVehicleRate(
+        requireConnector(connectorId).setMaxVehicleRate(
             amps = amps,
         )
     }
 
     override suspend fun setConnectorNumberPhases(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         numberPhases: Int,
     ) {
-        requireConnector(chargePointId, connectorPosition).setNumberPhases(
+        requireConnector(connectorId).setNumberPhases(
             numberPhases = numberPhases,
         )
     }
@@ -299,15 +298,12 @@ class DefaultEmulatorEngine(
     // endregion
 
     private fun requireConnector(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
     ): ChargePointConnectorDAO {
-        return chargePointConnectorService.get(
-            chargePointId = chargePointId,
-            connectorId = connectorPosition,
-        ) ?: throw ChargePointConnectorNotFoundException(
-            chargePointId = chargePointId,
-            connectorPosition = connectorPosition,
-        )
+        val connector = chargePointConnectorService.getById(connectorId)
+        if (connector == null) {
+            throw ChargePointConnectorNotFoundException(connectorId)
+        }
+        return connector
     }
 }

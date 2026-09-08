@@ -117,10 +117,17 @@ class ChargePointConnectorDAO(
     }
 
     val meterWh: Double
-        get() = transactions.sumOf { it.endMeter }
+        get() = transactions.sumOf { transaction -> transaction.endMeter }
     val wattHoursPerSecond: Double
         get() = (kw / 60.0 / 60.0) * 1000.0
-    val hasActiveTransaction: Boolean
+
+    /**
+     * Whether this connector has any *open* transaction rows (`endTime == null`) — a query over the
+     * transaction table. Distinct from `ChargePointConnectorSummary.hasActiveTransaction`, which
+     * reports whether the connector's `activeTransaction` foreign key is set; the two can disagree,
+     * so they are deliberately named apart.
+     */
+    val hasOpenTransactions: Boolean
         get() = activeTransactions.isNotEmpty()
 
     override fun chargePointId(): Long {
@@ -140,13 +147,21 @@ class ChargePointConnectorDAO(
             CarState.B -> if (transaction { activeTransaction } != null) {
                 getSuspendedState() ?: ChargePointStatus.SuspendedEV
             } else {
-                if (justStopped) ChargePointStatus.Finishing else ChargePointStatus.Preparing
+                if (justStopped) {
+                    ChargePointStatus.Finishing
+                } else {
+                    ChargePointStatus.Preparing
+                }
             }
 
             CarState.C -> if (transaction { activeTransaction } != null) {
                 getSuspendedState() ?: ChargePointStatus.Charging
             } else {
-                if (justStopped) ChargePointStatus.Finishing else ChargePointStatus.Preparing
+                if (justStopped) {
+                    ChargePointStatus.Finishing
+                } else {
+                    ChargePointStatus.Preparing
+                }
             }
         }
     }

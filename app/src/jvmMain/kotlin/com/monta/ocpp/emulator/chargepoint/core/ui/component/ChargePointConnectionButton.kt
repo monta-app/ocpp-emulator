@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.monta.ocpp.emulator.designsystem.ui.component.MontaStateIcon
 import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
-import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 
@@ -15,14 +14,15 @@ import com.monta.ocpp.emulator.platform.util.injectAnywhere
  */
 @Composable
 fun ChargePointConnectionButton(
-    chargePoint: ChargePointSummary,
+    chargePointId: Long,
+    connected: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 
     TextTooltip(
         modifier = modifier,
-        text = if (chargePoint.connected) {
+        text = if (connected) {
             "Disconnect charge point"
         } else {
             "Connect charge point"
@@ -30,15 +30,15 @@ fun ChargePointConnectionButton(
     ) {
         IconButton(
             onClick = {
-                if (chargePoint.connected) {
-                    emulatorEngine.disconnect(chargePoint.id)
+                if (connected) {
+                    emulatorEngine.disconnect(chargePointId)
                 } else {
-                    emulatorEngine.connect(chargePoint.id)
+                    emulatorEngine.connect(chargePointId)
                 }
             },
         ) {
             MontaStateIcon(
-                state = chargePoint.connected,
+                state = connected,
                 onState = "stop_circle",
                 offState = "play_circle",
             )

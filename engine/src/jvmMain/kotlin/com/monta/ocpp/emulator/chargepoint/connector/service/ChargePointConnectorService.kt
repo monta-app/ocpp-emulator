@@ -24,6 +24,14 @@ class ChargePointConnectorService(
         }
     }
 
+    fun getById(
+        id: Long,
+    ): ChargePointConnectorDAO? {
+        return transaction {
+            chargePointConnectorRepository.getById(id)
+        }
+    }
+
     fun getByIdFlow(
         id: Long,
     ): Flow<ChargePointConnectorDAO> {

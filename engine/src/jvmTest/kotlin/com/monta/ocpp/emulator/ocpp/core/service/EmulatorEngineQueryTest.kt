@@ -4,6 +4,7 @@ import com.monta.library.ocpp.v16.core.ChargePointStatus
 import com.monta.ocpp.emulator.chargepoint.connector.repository.ChargePointConnectorRepository
 import com.monta.ocpp.emulator.chargepoint.connector.service.ChargePointConnectorService
 import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
+import com.monta.ocpp.emulator.chargepoint.core.exception.ChargePointNotFoundException
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
@@ -15,6 +16,7 @@ import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
 import com.monta.ocpp.emulator.ocpp.v16.service.ChargePointManager
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.testsupport.DatabaseSpec
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -81,14 +83,27 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             summary.meterType shouldBe MeterType.OCPP
             summary.ocppVersion shouldBe OcppVersion.V16
             summary.connectorCount shouldBe 2
-            summary.connectors.map { it.position } shouldContainExactly listOf(1, 2)
+            summary.connectors.map { connector -> connector.position } shouldContainExactly listOf(1, 2)
             summary.connectors.first().status shouldBe ChargePointStatus.Available
         }
 
         it("throws when the charge point cannot be resolved") {
-            io.kotest.assertions.throwables.shouldThrow<Exception> {
+            shouldThrow<ChargePointNotFoundException> {
                 engine.getChargePoint(999_999)
             }
+        }
+    }
+
+    describe("findChargePoint") {
+
+        it("returns the summary when the charge point exists") {
+            val chargePoint = seedChargePoint()
+
+            engine.findChargePoint(chargePoint.idValue).shouldNotBeNull().identity shouldBe "MEM_001"
+        }
+
+        it("returns null instead of throwing when it does not") {
+            engine.findChargePoint(999_999).shouldBeNull()
         }
     }
 
@@ -98,7 +113,7 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             val chargePoint = seedChargePoint(connectorCount = 1)
 
             transaction {
-                val connector = chargePoint.connectors.first { it.position == 1 }
+                val connector = chargePoint.connectors.first { connector -> connector.position == 1 }
                 val activeTransaction = ChargePointTransactionDAO.newInstance(
                     chargePoint = chargePoint,
                     chargePointConnector = connector,
@@ -135,7 +150,7 @@ class EmulatorEngineQueryTest : DatabaseSpec({
 
             val summaries = engine.observeChargePoints().first()
 
-            summaries.map { it.identity }.sorted() shouldContainExactly listOf("MEM_001", "MEM_002")
+            summaries.map { summary -> summary.identity }.sorted() shouldContainExactly listOf("MEM_001", "MEM_002")
         }
     }
 
@@ -146,7 +161,7 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             val chargePointId = chargePoint.idValue
 
             transaction {
-                val connector = chargePoint.connectors.first { it.position == 1 }
+                val connector = chargePoint.connectors.first { connector -> connector.position == 1 }
                 ChargePointTransactionDAO.newInstance(
                     chargePoint = chargePoint,
                     chargePointConnector = connector,
@@ -171,11 +186,11 @@ class EmulatorEngineQueryTest : DatabaseSpec({
             engine.savePreviousMessage(messageType = "Heartbeat", message = "second")
 
             val stored = engine.getPreviousMessages("Heartbeat")
-            stored.map { it.message } shouldContainExactly listOf("second", "first")
+            stored.map { previousMessage -> previousMessage.message } shouldContainExactly listOf("second", "first")
 
-            engine.deletePreviousMessage(stored.first { it.message == "second" }.id)
+            engine.deletePreviousMessage(stored.first { previousMessage -> previousMessage.message == "second" }.id)
 
-            engine.getPreviousMessages("Heartbeat").map { it.message } shouldContainExactly listOf("first")
+            engine.getPreviousMessages("Heartbeat").map { previousMessage -> previousMessage.message } shouldContainExactly listOf("first")
         }
     }
 })

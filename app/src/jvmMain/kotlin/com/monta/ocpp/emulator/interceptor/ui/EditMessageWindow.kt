@@ -51,7 +51,7 @@ fun ApplicationScope.EditMessageWindow() {
         title = "Edit Message",
         state = windowState,
         onCloseRequest = {
-            editMessageWindowViewModel.submit(editMessageWindowViewModel.message)
+            editMessageWindowViewModel.submit()
         },
     ) {
         MaterialTheme(
@@ -81,7 +81,7 @@ fun ApplicationScope.EditMessageWindow() {
                             )
                             Button(
                                 onClick = {
-                                    editMessageWindowViewModel.submit(editMessageWindowViewModel.message)
+                                    editMessageWindowViewModel.submit()
                                 },
                             ) {
                                 Text("Confirm")

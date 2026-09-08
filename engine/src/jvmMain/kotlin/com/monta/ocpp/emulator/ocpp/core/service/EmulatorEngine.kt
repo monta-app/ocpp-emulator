@@ -8,6 +8,7 @@ import com.monta.ocpp.emulator.chargepoint.connector.model.CarState
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.SecurityEvent
 import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointListItem
 import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
 import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
 import kotlinx.coroutines.flow.Flow
@@ -15,14 +16,18 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Headless entry point for driving the emulator.
  *
- * This is the module boundary for `:engine`: every read the UI needs is a [Flow] of `@Serializable`
- * DTO ([ChargePointSummary], [ChargePointConnectorSummary], …) and every mutation is a command that
- * addresses charge points by their numeric id. No Exposed DAO and no OCPP-protocol machinery
+ * This is the module boundary for `:engine`: every read the UI needs is a [Flow] of a plain DTO
+ * ([ChargePointSummary], [ChargePointConnectorSummary], …) and every mutation is a command
+ * addressing rows by their numeric id. No Exposed DAO and no OCPP-protocol machinery
  * (`ConnectionManager`, the DAO extensions) crosses this interface — callers (the Compose UI today,
  * tests, any future headless driver) never touch the persistence or protocol layers directly.
  *
  * The facade holds no logic of its own: every member delegates to an existing engine
  * service/repository or maps a DAO to its DTO.
+ *
+ * Rows are addressed the same way throughout: charge points by `chargePointId`, connectors by
+ * `connectorId`. Callers always hold the DTO they are acting on, and every DTO carries its own `id`,
+ * so no command has to re-resolve a row from a composite (charge point, position) key.
  *
  * The one deliberate OCPP-library leak is [sendRawMessage], whose [Message] argument is the raw
  * protocol envelope the Send Message window builds by hand — that window bypasses the emulator state
@@ -32,8 +37,12 @@ interface EmulatorEngine {
 
     // region Queries — observable, DTO-projected reads
 
-    /** Cold flow of every charge point, re-emitted whenever any charge point row changes. */
-    fun observeChargePoints(): Flow<List<ChargePointSummary>>
+    /**
+     * Cold flow of every charge point as a lightweight [ChargePointListItem], re-emitted whenever any
+     * charge point row changes. Carries no connectors — use [observeChargePoint] when those are
+     * needed, so listing never pays for the connector and transaction traversal.
+     */
+    fun observeChargePoints(): Flow<List<ChargePointListItem>>
 
     /** Cold flow of a single charge point (and its connectors), re-emitted on any change to it. */
     fun observeChargePoint(
@@ -42,14 +51,18 @@ interface EmulatorEngine {
 
     /** Cold flow of a single connector, re-emitted whenever that connector row changes. */
     fun observeConnector(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
     ): Flow<ChargePointConnectorSummary>
 
     /** Point-in-time snapshot of a charge point. Throws if it cannot be resolved. */
     fun getChargePoint(
         chargePointId: Long,
     ): ChargePointSummary
+
+    /** Point-in-time snapshot of a charge point, or `null` if no such charge point exists. */
+    fun findChargePoint(
+        chargePointId: Long,
+    ): ChargePointSummary?
 
     /** The stored raw-message templates for a given OCPP action, newest first. */
     fun getPreviousMessages(
@@ -117,13 +130,6 @@ interface EmulatorEngine {
         status: ChargePointStatus,
     )
 
-    /** Presents an RFID id tag on a connector, starting a transaction if the CSMS accepts it. */
-    suspend fun authorize(
-        chargePointId: Long,
-        connectorPosition: Int,
-        idTag: String,
-    )
-
     /** Sends a SecurityEventNotification for the charge point. */
     suspend fun sendSecurityEvent(
         chargePointId: Long,
@@ -135,29 +141,32 @@ interface EmulatorEngine {
 
     // region Connector commands
 
+    /** Presents an RFID id tag on a connector, starting a transaction if the CSMS accepts it. */
+    suspend fun authorize(
+        connectorId: Long,
+        idTag: String,
+    )
+
     /**
      * Stops every active transaction on the given connector, forwarding [reason] and
      * [endReasonDescription] verbatim so the CSMS and the persisted transaction record the caller's
      * intent rather than a hardcoded default.
      */
     suspend fun stopTransaction(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         reason: Reason = Reason.Local,
         endReasonDescription: String? = null,
     )
 
     /** Sets the connector's car state (A/B/C) and recalculates the resulting connector status. */
     suspend fun setConnectorCarState(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         carState: CarState,
     )
 
     /** Pushes an explicit StatusNotification for a connector. */
     suspend fun setConnectorStatus(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         status: ChargePointStatus,
         errorCode: ChargePointErrorCode = ChargePointErrorCode.NoError,
         vendorId: String? = null,
@@ -168,15 +177,13 @@ interface EmulatorEngine {
 
     /** Sets the connector's simulated vehicle max amps per phase and recalculates status. */
     suspend fun setConnectorMaxVehicleRate(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         amps: Double,
     )
 
     /** Sets the connector's simulated vehicle phase count. */
     suspend fun setConnectorNumberPhases(
-        chargePointId: Long,
-        connectorPosition: Int,
+        connectorId: Long,
         numberPhases: Int,
     )
 

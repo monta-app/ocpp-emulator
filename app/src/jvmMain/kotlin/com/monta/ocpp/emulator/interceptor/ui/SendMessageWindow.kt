@@ -78,6 +78,8 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.navigation.service.Navigator
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
 import com.monta.ocpp.emulator.ocpp.core.model.PreviousMessageSummary
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.ocpp.v16.scheduler.MeterValuesGenerator
@@ -241,6 +243,18 @@ fun ApplicationScope.SendMessageWindow() {
     }
 }
 
+/**
+ * The connector a hand-built preview payload should describe: the one currently charging, falling
+ * back to connector 1 when nothing is. Null only if the charge point has no connectors at all.
+ */
+private fun ChargePointSummary.previewConnector(): ChargePointConnectorSummary? {
+    val charging = connectors.firstOrNull { connector -> connector.hasActiveTransaction }
+    if (charging != null) {
+        return charging
+    }
+    return connectors.firstOrNull { connector -> connector.position == 1 }
+}
+
 fun defaultPayload(
     messageType: Feature,
 ): String {
@@ -251,9 +265,10 @@ fun defaultPayload(
         navigator.requireChargePointId(),
     )
 
-    val transaction = chargePoint.connectors
-        .firstOrNull { it.activeTransaction != null }
-        ?.activeTransaction
+    // Resolved once and reused below, so the payload fields read from the connector we already have
+    // rather than looking it up again by position for each field.
+    val connector = chargePoint.previewConnector()
+    val transaction = connector?.activeTransaction
 
     val request = when (messageType) {
         AuthorizeFeature -> AuthorizeRequest("")
@@ -285,10 +300,7 @@ fun defaultPayload(
                         meterValuesSampledData = chargePoint.meterValuesSampledData,
                         startTime = transaction?.startTime,
                         endMeter = transaction?.endMeter ?: 0.0,
-                        watts = (
-                            chargePoint.connectors
-                                .firstOrNull { it.position == (transaction?.connectorPosition ?: 1) }?.kw ?: 0.0
-                            ) * 1000,
+                        watts = (connector?.kw ?: 0.0) * 1000,
                         meterType = chargePoint.meterType,
                     ),
                 ),
@@ -310,10 +322,7 @@ fun defaultPayload(
 
         StopTransactionFeature -> StopTransactionRequest(
             idTag = transaction?.idTag,
-            meterStop = (
-                chargePoint.connectors
-                    .firstOrNull { it.position == (transaction?.connectorPosition ?: 1) }?.meterWh ?: 0.0
-                ).toInt(),
+            meterStop = (connector?.meterWh ?: 0.0).toInt(),
             timestamp = ZonedDateTime.now(),
             transactionId = transaction?.id?.toInt() ?: 0,
             transactionData = listOf(

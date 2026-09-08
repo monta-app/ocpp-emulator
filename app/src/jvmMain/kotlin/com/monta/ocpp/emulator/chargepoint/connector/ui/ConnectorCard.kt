@@ -56,12 +56,10 @@ fun ConnectorCard(
     }
 
     LaunchedEffect(connector.id) {
-        emulatorEngine.observeConnector(
-            chargePointId = connector.chargePointId,
-            connectorPosition = connector.position,
-        ).collectLatest {
-            connector = it
-        }
+        emulatorEngine.observeConnector(connector.id)
+            .collectLatest {
+                connector = it
+            }
     }
 
     val activeTransaction = connector.activeTransaction
@@ -130,8 +128,7 @@ fun ConnectorCard(
             ) { newValue ->
                 launchThread {
                     emulatorEngine.setConnectorNumberPhases(
-                        chargePointId = connector.chargePointId,
-                        connectorPosition = connector.position,
+                        connectorId = connector.id,
                         numberPhases = newValue,
                     )
                 }
@@ -151,8 +148,7 @@ fun ConnectorCard(
                 onValueChangeFinished = {
                     launchThread {
                         emulatorEngine.setConnectorMaxVehicleRate(
-                            chargePointId = connector.chargePointId,
-                            connectorPosition = connector.position,
+                            connectorId = connector.id,
                             amps = maxAmpsPerPhase.toDouble(),
                         )
                     }
@@ -173,8 +169,7 @@ fun ConnectorCard(
                     onClick = {
                         launchThread {
                             emulatorEngine.stopTransaction(
-                                chargePointId = connector.chargePointId,
-                                connectorPosition = connector.position,
+                                connectorId = connector.id,
                                 reason = Reason.Local,
                                 endReasonDescription = "Stopped by user",
                             )

@@ -17,34 +17,53 @@ class ChargePointService(
         id: Long,
     ): ChargePointDAO = transaction {
         val chargePoint = chargePointRepository.getById(id)
-        if (chargePoint == null) throw ChargePointNotFoundException()
+        if (chargePoint == null) {
+            throw ChargePointNotFoundException()
+        }
         return@transaction chargePoint
+    }
+
+    /** The charge point with this id, or `null` if there is none. */
+    fun findById(
+        id: Long,
+    ): ChargePointDAO? {
+        return transaction {
+            chargePointRepository.getById(id)
+        }
     }
 
     fun getByIdentity(
         identity: String,
     ): ChargePointDAO = transaction {
         val chargePoint = chargePointRepository.getByIdentity(identity)
-        if (chargePoint == null) throw ChargePointNotFoundException()
+        if (chargePoint == null) {
+            throw ChargePointNotFoundException()
+        }
         return@transaction chargePoint
     }
 
     /** Whether a charge point already exists with the given identity (compared in normalised form). */
     fun isIdentityInUse(
         identity: String,
-    ): Boolean = transaction {
-        chargePointRepository.getByIdentity(identity) != null
+    ): Boolean {
+        return transaction {
+            chargePointRepository.getByIdentity(identity) != null
+        }
     }
 
     /** The ids of every charge point currently marked connected. */
-    fun getConnectedChargePointIds(): List<Long> = transaction {
-        chargePointRepository.getConnectedChargePoints().map { it.idValue }
+    fun getConnectedChargePointIds(): List<Long> {
+        return transaction {
+            chargePointRepository.getConnectedChargePoints().map { chargePoint -> chargePoint.idValue }
+        }
     }
 
     /** The stored (trimmed, upper-cased) form of an identity, for callers that need to match it. */
     fun normalizeIdentity(
         identity: String,
-    ): String = ChargePointDAO.normalizeIdentity(identity)
+    ): String {
+        return ChargePointDAO.normalizeIdentity(identity)
+    }
 
     fun upsert(
         name: String,
@@ -74,7 +93,7 @@ class ChargePointService(
                 chargePoint.getConnector(connectorId)
             }
             val connectors = chargePoint.connectors
-            connectors.filter { it.position > connectorCount }.forEach { connector ->
+            connectors.filter { connector -> connector.position > connectorCount }.forEach { connector ->
                 connector.transactions.forEach { transaction ->
                     transaction.delete()
                 }

@@ -45,7 +45,7 @@ class ChargePointConfiguration : HashMap<String, String?>() {
     val meterValueSampleInterval: Long
         get() = this["MeterValueSampleInterval"]?.toLongOrNull() ?: 0L
     val meterValuesSampledData: List<String>
-        get() = this["MeterValuesSampledData"]?.split(",")?.map { it.trim() } ?: listOf()
+        get() = this["MeterValuesSampledData"]?.split(",")?.map { value -> value.trim() } ?: listOf()
 
     var eichrechtKey: EichrechtKey
         set(value) {

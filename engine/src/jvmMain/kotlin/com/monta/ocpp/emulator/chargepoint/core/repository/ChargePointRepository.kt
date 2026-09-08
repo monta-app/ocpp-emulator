@@ -107,8 +107,8 @@ class ChargePointRepository {
         chargePointId: Long,
     ) {
         transaction {
-            ChargePointTable.update({ ChargePointTable.id eq chargePointId }) {
-                it[bootedAt] = null
+            ChargePointTable.update({ ChargePointTable.id eq chargePointId }) { statement ->
+                statement[bootedAt] = null
             }
         }
     }

@@ -7,8 +7,6 @@ import com.monta.library.ocpp.v16.firmware.FirmwareStatusNotificationStatus
 import com.monta.ocpp.emulator.chargepoint.core.model.ChargePointMode
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
-import kotlinx.serialization.Contextual
-import kotlinx.serialization.Serializable
 import java.time.Instant
 
 /**
@@ -16,11 +14,10 @@ import java.time.Instant
  * connectors, exposed by [com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine] so the UI can
  * render a charge point without touching Exposed DAOs.
  *
- * Everything the charge-point list, detail, form, display, PBM and send-message screens read is here.
- * OCPP-domain enums and [Instant] carry `@Contextual` (their serializers live outside this module);
- * the engine's own enums ([OcppVersion], [ChargePointMode], [MeterType]) serialize natively.
+ * Everything the charge-point detail, form, display, PBM and send-message screens read is here,
+ * including the full connector list. The charge-point *list* screens take the lighter
+ * [ChargePointListItem] instead, so listing never pays for the connector/transaction traversal.
  */
-@Serializable
 data class ChargePointSummary(
     val id: Long,
     val name: String,
@@ -31,14 +28,14 @@ data class ChargePointSummary(
     val operationMode: ChargePointMode,
     val maxKw: Double,
     val connected: Boolean,
-    @Contextual val status: ChargePointStatus,
-    @Contextual val statusAt: Instant,
+    val status: ChargePointStatus,
+    val statusAt: Instant,
     val averageLatencyMillis: Long,
     val messageCount: Int,
     val firmware: String,
-    @Contextual val firmwareStatus: FirmwareStatusNotificationStatus,
-    @Contextual val diagnosticsStatus: DiagnosticsStatusNotificationStatus,
-    @Contextual val errorCode: ChargePointErrorCode,
+    val firmwareStatus: FirmwareStatusNotificationStatus,
+    val diagnosticsStatus: DiagnosticsStatusNotificationStatus,
+    val errorCode: ChargePointErrorCode,
     val displayText: String,
     val brand: String,
     val model: String,

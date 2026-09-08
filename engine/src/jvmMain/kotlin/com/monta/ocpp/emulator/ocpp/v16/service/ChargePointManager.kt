@@ -159,7 +159,8 @@ class ChargePointManager {
         val meterValuesSampledData = chargePoint.configuration.meterValuesSampledData
         for (connector in connectors) {
             val activeTx = transaction {
-                chargePoint.getActiveTransactions().firstOrNull { it.connectorPosition == connector.position }
+                chargePoint.getActiveTransactions()
+                    .firstOrNull { transaction -> transaction.connectorPosition == connector.position }
             }
             val watts = connector.kw * 1000
             try {

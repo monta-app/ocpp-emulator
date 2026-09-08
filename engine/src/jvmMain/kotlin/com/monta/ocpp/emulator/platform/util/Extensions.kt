@@ -10,7 +10,7 @@ fun randomString(
 ) = ThreadLocalRandom.current()
     .ints(length.toLong(), 0, charPool.size)
     .asSequence()
-    .map {
-        charPool[it].uppercase()
+    .map { index ->
+        charPool[index].uppercase()
     }
     .joinToString("")

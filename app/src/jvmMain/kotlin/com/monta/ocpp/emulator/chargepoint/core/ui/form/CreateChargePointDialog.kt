@@ -28,7 +28,7 @@ fun CreateChargePointDialog(
 
     val chargePoint by produceState<ChargePointSummary?>(initialValue = null, chargePointId) {
         value = chargePointId?.let { id ->
-            runCatching { emulatorEngine.getChargePoint(id) }.getOrNull()
+            emulatorEngine.findChargePoint(id)
         }
     }
 
