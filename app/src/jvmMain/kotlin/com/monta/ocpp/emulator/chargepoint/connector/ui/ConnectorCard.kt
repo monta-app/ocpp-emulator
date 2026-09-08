@@ -12,15 +12,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.Reason
-import com.monta.ocpp.emulator.chargepoint.connector.entity.ChargePointConnectorDAO
-import com.monta.ocpp.emulator.chargepoint.connector.service.ChargePointConnectorService
 import com.monta.ocpp.emulator.chargepoint.core.ui.component.StatusBadge
 import com.monta.ocpp.emulator.chargepoint.core.ui.detail.authorizeComponent
 import com.monta.ocpp.emulator.designsystem.ui.component.CardDivider
@@ -34,27 +31,21 @@ import com.monta.ocpp.emulator.designsystem.ui.component.toAmpString
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.designsystem.ui.component.toReadable
 import com.monta.ocpp.emulator.designsystem.ui.component.wattToKilowattString
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointConnectorSummary
 import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
-import com.monta.ocpp.emulator.ocpp.v16.extension.setMaxVehicleRate
-import com.monta.ocpp.emulator.ocpp.v16.extension.setNumberPhases
-import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 @Composable
 fun ConnectorCard(
-    initConnector: ChargePointConnectorDAO,
+    initConnector: ChargePointConnectorSummary,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val chargePointConnectorService: ChargePointConnectorService by injectAnywhere()
     val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    var connector: ChargePointConnectorDAO by remember(initConnector.idValue) {
+    var connector: ChargePointConnectorSummary by remember(initConnector.id) {
         mutableStateOf(initConnector)
     }
 
@@ -64,20 +55,16 @@ fun ConnectorCard(
         )
     }
 
-    LaunchedEffect(connector.idValue) {
-        coroutineScope.launch {
-            chargePointConnectorService.getByIdFlow(
-                coroutineScope = coroutineScope,
-                id = initConnector.idValue,
-            ).collectLatest {
-                connector = it
-            }
+    LaunchedEffect(connector.id) {
+        emulatorEngine.observeConnector(
+            chargePointId = connector.chargePointId,
+            connectorPosition = connector.position,
+        ).collectLatest {
+            connector = it
         }
     }
 
-    val activeTransaction = transaction {
-        connector.activeTransaction
-    }
+    val activeTransaction = connector.activeTransaction
 
     SectionCard(
         modifier = Modifier.fillMaxWidth(),
@@ -142,7 +129,11 @@ fun ConnectorCard(
                 render = { it.toString() },
             ) { newValue ->
                 launchThread {
-                    connector.setNumberPhases(newValue)
+                    emulatorEngine.setConnectorNumberPhases(
+                        chargePointId = connector.chargePointId,
+                        connectorPosition = connector.position,
+                        numberPhases = newValue,
+                    )
                 }
             }
             Text(
@@ -159,7 +150,9 @@ fun ConnectorCard(
                 },
                 onValueChangeFinished = {
                     launchThread {
-                        connector.setMaxVehicleRate(
+                        emulatorEngine.setConnectorMaxVehicleRate(
+                            chargePointId = connector.chargePointId,
+                            connectorPosition = connector.position,
                             amps = maxAmpsPerPhase.toDouble(),
                         )
                     }
@@ -167,7 +160,7 @@ fun ConnectorCard(
             )
         }
 
-        if (connector.activeTransactionId != null) {
+        if (connector.hasActiveTransaction) {
             CardDivider()
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -180,7 +173,7 @@ fun ConnectorCard(
                     onClick = {
                         launchThread {
                             emulatorEngine.stopTransaction(
-                                chargePointId = connector.chargePointId(),
+                                chargePointId = connector.chargePointId,
                                 connectorPosition = connector.position,
                                 reason = Reason.Local,
                                 endReasonDescription = "Stopped by user",

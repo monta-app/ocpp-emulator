@@ -31,14 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
-import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
 import com.monta.ocpp.emulator.interceptor.ui.BasePage
 import com.monta.ocpp.emulator.interceptor.ui.BottomNavDestination
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.platform.database.extension.idValue
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.flow.collectLatest
 
@@ -131,10 +130,10 @@ private fun ChargePointsListView(
     val coroutineScope = rememberCoroutineScope()
 
     val navigator: Navigator by injectAnywhere()
-    val chargePointRepository: ChargePointRepository by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
-    val chargePoints by produceState(initialValue = listOf<ChargePointDAO>()) {
-        chargePointRepository.getAllFlow(coroutineScope)
+    val chargePoints by produceState(initialValue = listOf<ChargePointSummary>()) {
+        emulatorEngine.observeChargePoints()
             .collectLatest { newList ->
                 value = newList
             }
@@ -150,7 +149,7 @@ private fun ChargePointsListView(
         onRowClick = { chargePoint ->
             navigator.navigate(
                 Screen.ChargePoint(
-                    chargePointId = chargePoint.idValue,
+                    chargePointId = chargePoint.id,
                 ),
             )
         },
@@ -158,10 +157,9 @@ private fun ChargePointsListView(
 }
 
 // Helper extension function to filter charge points based on the search query
-private fun ChargePointDAO.matchesSearchQuery(
+private fun ChargePointSummary.matchesSearchQuery(
     query: String,
 ): Boolean {
-    // Adjust the logic here based on your ChargePointDAO structure
     if (query.isEmpty()) {
         return true
     }

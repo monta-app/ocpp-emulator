@@ -20,11 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointTable
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.model.OcppVersion
-import com.monta.ocpp.emulator.chargepoint.core.service.ChargePointService
 import com.monta.ocpp.emulator.designsystem.ui.component.DialogSurface
 import com.monta.ocpp.emulator.designsystem.ui.component.FormInput
 import com.monta.ocpp.emulator.designsystem.ui.component.LabelledCheckBox
@@ -34,21 +31,21 @@ import com.monta.ocpp.emulator.designsystem.ui.component.PasswordField
 import com.monta.ocpp.emulator.designsystem.ui.component.PrimaryButton
 import com.monta.ocpp.emulator.designsystem.ui.component.SegmentedToggle
 import com.monta.ocpp.emulator.designsystem.ui.component.Spinner
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.core.annotation.Factory
 
 @Composable
 fun ChargePointForm(
     viewModel: ChargePointFormViewModel,
-    chargePoint: ChargePointDAO?,
+    chargePoint: ChargePointSummary?,
     onClose: () -> Unit,
 ) {
     chargePoint?.let {
         if (!viewModel.initialized) {
-            viewModel.form.updateFromDAO(it)
+            viewModel.form.updateFrom(it)
             viewModel.form = viewModel.form.copy()
             viewModel.initialized = true
             viewModel.isUpdating = true
@@ -270,13 +267,13 @@ private fun connect(
     viewModel: ChargePointFormViewModel,
     onClose: () -> Unit,
 ) {
-    val chargePointService: ChargePointService by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
     if (viewModel.validateForm()) {
         return
     }
 
-    chargePointService.upsert(
+    emulatorEngine.upsertChargePoint(
         name = viewModel.form.chargePointName,
         identity = viewModel.form.chargePointIdentity,
         password = viewModel.form.password.takeIf { it.isNotBlank() },
@@ -301,6 +298,7 @@ class ChargePointFormViewModel {
     val formErrors = mutableStateMapOf<String, String>()
 
     fun validateForm(): Boolean {
+        val emulatorEngine: EmulatorEngine by injectAnywhere()
         var hasErrors = false
 
         if (form.ocppUrl.isBlank()) {
@@ -314,17 +312,11 @@ class ChargePointFormViewModel {
         if (form.chargePointIdentity.isBlank()) {
             formErrors["identity"] = "Cannot be blank or empty"
             hasErrors = true
-        } else if (!isUpdating &&
-            transaction {
-                ChargePointDAO.count(
-                    ChargePointTable.identity eq ChargePointDAO.normalizeIdentity(form.chargePointIdentity),
-                ) != 0L
-            }
-        ) {
+        } else if (!isUpdating && emulatorEngine.isChargePointIdentityInUse(form.chargePointIdentity)) {
             formErrors["identity"] = "Identity already in use"
             hasErrors = true
         } else if (form.urlChoice == UrlChoice.Production &&
-            !ChargePointDAO.normalizeIdentity(form.chargePointIdentity)
+            !emulatorEngine.normalizeChargePointIdentity(form.chargePointIdentity)
                 .startsWith("MEM_")
         ) {
             formErrors["identity"] = "On production identity must begin with MEM_"
@@ -351,22 +343,20 @@ class ChargePointFormViewModel {
         var ocppVersion: OcppVersion = OcppVersion.V16,
         var meterType: MeterType = MeterType.OCPP,
     ) {
-        fun updateFromDAO(
-            chargePoint: ChargePointDAO,
+        fun updateFrom(
+            summary: ChargePointSummary,
         ) {
-            this.chargePointName = chargePoint.name
-            this.chargePointIdentity = chargePoint.identity
-            this.password = chargePoint.basicAuthPassword ?: this.password
-            this.urlChoice = UrlChoice.fromUrl(chargePoint.ocppUrl)
-            this.ocppUrl = chargePoint.ocppUrl
-            this.apiUrl = chargePoint.apiUrl
-            this.connectorCount = transaction {
-                chargePoint.connectors.count().toInt()
-            }
-            this.firmware = chargePoint.firmware
-            this.maxKw = chargePoint.maxKw
-            this.ocppVersion = chargePoint.ocppVersion
-            this.meterType = chargePoint.meterType
+            this.chargePointName = summary.name
+            this.chargePointIdentity = summary.identity
+            this.password = summary.basicAuthPassword ?: this.password
+            this.urlChoice = UrlChoice.fromUrl(summary.ocppUrl)
+            this.ocppUrl = summary.ocppUrl
+            this.apiUrl = summary.apiUrl
+            this.connectorCount = summary.connectorCount
+            this.firmware = summary.firmware
+            this.maxKw = summary.maxKw
+            this.ocppVersion = summary.ocppVersion
+            this.meterType = summary.meterType
         }
     }
 

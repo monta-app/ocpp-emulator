@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.monta.library.ocpp.v16.core.ChargePointErrorCode
 import com.monta.library.ocpp.v16.core.ChargePointStatus
-import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.ui.component.ChargePointConnectionButton
 import com.monta.ocpp.emulator.chargepoint.core.ui.component.StatusBadge
 import com.monta.ocpp.emulator.chargepoint.core.ui.security.securityEventComponent
@@ -35,17 +34,20 @@ import com.monta.ocpp.emulator.designsystem.ui.component.TextTooltip
 import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.svgPainterResource
 import com.monta.ocpp.emulator.designsystem.ui.component.toReadable
-import com.monta.ocpp.emulator.ocpp.v16.extension.setStatus
+import com.monta.ocpp.emulator.ocpp.core.model.ChargePointSummary
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
+import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.launch
 import java.awt.datatransfer.StringSelection
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun chargePointComponent(
-    chargePoint: ChargePointDAO,
+    chargePoint: ChargePointSummary,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
     SectionCard(
         modifier = Modifier.fillMaxWidth(),
@@ -170,7 +172,8 @@ fun chargePointComponent(
                 label = { "$it" },
                 onSelect = { status ->
                     coroutineScope.launch {
-                        chargePoint.setStatus(
+                        emulatorEngine.setChargePointStatus(
+                            chargePointId = chargePoint.id,
                             status = status,
                         )
                     }
