@@ -56,6 +56,9 @@ interface EmulatorEngine {
         messageType: String,
     ): List<PreviousMessageSummary>
 
+    /** The ids of every charge point currently connected. */
+    fun getConnectedChargePointIds(): List<Long>
+
     /** Whether a charge point already exists with the given (normalised) identity. */
     fun isChargePointIdentityInUse(
         identity: String,

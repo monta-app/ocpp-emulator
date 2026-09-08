@@ -93,6 +93,10 @@ class DefaultEmulatorEngine(
             .map { previousMessage -> previousMessage.toSummary() }
     }
 
+    override fun getConnectedChargePointIds(): List<Long> {
+        return chargePointService.getConnectedChargePointIds()
+    }
+
     override fun isChargePointIdentityInUse(
         identity: String,
     ): Boolean {

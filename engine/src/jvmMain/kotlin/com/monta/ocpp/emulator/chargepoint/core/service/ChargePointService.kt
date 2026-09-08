@@ -4,6 +4,7 @@ import com.monta.ocpp.emulator.chargepoint.core.entity.ChargePointDAO
 import com.monta.ocpp.emulator.chargepoint.core.exception.ChargePointNotFoundException
 import com.monta.ocpp.emulator.chargepoint.core.model.MeterType
 import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
+import com.monta.ocpp.emulator.platform.database.extension.idValue
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import javax.inject.Singleton
 
@@ -33,6 +34,11 @@ class ChargePointService(
         identity: String,
     ): Boolean = transaction {
         chargePointRepository.getByIdentity(identity) != null
+    }
+
+    /** The ids of every charge point currently marked connected. */
+    fun getConnectedChargePointIds(): List<Long> = transaction {
+        chargePointRepository.getConnectedChargePoints().map { it.idValue }
     }
 
     /** The stored (trimmed, upper-cased) form of an identity, for callers that need to match it. */

@@ -26,11 +26,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.monta.ocpp.emulator.chargepoint.core.repository.ChargePointRepository
 import com.monta.ocpp.emulator.designsystem.ui.component.MontaIcon
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.platform.database.extension.idValue
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import kotlinx.coroutines.launch
 
@@ -55,7 +54,7 @@ fun BasePage(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val navigator: Navigator by injectAnywhere()
-    val chargePointRepository: ChargePointRepository by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -89,7 +88,7 @@ fun BasePage(
                 BottomNavigationItem(
                     selected = selectedDestination == BottomNavDestination.ChargePoint,
                     onClick = {
-                        val connectedChargePoints = chargePointRepository.getConnectedChargePoints().map { it.idValue }
+                        val connectedChargePoints = emulatorEngine.getConnectedChargePointIds()
 
                         val lastActive =
                             navigator.currentChargePointId ?: connectedChargePoints.firstOrNull()

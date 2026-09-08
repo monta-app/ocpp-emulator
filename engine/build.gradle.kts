@@ -17,9 +17,10 @@ kotlin {
             implementation(libs.bundles.kotest)
         }
         jvmMain.dependencies {
-            // OCPP Libs
-            implementation(libs.ocpp.core)
-            implementation(libs.ocpp.v16)
+            // OCPP Libs — exposed as `api` because the engine's public surface (EmulatorEngine DTOs
+            // and the raw-message command) leaks OCPP-library enum/message types to callers.
+            api(libs.ocpp.core)
+            api(libs.ocpp.v16)
             // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
             implementation(libs.jackson3.databind)
 
