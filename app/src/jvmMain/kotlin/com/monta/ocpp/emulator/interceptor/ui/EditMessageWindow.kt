@@ -16,9 +16,6 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -32,15 +29,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.monta.ocpp.emulator.designsystem.ui.theme.AppThemeViewModel
 import com.monta.ocpp.emulator.designsystem.ui.theme.getCardStyle
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
-import javax.inject.Singleton
-
-@Singleton
-class EditMessageWindowViewModel {
-    var channel by mutableStateOf<Channel<String>?>(null)
-    var message by mutableStateOf("")
-}
 
 @Composable
 fun ApplicationScope.EditMessageWindow() {

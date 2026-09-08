@@ -8,7 +8,7 @@
 
 Compose for Desktop application that emulates OCPP charge points for testing CSMS backends. Kotlin Multiplatform with a single `jvm()` target; requires JDK 25 (`jvmToolchain(25)`).
 
-There is one Gradle module (settings.gradle.kts): `:app` — the whole emulator, holding both the shared infrastructure/UI and the OCPP 1.6 protocol code. It was previously split into `:common` + `:v16`; those were merged into a single `:app` module since nothing else consumed `:common` and there was never a second protocol module. The README mentions OCPP 2.0.1 / `v201`, but that module does not exist in this repo yet.
+There are two Gradle modules (settings.gradle.kts): `:engine` — the headless emulator (OCPP 1.6 protocol, charge-point domain, platform infrastructure, database) with no Compose dependency; and `:app` — the Compose desktop UI (window/navigation, self-updater) which depends on `:engine`. This started as a single `:app` module (itself a merge of the older `:common` + `:v16`), and `:engine` was extracted so the emulation logic can be driven without a UI. The README mentions OCPP 2.0.1 / `v201`, but that module does not exist in this repo yet.
 
 The `com.monta.ocpp.emulator.v16` **package** (and the `ocpp-v16` library dependency) keep the `v16` name — that's the OCPP 1.6 protocol version, not a module coordinate. Only the module/directory is `app`.
 
@@ -16,14 +16,14 @@ The `com.monta.ocpp.emulator.v16` **package** (and the `ocpp-v16` library depend
 
 ```shell
 ./gradlew :app:run                       # run the emulator app
-./gradlew :app:jvmTest                   # run tests
-./gradlew :app:jvmTest --tests "com.monta.ocpp.emulator.util.PrettyJsonFormatterTest"   # single test class
+./gradlew :engine:jvmTest                # run tests (the test suite lives in :engine)
+./gradlew :engine:jvmTest --tests "com.monta.ocpp.emulator.platform.util.PrettyJsonFormatterTest"   # single test class
 ./gradlew ktlintCheck                    # lint
 ./gradlew ktlintFormat                   # auto-format
 ./gradlew :app:packageDistributionForCurrentOS   # build native installer (Dmg/Deb/Rpm/Exe)
 ```
 
-CI (`.github/workflows/pull_request.yml`) runs `:app:test` (an alias for `jvmTest`) with Kover coverage, plus detekt via `monta-app/detekt-action`. Tests use JUnit 5 / kotlin-test.
+CI (`.github/workflows/pull_request.yml`) runs `:engine:test` (an alias for `jvmTest`) with Kover coverage, plus detekt via `monta-app/detekt-action`. All tests currently live in `:engine`; `:app` has no test sources of its own. Tests use JUnit 5 / kotlin-test.
 
 Code style is enforced by ktlint (`intellij_idea` style, trailing commas required on both call and declaration sites — see `.editorconfig`). IntelliJ run configs live in `.run/`.
 
@@ -31,10 +31,11 @@ Code style is enforced by ktlint (`intellij_idea` style, trailing commas require
 
 ### Package layout
 
-Everything lives under `app/src/jvmMain/kotlin/com/monta/ocpp/emulator/`:
+Both modules use the same `com/monta/ocpp/emulator/` package root, split by concern: the headless domain/protocol/platform code lives in `engine/src/jvmMain/...`, the Compose UI in `app/src/jvmMain/...`. The role folders below apply the same way in whichever module a package lives (e.g. `chargepoint/core/entity` + `repository/` + `service/` are in `:engine`, while `chargepoint/core/ui/` is in `:app`).
 
 ```
-App.kt MainWindow.kt MontaKoinModule.kt   entry point, window registration, DI module
+:app root:    App.kt MainWindow.kt AppKoinModule.kt   entry point, window registration, app DI module
+:engine root: EngineKoinModule.kt                     engine DI module (@ComponentScan, OCPP client)
 chargepoint/        the domain aggregate — charge point → connector → transaction
   core/             the aggregate root's own layers — model/ entity/ repository/ service/ exception/
                     ui/ (grouped by screen: list/ detail/ form/ pbm/ security/ + shared component/)
@@ -67,22 +68,22 @@ Role folders repeat at every level even when they hold a single file — predict
 
 **Where does a new file go?**
 
-1. App entry point or DI wiring → the root package (`App.kt`, `MainWindow.kt`, `MontaKoinModule.kt`). Nothing else lives there.
+1. App entry point or app-side DI wiring → the `:app` root package (`App.kt`, `MainWindow.kt`, `AppKoinModule.kt`); engine-side DI wiring → the `:engine` root package (`EngineKoinModule.kt`). Nothing else lives in either root.
 2. Reusable UI with no domain knowledge → `designsystem/ui/component/` or `designsystem/ui/theme/`. Navigation plumbing → `navigation/model|service/`.
 3. OCPP 1.6 protocol behavior → `ocpp/v16/<role>/`.
 4. App infrastructure with no domain knowledge → `platform/<concern>/<role>/`.
 5. Everything else is domain or feature code → `chargepoint/<sub-aggregate>/<role>/` (the charge point itself is `core/`), `vehicle/<role>/`, `interceptor/<role>/`.
 
-**Compose stays out of the domain, the protocol layer and the platform layer.** Verified: nothing outside `ui/` role folders, `App.kt`/`MainWindow.kt` and the `interceptor` feature imports `androidx.compose`. Keep it that way — it's what makes the domain readable without a UI in your head. (`interceptor/` is the deliberate exception: `interceptor/service/MessageInterceptor` and `interceptor/model/` hold Compose state directly, because the interception rules *are* UI state.)
+**Compose stays out of the domain, the protocol layer and the platform layer.** This is now enforced structurally: `:engine` has no Compose dependency at all, so nothing in the headless domain/protocol/platform code can import `androidx.compose`. Compose lives only in `:app` (`ui/` role folders, `App.kt`/`MainWindow.kt`). The interceptor's engine-side state (`interceptor/service/MessageInterceptor`, `interceptor/model/`) uses `MutableStateFlow` rather than Compose `MutableState`, so the app's UI observes it without the engine depending on Compose.
 
 `ocpp/v16/` is the seam to cut along if OCPP 2.0.1 is ever added — it holds the protocol
 handlers, websocket connection, scheduler and smart-charging maths, and nothing else.
 
 ### Startup and DI (Koin 4.2 + Koin Compiler Plugin)
 
-Entry point is `App.kt`: `main()` sets the JVM default timezone to **UTC**, starts Koin via `@KoinApplication object EmulatorApp` (a single module, `MontaKoinModule`, with `@ComponentScan("com.monta.ocpp.emulator")`), connects the database, then launches the Compose `application` with `MainWindow` plus the interceptor windows.
+Entry point is `App.kt`: `main()` sets the JVM default timezone to **UTC**, starts Koin via `@KoinApplication(modules = [EngineKoinModule::class, AppKoinModule::class])`, connects the database, then launches the Compose `application` with `MainWindow` plus the interceptor windows. `EngineKoinModule` (in `:engine`) registers the headless services/repositories and provides the OCPP client; `AppKoinModule` (in `:app`) registers the UI-side components.
 
-Keep it to **one** `@ComponentScan` over `com.monta.ocpp.emulator`. Two `@Module` classes scanning the same package in the same compilation unit register every component twice (this is why the old `CommonKoinModule` was dropped when `:common` was merged in — its scan stopped being scoped to a separate module).
+Keep it to **one** `@ComponentScan("com.monta.ocpp.emulator")` **per module** — `EngineKoinModule` and `AppKoinModule` each scan the shared package, but KSP runs per module so each only sees its own module's sources, and no component is registered twice. The rule that bites is two `@Module` classes scanning the same package *within one module/compilation unit*: that double-registers every component (this is why the old `CommonKoinModule` was dropped when `:common` was merged in). One scan per module is correct — do not "consolidate" the two modules' scans into one.
 
 **Closing the main window does not quit the app.** `application { }` only ends on `exitApplication()`, so `App.kt` owns a `mainWindowVisible` flag: closing hides `MainWindow` (`visible = false`) and leaves a `Tray` icon as the way back — quitting is the tray's *Quit* item or the platform quit shortcut. This works because nothing that emulates is composition-scoped: `ConnectionManager` holds its websockets and `SchedulerService`s in plain maps started via `launchThread`, so charge points keep heartbeating and charging while the UI is hidden. Two things to preserve if you touch this: hide rather than remove the window from the composition (that keeps the window position, the nav back stack and the view models alive), and keep the `isTraySupported` guard — on stock GNOME `SystemTray.isSupported()` is false, and without the fallback to `exitApplication()` the app would be both invisible and unquittable.
 
@@ -90,13 +91,13 @@ One `icons/tray.svg` serves every platform, and it only can because the glyph is
 
 DI conventions:
 - Components are registered by classpath scanning with `javax.inject.Singleton` annotations and auto-bind their interfaces (e.g. each profile `*Handler` binds its `*Profile.Listener`).
-- Dependencies built via builder DSLs (like `OcppClientV16`) are declared as `@Single` provider functions on `MontaKoinModule` — not classic `single { ... }` DSL. The compiler plugin's compile-safety check (KOIN-D001) misanalyzes builder-pattern lambdas by falling back to constructor analysis of the returned type, so keep builder-constructed dependencies as `@Single` provider functions.
+- Dependencies built via builder DSLs (like `OcppClientV16`) are declared as `@Single` provider functions on `EngineKoinModule` — not classic `single { ... }` DSL. The compiler plugin's compile-safety check (KOIN-D001) misanalyzes builder-pattern lambdas by falling back to constructor analysis of the returned type, so keep builder-constructed dependencies as `@Single` provider functions.
 - A class annotated `@Singleton`/`@Factory` but only constructed manually fails graph validation if its constructor params aren't in the graph (e.g. `SchedulerService` is intentionally unannotated). Use `@InjectedParam` + `parametersOf`, or drop the annotation.
 - Outside the Koin/Compose graph, dependencies are pulled with the `injectAnywhere<T>()` helper (`platform/util/KoinExtensions.kt`).
 
 ### OCPP protocol layer
 
-The OCPP implementation comes from `monta-app/library-ocpp` (JitPack: `com.github.monta-app.library-ocpp:ocpp-core/ocpp-v16`). `MontaKoinModule.ocppClientV16` assembles the client from feature-profile listeners implemented in `ocpp/v16/profile/` (Core, TriggerMessage, LocalAuth, SmartCharge, FirmwareManagement, Security). Connect/disconnect events go through `OcppClientEventsHandler`; every outgoing message passes through `MessageInterceptor` via `addSendHook`.
+The OCPP implementation comes from `monta-app/library-ocpp` (JitPack: `com.github.monta-app.library-ocpp:ocpp-core/ocpp-v16`). `EngineKoinModule.ocppClientV16` assembles the client from feature-profile listeners implemented in `ocpp/v16/profile/` (Core, TriggerMessage, LocalAuth, SmartCharge, FirmwareManagement, Security). Connect/disconnect events go through `OcppClientEventsHandler`; every outgoing message passes through `MessageInterceptor` via `addSendHook`.
 
 `ocpp/v16/connection/ConnectionManager` is the runtime hub: it owns maps of chargePointId → `ChargePointConnection` (ktor websocket lifecycle, reconnects) and → `SchedulerService` (periodic work like heartbeats/meter values, started on connect).
 
@@ -106,7 +107,7 @@ The `interceptor` package lets users delay/drop/edit raw OCPP messages and send 
 
 ### Persistence
 
-SQLite (bundled JDBC jar in `app/libs/`) via Exposed v1 DAO API + HikariCP; the database file lives in `~/monta/`. Setup is split across `platform/database/`: `service/DatabaseInitiator` (Hikari + Exposed wiring), `service/DatabaseService` (schema creation — **register new tables here**), `extension/DatabaseExtensions` (entity-hook `Flow`s that drive UI recomposition).
+SQLite (bundled JDBC jar in `engine/libs/`) via Exposed v1 DAO API + HikariCP; the database file lives in `~/monta/`. Setup is split across `platform/database/`: `service/DatabaseInitiator` (Hikari + Exposed wiring), `service/DatabaseService` (schema creation — **register new tables here**), `extension/DatabaseExtensions` (entity-hook `Flow`s that drive UI recomposition).
 
 Every persisted aggregate (`chargepoint/core`, `chargepoint/connector`, `chargepoint/transaction`, `chargepoint/txdefault`, `platform/config`) uses the same role folders (`vehicle` is not persisted — it has no entities, just `model/` + `service/`):
 
@@ -123,4 +124,4 @@ Navigation uses Jetpack Navigation Compose (JetBrains multiplatform port, `org.j
 ## Gotchas
 
 - If an `app/src/main/` directory exists locally it is a stale, git-ignored leftover — real sources are under `src/jvmMain/`. Don't edit or index it.
-- `ocpp-library` v3 exposes Jackson 3 (`tools.jackson`) types in its API; :app therefore depends on both Jackson 2 (bundles) and `jackson3-databind`. Keep the `jackson3` version in sync with library-ocpp.
+- `ocpp-library` v3 exposes Jackson 3 (`tools.jackson`) types in its API; :engine (and :app, which still sends OCPP messages directly) therefore depends on both Jackson 2 (bundles) and `jackson3-databind`. Keep the `jackson3` version in sync with library-ocpp.

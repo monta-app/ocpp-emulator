@@ -17,10 +17,10 @@ kotlin {
     jvmToolchain(25)
     jvm()
     sourceSets {
-        jvmTest.dependencies {
-            implementation(libs.bundles.kotest)
-        }
         jvmMain.dependencies {
+            // The headless emulation engine (OCPP protocol, domain services/repos/entities, DB).
+            implementation(project(":engine"))
+
             implementation(compose.desktop.currentOs)
 
             // Material Icons
@@ -32,7 +32,8 @@ kotlin {
             // Navigation (type-safe routes are @Serializable, hence the serialization plugin above)
             implementation(libs.androidx.navigation.compose)
 
-            // OCPP Libs
+            // OCPP Libs — the UI still constructs and sends OCPP messages directly (SendMessageWindow,
+            // the connection button, etc.), so it depends on the OCPP libraries alongside :engine.
             implementation(libs.ocpp.core)
             implementation(libs.ocpp.v16)
             // ocpp-library exposes Jackson 3's JsonNode in its API without an api-scope dependency
@@ -42,7 +43,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.kotlinx.coroutines.bom))
             implementation(libs.bundles.coroutines)
 
-            // Websocket Client
+            // Websocket Client (self-updater in platform/update fetches GitHub releases over HTTP)
             implementation(project.dependencies.platform(libs.ktor.bom))
             implementation(libs.bundles.ktor.client)
 
@@ -52,9 +53,6 @@ kotlin {
 
             // QR Code Library
             implementation(libs.qrcodegen)
-
-            // Bouncy Castle for Eichrecht signed data
-            implementation(libs.bouncy.castle)
 
             // Logging
             implementation(libs.bundles.logging)
@@ -70,26 +68,12 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.bundles.koin)
 
-            // SQL Database
+            // SQL Database — the UI still opens Exposed `transaction {}` blocks and reads DAOs
+            // directly, so it depends on Exposed alongside :engine.
             implementation(project.dependencies.platform(libs.exposed.bom))
             implementation(libs.bundles.exposed)
-
-            // Data Source Connection Pool
-            implementation(libs.hikaricp)
-
-            // SQLite JDBC Driver
-            implementation(files("libs/sqlite-jdbc-3.42.0.0.jar"))
         }
     }
-}
-
-tasks.named<Test>("jvmTest") {
-    useJUnitPlatform()
-}
-
-// Alias for shared CI workflow which runs `:app:test`
-tasks.register("test") {
-    dependsOn("jvmTest")
 }
 
 ktlint {

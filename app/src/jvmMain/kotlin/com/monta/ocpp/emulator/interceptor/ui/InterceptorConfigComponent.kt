@@ -15,6 +15,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight.Companion.W700
@@ -77,6 +79,8 @@ private fun InterceptionConfigRow(
     config: InterceptionConfig,
     sendIt: Boolean,
 ) {
+    val onRequestInterception by config.onRequest.collectAsState()
+    val onResponseInterception by config.onResponse.collectAsState()
     Column {
         Text(
             messageType.name,
@@ -94,7 +98,7 @@ private fun InterceptionConfigRow(
                     MessageTypeInterceptionConfig(
                         chargePointId = chargePointId,
                         title = "Request",
-                        state = config.onRequest.value,
+                        state = onRequestInterception,
                         onInterceptionChange = {
                             config.onRequest.value = it
                         },
@@ -102,7 +106,7 @@ private fun InterceptionConfigRow(
                     MessageTypeInterceptionConfig(
                         chargePointId = chargePointId,
                         title = "Response",
-                        state = config.onResponse.value,
+                        state = onResponseInterception,
                         onInterceptionChange = {
                             config.onResponse.value = it
                         },
