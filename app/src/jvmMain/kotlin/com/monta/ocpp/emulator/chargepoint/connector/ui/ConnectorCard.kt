@@ -34,9 +34,9 @@ import com.monta.ocpp.emulator.designsystem.ui.component.toAmpString
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.designsystem.ui.component.toReadable
 import com.monta.ocpp.emulator.designsystem.ui.component.wattToKilowattString
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.ocpp.v16.extension.setMaxVehicleRate
 import com.monta.ocpp.emulator.ocpp.v16.extension.setNumberPhases
-import com.monta.ocpp.emulator.ocpp.v16.extension.stopActiveTransactions
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
 import com.monta.ocpp.emulator.platform.util.launchThread
@@ -52,6 +52,7 @@ fun ConnectorCard(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val chargePointConnectorService: ChargePointConnectorService by injectAnywhere()
+    val emulatorEngine: EmulatorEngine by injectAnywhere()
 
     var connector: ChargePointConnectorDAO by remember(initConnector.idValue) {
         mutableStateOf(initConnector)
@@ -178,7 +179,9 @@ fun ConnectorCard(
                 OutlineButton(
                     onClick = {
                         launchThread {
-                            connector.stopActiveTransactions(
+                            emulatorEngine.stopTransaction(
+                                chargePointId = connector.chargePointId(),
+                                connectorPosition = connector.position,
                                 reason = Reason.Local,
                                 endReasonDescription = "Stopped by user",
                             )

@@ -9,7 +9,7 @@ import androidx.compose.ui.window.isTraySupported
 import com.monta.ocpp.emulator.designsystem.ui.component.MontaTray
 import com.monta.ocpp.emulator.interceptor.ui.EditMessageWindow
 import com.monta.ocpp.emulator.interceptor.ui.SendMessageWindow
-import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.analytics.service.AnalyticsHelper
 import com.monta.ocpp.emulator.platform.database.service.DatabaseService
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -41,8 +41,8 @@ fun main() {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
                 runBlocking {
-                    val connectionManager: ConnectionManager by injectAnywhere()
-                    connectionManager.disconnectAll()
+                    val emulatorEngine: EmulatorEngine by injectAnywhere()
+                    emulatorEngine.disconnectAll()
                 }
             }
         })
