@@ -41,7 +41,7 @@ import com.monta.ocpp.emulator.designsystem.ui.component.mutedForegroundColor
 import com.monta.ocpp.emulator.designsystem.ui.component.toKilowattString
 import com.monta.ocpp.emulator.navigation.model.Screen
 import com.monta.ocpp.emulator.navigation.service.Navigator
-import com.monta.ocpp.emulator.ocpp.v16.connection.ConnectionManager
+import com.monta.ocpp.emulator.ocpp.core.service.EmulatorEngine
 import com.monta.ocpp.emulator.platform.config.model.UrlChoice
 import com.monta.ocpp.emulator.platform.database.extension.idValue
 import com.monta.ocpp.emulator.platform.util.injectAnywhere
@@ -306,8 +306,8 @@ private fun ChargePointDeleteButton(
             DestructiveButton(
                 onClick = {
                     launchThread {
-                        val connectionManager: ConnectionManager by injectAnywhere()
-                        connectionManager.disconnect(chargePoint.idValue)
+                        val emulatorEngine: EmulatorEngine by injectAnywhere()
+                        emulatorEngine.disconnect(chargePoint.idValue)
                         transaction {
                             chargePoint.delete()
                             chargePoint.connectors.forEach { connector ->
