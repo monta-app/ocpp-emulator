@@ -1,0 +1,16 @@
+name: Dependency Submission
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  dependencies:
+    name: Dependency Submission
+    permissions:
+      contents: write
+    uses: monta-app/github-workflows/.github/workflows/gradle-dependency-submission.yml@main
+    with:
+      java-version: '25'
