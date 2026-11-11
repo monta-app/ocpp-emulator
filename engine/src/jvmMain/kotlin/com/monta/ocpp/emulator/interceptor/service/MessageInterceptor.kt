@@ -153,6 +153,11 @@ class MessageInterceptor(
                 messageJson
             }
 
+            // Only returned in OCPP 2.1 mode; this serializer runs in 1.6 mode.
+            is ParsingResult.Ignored -> {
+                messageJson
+            }
+
             is ParsingResult.Success -> {
                 when (val messageObject = result.value) {
                     is Message.Request -> {
@@ -176,6 +181,11 @@ class MessageInterceptor(
                     }
 
                     is Message.Error -> {
+                        messageJson
+                    }
+
+                    // CALLRESULTERROR and SEND only exist in OCPP 2.1; this serializer runs in 1.6 mode.
+                    is Message.CallResultError, is Message.Send -> {
                         messageJson
                     }
                 }
