@@ -71,7 +71,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Run changelog cli action
-        uses: monta-app/changelog-cli-action@main
+        uses: monta-app/changelog-cli-action/public@main
         with:
           service-name: "OCPP Emulator"
           github-release: true
